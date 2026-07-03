@@ -19,26 +19,25 @@ async function getTeamPageData() {
 export async function generateMetadata() {
   const data = await getTeamPageData()
   
-  if (!data?.seo) {
-    return {
-      title: 'Team | Khalai Makhlooq',
-      description: 'Meet the KMHQ team.',
-    }
-  }
+  const defaultTitle = 'Team | KHALAI MAKHLOOQ — Elite Star Citizen Organization'
+  const defaultDesc = 'Meet the KMHQ team.'
+
+  const title = data?.seo?.title?.trim() ? data.seo.title.trim() : defaultTitle
+  const description = data?.seo?.description?.trim() ? data.seo.description.trim() : defaultDesc
 
   return {
-    title: data.seo.title,
-    description: data.seo.description,
+    title,
+    description,
     openGraph: {
-      title: data.seo.title,
-      description: data.seo.description,
-      images: data.seo.imageUrl ? [{ url: data.seo.imageUrl }] : [],
+      title,
+      description,
+      images: data?.seo?.imageUrl ? [{ url: data.seo.imageUrl }] : [],
     },
     twitter: {
       card: 'summary_large_image',
-      title: data.seo.title,
-      description: data.seo.description,
-      images: data.seo.imageUrl ? [data.seo.imageUrl] : [],
+      title,
+      description,
+      images: data?.seo?.imageUrl ? [data.seo.imageUrl] : [],
     },
   }
 }

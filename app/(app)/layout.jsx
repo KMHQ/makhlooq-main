@@ -51,7 +51,7 @@ export const metadata = {
 
   // ▸ OG TAGS (Social Media & Crawlers)
   openGraph: {
-    title: 'KHALAI MAKHLOOQ — Join the Elite',
+    title: 'KHALAI MAKHLOOQ — Elite Star Citizen Organization',
     description: 'Star Citizen crew [KMHQ]. Hangar is open.',
     url: SITE_URL,
     type: 'website',
@@ -71,7 +71,7 @@ export const metadata = {
   // ▸ TWITTER CARD (Social Media)
   twitter: {
     card: 'summary_large_image',
-    title: 'KHALAI MAKHLOOQ',
+    title: 'KHALAI MAKHLOOQ — Elite Star Citizen Organization',
     description: 'Star Citizen crew [KMHQ]',
     images: ['/opengraph-image.jpg'],
     creator: '@makhlooq', // Update with your Twitter handle
