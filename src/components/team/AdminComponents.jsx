@@ -86,7 +86,15 @@ export function AddMemberModal({ onClose, onAdded }) {
   const field = (key, label, type = 'text', opts = null) => (
     <div className="space-y-1">
       <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{label}</label>
-      {opts ? (
+      {key === 'bio' ? (
+        <textarea
+          value={form[key] || ''}
+          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+          rows={3}
+          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors resize-y"
+          placeholder="Member bio / story..."
+        />
+      ) : opts ? (
         <select
           value={form[key]}
           onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}

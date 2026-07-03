@@ -352,159 +352,189 @@ export default function AdminPage() {
                   const isEditing = editId === m.id;
                   const d = isEditing ? editData : m;
                   return (
-                    <tr key={m.id} className="group hover:bg-white/2 transition-colors">
-                      {/* Member */}
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className="w-10 h-10 rounded-xl overflow-hidden border-2 flex-shrink-0 shadow-lg"
-                            style={{ borderColor: d.node_color || '#10b981' }}
-                          >
-                            {m.avatar_url
-                              ? <img src={m.avatar_url} alt={m.name} className="w-full h-full object-cover" />
-                              : <div className="w-full h-full flex items-center justify-center font-bold" style={{ background: d.node_color || '#10b981', color: '#040806' }}>{m.name?.[0]}</div>
-                            }
+                    <React.Fragment key={m.id}>
+                      <tr className="group hover:bg-white/2 transition-colors">
+                        {/* Member */}
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className="w-10 h-10 rounded-xl overflow-hidden border-2 flex-shrink-0 shadow-lg"
+                              style={{ borderColor: d.node_color || '#10b981' }}
+                            >
+                              {m.avatar_url
+                                ? <img src={m.avatar_url} alt={m.name} className="w-full h-full object-cover" />
+                                : <div className="w-full h-full flex items-center justify-center font-bold" style={{ background: d.node_color || '#10b981', color: '#040806' }}>{m.name?.[0]}</div>
+                              }
+                            </div>
+                            <div className="flex flex-col">
+                              {isEditing ? (
+                                <div className="space-y-2">
+                                  <input value={d.name} onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Name" />
+                                  <input value={d.avatar_url || ''} onChange={e => setEditData(p => ({ ...p, avatar_url: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Avatar URL" />
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="text-white font-bold tracking-tight">{m.name}</div>
+                                  <div className="text-gray-600 text-[10px] font-mono">{m.discord_tag || 'DISCORD_N/A'}</div>
+                                  {m.bio ? (
+                                    <div className="text-gray-400 text-[11px] line-clamp-2 mt-1 italic border-l border-emerald-500/30 pl-2 max-w-xs" title={m.bio}>
+                                      "{m.bio}"
+                                    </div>
+                                  ) : (
+                                    <div className="text-gray-600 text-[10px] italic mt-0.5">No bio set</div>
+                                  )}
+                                </>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex flex-col">
-                            {isEditing ? (
-                              <div className="space-y-2">
-                                <input value={d.name} onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Name" />
-                                <input value={d.avatar_url || ''} onChange={e => setEditData(p => ({ ...p, avatar_url: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Avatar URL" />
-                              </div>
-                            ) : (
-                              <>
-                                <div className="text-white font-bold tracking-tight">{m.name}</div>
-                                <div className="text-gray-600 text-[10px] font-mono">{m.discord_tag || 'DISCORD_N/A'}</div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Role / Cat */}
-                      <td className="px-6 py-5">
-                        {isEditing ? (
-                          <div className="space-y-2">
-                            <input type="text" value={d.role} onChange={e => setEditData(p => ({ ...p, role: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Flair" />
-                            <div className="flex items-center gap-1.5 mt-1.5">
-                              <ColorPicker value={d.flair_color || '#10b981'} onChange={c => setEditData(p => ({ ...p, flair_color: c }))} />
-                              <select value={d.flair_icon || 'zap'} onChange={e => setEditData(p => ({ ...p, flair_icon: e.target.value }))} className="rounded-lg border border-emerald-500/20 bg-white/5 px-2 py-1 text-white text-[10px] outline-none">
-                                {['crown', 'shield', 'sword', 'users', 'zap', 'terminal', 'none'].map(o => <option key={o} value={o} className="bg-[#0a1a12]">{o}</option>)}
+                        {/* Role / Cat */}
+                        <td className="px-6 py-5">
+                          {isEditing ? (
+                            <div className="space-y-2">
+                              <input type="text" value={d.role} onChange={e => setEditData(p => ({ ...p, role: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Flair" />
+                              <div className="flex items-center gap-1.5 mt-1.5">
+                                <ColorPicker value={d.flair_color || '#10b981'} onChange={c => setEditData(p => ({ ...p, flair_color: c }))} />
+                                <select value={d.flair_icon || 'zap'} onChange={e => setEditData(p => ({ ...p, flair_icon: e.target.value }))} className="rounded-lg border border-emerald-500/20 bg-white/5 px-2 py-1 text-white text-[10px] outline-none">
+                                  {['crown', 'shield', 'sword', 'users', 'zap', 'terminal', 'none'].map(o => <option key={o} value={o} className="bg-[#0a1a12]">{o}</option>)}
+                                </select>
+                              </div>
+                              <select value={d.category} onChange={e => setEditData(p => ({ ...p, category: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40">
+                                {CATS.map(c => <option key={c} value={c} className="bg-[#0a1a12]">{c}</option>)}
+                              </select>
+                              <select value={(d.sec_level && SEC_LEVELS.includes(d.sec_level)) ? d.sec_level : 'R0'} onChange={e => setEditData(p => ({ ...p, sec_level: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40">
+                                {SEC_LEVELS.map(s => <option key={s} value={s} className="bg-[#0a1a12]">{s}</option>)}
                               </select>
                             </div>
-                            <select value={d.category} onChange={e => setEditData(p => ({ ...p, category: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40">
-                              {CATS.map(c => <option key={c} value={c} className="bg-[#0a1a12]">{c}</option>)}
+                          ) : (
+                            <div>
+                              <div className="text-emerald-400 font-medium text-xs uppercase tracking-wider" style={{ color: m.flair_color || '#10b981' }}>{m.role}</div>
+                              <div className="text-gray-600 text-[10px] uppercase tracking-widest">{m.category}</div>
+                              <div className="text-gray-500 text-[9px] font-mono mt-0.5">SEC: {(m.sec_level && SEC_LEVELS.includes(m.sec_level)) ? m.sec_level : 'R0'}</div>
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-6 py-5">
+                          {isEditing ? (
+                            <select value={d.status} onChange={e => setEditData(p => ({ ...p, status: e.target.value }))} className="rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40">
+                              {['active', 'inactive'].map(s => <option key={s} value={s} className="bg-[#0a1a12]">{s}</option>)}
                             </select>
-                            <select value={(d.sec_level && SEC_LEVELS.includes(d.sec_level)) ? d.sec_level : 'R0'} onChange={e => setEditData(p => ({ ...p, sec_level: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40">
-                              {SEC_LEVELS.map(s => <option key={s} value={s} className="bg-[#0a1a12]">{s}</option>)}
-                            </select>
-                          </div>
-                        ) : (
-                          <div>
-                            <div className="text-emerald-400 font-medium text-xs uppercase tracking-wider" style={{ color: m.flair_color || '#10b981' }}>{m.role}</div>
-                            <div className="text-gray-600 text-[10px] uppercase tracking-widest">{m.category}</div>
-                            <div className="text-gray-500 text-[9px] font-mono mt-0.5">SEC: {(m.sec_level && SEC_LEVELS.includes(m.sec_level)) ? m.sec_level : 'R0'}</div>
-                          </div>
-                        )}
-                      </td>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full" style={{ background: STATUS_COLORS[m.status] || STATUS_COLORS.inactive, boxShadow: `0 0 10px ${STATUS_COLORS[m.status] || STATUS_COLORS.inactive}` }} />
+                              <span className="text-gray-400 text-xs font-medium capitalize">{m.status}</span>
+                            </div>
+                          )}
+                        </td>
 
-                      {/* Status */}
-                      <td className="px-6 py-5">
-                        {isEditing ? (
-                          <select value={d.status} onChange={e => setEditData(p => ({ ...p, status: e.target.value }))} className="rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40">
-                            {['active', 'inactive'].map(s => <option key={s} value={s} className="bg-[#0a1a12]">{s}</option>)}
-                          </select>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full" style={{ background: STATUS_COLORS[m.status] || STATUS_COLORS.inactive, boxShadow: `0 0 10px ${STATUS_COLORS[m.status] || STATUS_COLORS.inactive}` }} />
-                            <span className="text-gray-400 text-xs font-medium capitalize">{m.status}</span>
-                          </div>
-                        )}
-                      </td>
+                        {/* Node Color */}
+                        <td className="px-6 py-5">
+                          {isEditing ? (
+                            <div className="flex items-center gap-3">
+                              <ColorPicker value={d.node_color} onChange={c => setEditData(p => ({ ...p, node_color: c }))} />
+                              <span className="text-white text-xs font-mono bg-white/5 px-2 py-1 rounded">{d.node_color}</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-3">
+                              <div className="w-6 h-6 rounded-lg border border-white/10" style={{ background: m.node_color || '#10b981' }} />
+                              <span className="text-gray-600 text-xs font-mono">{m.node_color}</span>
+                            </div>
+                          )}
+                        </td>
 
-                      {/* Node Color */}
-                      <td className="px-6 py-5">
-                        {isEditing ? (
-                          <div className="flex items-center gap-3">
-                            <ColorPicker value={d.node_color} onChange={c => setEditData(p => ({ ...p, node_color: c }))} />
-                            <span className="text-white text-xs font-mono bg-white/5 px-2 py-1 rounded">{d.node_color}</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-lg border border-white/10" style={{ background: m.node_color || '#10b981' }} />
-                            <span className="text-gray-600 text-xs font-mono">{m.node_color}</span>
-                          </div>
-                        )}
-                      </td>
+                        {/* Deployed */}
+                        <td className="px-6 py-5">
+                          {isEditing ? (
+                            <input 
+                              type="date" 
+                              value={d.joined_at ? (() => {
+                                try {
+                                  return new Date(d.joined_at).toISOString().split('T')[0];
+                                } catch {
+                                  return '';
+                                }
+                              })() : ''} 
+                              onChange={e => setEditData(p => ({ ...p, joined_at: e.target.value ? new Date(e.target.value + 'T12:00:00Z').toISOString() : null }))} 
+                              className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
+                            />
+                          ) : (
+                            <span className="text-gray-400 text-xs font-mono">
+                              {(() => {
+                                try {
+                                  return d.joined_at ? new Date(d.joined_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : 'N/A';
+                                } catch {
+                                  return 'N/A';
+                                }
+                              })()}
+                            </span>
+                          )}
+                        </td>
 
-                      {/* Deployed */}
-                      <td className="px-6 py-5">
-                        {isEditing ? (
-                          <input 
-                            type="date" 
-                            value={d.joined_at ? (() => {
-                              try {
-                                return new Date(d.joined_at).toISOString().split('T')[0];
-                              } catch {
-                                return '';
-                              }
-                            })() : ''} 
-                            onChange={e => setEditData(p => ({ ...p, joined_at: e.target.value ? new Date(e.target.value + 'T12:00:00Z').toISOString() : null }))} 
-                            className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
-                          />
-                        ) : (
-                          <span className="text-gray-400 text-xs font-mono">
-                            {(() => {
-                              try {
-                                return d.joined_at ? new Date(d.joined_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : 'N/A';
-                              } catch {
-                                return 'N/A';
-                              }
-                            })()}
-                          </span>
-                        )}
-                      </td>
+                        {/* Admin toggle */}
+                        <td className="px-6 py-5">
+                          {isEditing ? (
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input type="checkbox" checked={d.is_admin} onChange={e => setEditData(p => ({ ...p, is_admin: e.target.checked }))} className="sr-only peer" />
+                              <div className="w-11 h-6 bg-white/5 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-black"></div>
+                            </label>
+                          ) : (
+                            <span className={m.is_admin ? 'text-emerald-400' : 'text-gray-700'}>
+                              <Shield size={18} fill={m.is_admin ? 'currentColor' : 'none'} className="opacity-40" />
+                            </span>
+                          )}
+                        </td>
 
-                      {/* Admin toggle */}
-                      <td className="px-6 py-5">
-                        {isEditing ? (
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked={d.is_admin} onChange={e => setEditData(p => ({ ...p, is_admin: e.target.checked }))} className="sr-only peer" />
-                            <div className="w-11 h-6 bg-white/5 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-black"></div>
-                          </label>
-                        ) : (
-                          <span className={m.is_admin ? 'text-emerald-400' : 'text-gray-700'}>
-                            <Shield size={18} fill={m.is_admin ? 'currentColor' : 'none'} className="opacity-40" />
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-6 py-5">
-                        {isEditing ? (
-                          <div className="flex items-center gap-2">
-                            <button onClick={saveEdit} disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 transition-all disabled:opacity-50">
-                              <Save size={14} /> {saving ? '...' : 'Commit'}
-                            </button>
-                            <button onClick={cancelEdit} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-xs font-bold hover:text-white hover:bg-white/5 transition-all">
-                              <X size={14} /> Abort
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <button onClick={() => setSelectedMemberForAwards(m)} className="p-2 rounded-xl border border-yellow-500/10 text-yellow-500 hover:bg-yellow-500/10 transition-all" title="Manage Awards">
-                              <Award size={16} />
-                            </button>
-                            <button onClick={() => startEdit(m)} className="p-2 rounded-xl border border-emerald-500/10 text-emerald-500 hover:bg-emerald-500/10 transition-all" title="Edit Record">
-                              <Edit3 size={16} />
-                            </button>
-                            <button onClick={() => remove(m.id)} className="p-2 rounded-xl border border-red-500/10 text-red-400 hover:bg-red-500/10 transition-all" title="Delete Record">
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                        {/* Actions */}
+                        <td className="px-6 py-5">
+                          {isEditing ? (
+                            <div className="flex items-center gap-2">
+                              <button onClick={saveEdit} disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 transition-all disabled:opacity-50">
+                                <Save size={14} /> {saving ? '...' : 'Commit'}
+                              </button>
+                              <button onClick={cancelEdit} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-xs font-bold hover:text-white hover:bg-white/5 transition-all">
+                                <X size={14} /> Abort
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => setSelectedMemberForAwards(m)} className="p-2 rounded-xl border border-yellow-500/10 text-yellow-500 hover:bg-yellow-500/10 transition-all" title="Manage Awards">
+                                <Award size={16} />
+                              </button>
+                              <button onClick={() => startEdit(m)} className="p-2 rounded-xl border border-emerald-500/10 text-emerald-500 hover:bg-emerald-500/10 transition-all" title="Edit Record">
+                                <Edit3 size={16} />
+                              </button>
+                              <button onClick={() => remove(m.id)} className="p-2 rounded-xl border border-red-500/10 text-red-400 hover:bg-red-500/10 transition-all" title="Delete Record">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                      {isEditing && (
+                        <tr className="bg-emerald-500/[0.03] border-b border-emerald-500/20">
+                          <td colSpan={7} className="px-6 py-4">
+                            <div className="flex flex-col gap-2 rounded-2xl border border-emerald-500/20 bg-[#040c08]/90 p-4">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                                  <span>Biography / Bio Box</span>
+                                </label>
+                                <span className="text-[10px] text-gray-500 font-mono">Changes will be committed on Save</span>
+                              </div>
+                              <textarea
+                                value={d.bio || ''}
+                                onChange={e => setEditData(p => ({ ...p, bio: e.target.value }))}
+                                rows={3}
+                                className="w-full rounded-xl border border-emerald-500/20 bg-white/5 px-4 py-3 text-white text-xs outline-none focus:border-emerald-500/40 resize-y transition-colors leading-relaxed font-sans"
+                                placeholder="Write or edit member biography / bio box..."
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>
