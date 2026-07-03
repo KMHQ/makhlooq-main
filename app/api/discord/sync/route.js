@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, mapDiscordStatus } from '../../../../lib/discord';
+import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, mapDiscordStatus, KMHQ_ROLE_ID } from '../../../../lib/discord';
 import { requireFleetAdmin } from '../../../../lib/adminAuth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
@@ -43,6 +43,9 @@ export async function POST(request) {
     for (const dm of discordMembers) {
       const { user, nick, roles = [], presence } = dm;
       if (!user || user.bot) continue; // Skip bot accounts
+
+      // Only pull members who have the KMHQ role (1409930627704164493)
+      if (!roles.includes(KMHQ_ROLE_ID)) continue;
 
       const uid = user.id;
       const avatarUrl = user.avatar

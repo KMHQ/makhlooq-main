@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from '../../../../../lib/adminAuth';
+import { KMHQ_ROLE_ID } from '../../../../../lib/discord';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
@@ -76,7 +77,14 @@ async function isGuildMember(discordId) {
       headers: { Authorization: `Bot ${botToken}` },
     });
 
-    if (res.ok) return true;
+    if (res.ok) {
+      const memberData = await res.json().catch(() => ({}));
+      if (Array.isArray(memberData.roles) && !memberData.roles.includes(KMHQ_ROLE_ID)) {
+        console.log(`User ${discordId} is in Discord guild but missing KMHQ role (${KMHQ_ROLE_ID}).`);
+        return false;
+      }
+      return true;
+    }
 
     const data = await res.json().catch(() => ({}));
 
