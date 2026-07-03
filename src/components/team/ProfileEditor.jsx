@@ -111,28 +111,58 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
         </div>
       </div>
 
-      {/* Status, Joining Date & Bio */}
+      {/* Status, Admin Power, Joining Date & Bio */}
       <div className="rounded-3xl border border-white/5 bg-[#040c08]/40 p-8 backdrop-blur-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Active Status</label>
-            <select
-              value={form.status}
-              onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors"
-            >
-              <option value="active" className="bg-[#0a1a12]">Active</option>
-              <option value="inactive" className="bg-[#0a1a12]">Inactive</option>
-            </select>
+          <div className="space-y-5">
+            {/* Status Toggle */}
+            <div>
+              <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-2">Active Status</label>
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, status: f.status === 'active' ? 'inactive' : 'active' }))}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border font-mono text-sm font-bold transition-all cursor-pointer ${
+                  form.status === 'active'
+                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                    : 'bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60'
+                }`}
+              >
+                <span className="flex items-center gap-2.5">
+                  <span className={`w-2.5 h-2.5 rounded-full ${form.status === 'active' ? 'bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-gray-500'}`} />
+                  {form.status === 'active' ? 'ACTIVE' : 'INACTIVE'}
+                </span>
+                <span className="text-[10px] uppercase tracking-widest opacity-60">TOGGLE</span>
+              </button>
+            </div>
+
+            {/* Admin Power Toggle (if admin) */}
+            {member.is_admin !== undefined && (
+              <div>
+                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-2">Admin Administrative Power</label>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, is_admin: !f.is_admin }))}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border font-mono text-sm font-bold transition-all cursor-pointer ${
+                    form.is_admin
+                      ? 'bg-purple-500/15 border-purple-500/40 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)]'
+                      : 'bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60'
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Shield size={14} className={form.is_admin ? 'text-purple-400' : 'text-gray-500'} />
+                    {form.is_admin ? 'ADMIN POWER: GRANTED' : 'ADMIN POWER: OFF'}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest opacity-60">TOGGLE</span>
+                </button>
+              </div>
+            )}
 
             <div className="pt-2 space-y-2">
               <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Joining Date</label>
-              <input
-                type="date"
-                value={form.joined_at ? form.joined_at.split('T')[0] : ''}
-                onChange={e => setForm(f => ({ ...f, joined_at: e.target.value }))}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors font-mono"
-              />
+              <div className="w-full rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-white/50 text-sm font-mono flex items-center justify-between">
+                <span>{form.joined_at ? new Date(form.joined_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-white/30 bg-white/5 px-2 py-0.5 rounded border border-white/5">Read Only</span>
+              </div>
             </div>
           </div>
           <div className="space-y-4">
@@ -140,7 +170,7 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
             <textarea
               value={form.bio}
               onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
-              className="w-full h-32 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors resize-none"
+              className="w-full h-44 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors resize-none"
               placeholder="Write your story, with some style..."
             />
           </div>

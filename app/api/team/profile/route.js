@@ -14,7 +14,7 @@ export async function PUT(request) {
 
   const body = await request.json();
   const allowed = {};
-  for (const key of ['node_color', 'flair_color', 'bio', 'status', 'avatar_url', 'joined_at']) {
+  for (const key of ['node_color', 'flair_color', 'bio', 'status', 'avatar_url']) {
     if (body[key] !== undefined) allowed[key] = body[key];
   }
 

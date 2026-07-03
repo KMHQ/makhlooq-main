@@ -64,7 +64,7 @@ export function ColorPicker({ value, onChange }) {
 }
 
 export function AddMemberModal({ onClose, onAdded }) {
-  const blank = { discord_uid: '', discord_tag: '', name: '', role: 'KMHQ', category: 'Makhlooq', sec_level: 'R0', node_color: '#10b981', bio: '', status: 'active', is_admin: false, avatar_url: '', flair_color: '#10b981', flair_icon: 'zap', joined_at: new Date().toISOString().split('T')[0] };
+  const blank = { discord_uid: '', discord_tag: '', name: '', role: 'KMHQ', category: 'Makhlooq', sec_level: 'R0', node_color: '#10b981', bio: '', status: 'inactive', is_admin: false, avatar_url: '', flair_color: '#10b981', flair_icon: 'zap', joined_at: new Date().toISOString().split('T')[0] };
   const [form, setForm] = useState(blank);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');

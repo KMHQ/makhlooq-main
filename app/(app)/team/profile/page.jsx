@@ -78,7 +78,7 @@ export default function UserProfilePage() {
     const res = await fetch('/api/team/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ node_color: form.node_color, bio: form.bio, status: form.status, joined_at: form.joined_at }),
+      body: JSON.stringify({ node_color: form.node_color, bio: form.bio, status: form.status }),
     });
     const data = await res.json().catch(() => ({}));
 
