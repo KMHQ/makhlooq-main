@@ -235,9 +235,9 @@ const OrgNode = ({ node, x, y, isAdmin, isDragging, onMouseDown, onTouchStart })
       transform={`translate(${x}, ${y})`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onMouseDown={onMouseDown}
-      onTouchStart={onTouchStart}
-      style={{ cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'pointer' }}
+      onMouseDown={isAdmin ? onMouseDown : undefined}
+      onTouchStart={isAdmin ? onTouchStart : undefined}
+      style={{ cursor: isAdmin ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
     >
       {/* Glow */}
       {(hovered || isDragging) && (
@@ -494,11 +494,11 @@ const RanksRolesChart = ({ isAdmin = false }) => {
           width={chartW}
           height={chartH}
           viewBox={`0 0 ${chartW} ${chartH}`}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUp}
+          onMouseMove={isAdmin ? handleMouseMove : undefined}
+          onMouseUp={isAdmin ? handleMouseUp : undefined}
+          onMouseLeave={isAdmin ? handleMouseUp : undefined}
+          onTouchMove={isAdmin ? handleMouseMove : undefined}
+          onTouchEnd={isAdmin ? handleMouseUp : undefined}
           style={{ display: 'block', fontFamily: "'JetBrains Mono', monospace" }}
         >
           <defs>
@@ -642,8 +642,8 @@ const RanksRolesChart = ({ isAdmin = false }) => {
                     y={y}
                     isAdmin={isAdmin}
                     isDragging={activeDrag?.nodeId === node.id}
-                    onMouseDown={(e) => handleMouseDown(e, node.id)}
-                    onTouchStart={(e) => handleMouseDown(e, node.id)}
+                    onMouseDown={isAdmin ? (e) => handleMouseDown(e, node.id) : undefined}
+                    onTouchStart={isAdmin ? (e) => handleMouseDown(e, node.id) : undefined}
                   />
                 ))}
               </g>
