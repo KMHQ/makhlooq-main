@@ -331,46 +331,6 @@ const MemberCard = ({ member, onClick }) => {
   );
 };
 
-// ============================================================
-// STATS BAR
-// ============================================================
-
-const StatsBar = ({ members }) => {
-  const active  = members.filter(m => m.status === 'active').length;
-  const command = members.filter(m =>
-    ['founder', 'council', 'advisor'].some(r => m.role?.toLowerCase().includes(r))
-  ).length;
-
-  const stats = [
-    { label: 'Crew', value: members.length,  color: '#ffffff', Icon: Users    },
-    { label: 'Active Now',    value: active,           color: '#10b981', Icon: Wifi, pulse: true },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      {stats.map((s, i) => (
-        <motion.div
-          key={s.label}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05 }}
-          className="relative overflow-hidden rounded-2xl border border-lime-300/10 bg-white/[0.035] px-4 py-3 shadow-[0_8px_30px_rgba(0,0,0,0.20)] transition-colors hover:border-lime-300/25 hover:bg-lime-300/[0.045] flex items-center gap-4"
-        >
-          <div className="flex-shrink-0 rounded-xl border border-white/10 bg-white/5 p-2 flex items-center justify-center">
-            <s.Icon size={18} className="text-lime-100/70" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black tracking-[-0.06em] text-white">{s.value}</span>
-              {s.pulse && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />}
-            </div>
-            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-lime-100/35 mt-0.5">{s.label}</div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-};
 
 // ============================================================
 // FILTER BAR
@@ -1217,9 +1177,6 @@ export default function FleetDirectoryPage({ pageData }) {
             </div>
           </div>
         </motion.section>
-
-        {/* Stats */}
-        <StatsBar members={members} />
 
         {/* Filters */}
         <div className="mt-6 mb-4 flex flex-col xl:flex-row xl:items-end gap-6 justify-between">
