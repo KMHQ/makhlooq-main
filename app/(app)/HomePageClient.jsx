@@ -65,7 +65,7 @@ export default function HomePageClient({ data: initialData }) {
   });
 
   const [isMuted, setIsMuted] = useState(true);
-  const [volume, setVolume] = useState(0.5);
+  const [volume, setVolume] = useState(0.2);
 
   // Extract section data from Payload global with graceful fallbacks
   const aboutData = data?.about || {};

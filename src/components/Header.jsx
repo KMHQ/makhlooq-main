@@ -22,7 +22,7 @@ export default function Header({
   const [showVolume, setShowVolume] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [localMuted, setLocalMuted] = useState(true);
-  const [localVolume, setLocalVolume] = useState(0.5);
+  const [localVolume, setLocalVolume] = useState(0.2);
 
   const isMuted = controlledMuted ?? localMuted;
   const volume = controlledVolume ?? localVolume;

@@ -511,7 +511,7 @@ export default function FleetPageClient({ data: initialData }) {
             if (modelRes.ok && model) {
               // Assign a unique ID per config entry so same-slug ships are not deduped
               const uniqueId = cfg.id ? `cfg-${cfg.id}` : `cfg-${cfgIndex}-${cfg.slug}`;
-              return [{ ...model, id: uniqueId, __fleetSlug: '', __fleetName: cfg.display_name || model.name || cfg.slug, __fleetType: cfg.fleet_type, __ceoName: cfg.ceo_name, __fleetQuantity: cfg.quantity || 1, __sourceType: 'model' }];
+              return [{ ...model, id: uniqueId, __fleetSlug: cfg.slug, __fleetName: cfg.display_name || model.name || cfg.slug, __fleetType: cfg.fleet_type, __ceoName: cfg.ceo_name, __fleetQuantity: cfg.quantity || 1, __sourceType: 'model' }];
             }
 
             // 2) If it wasn't a valid model, fallback to treating it as a FLEET
@@ -522,7 +522,7 @@ export default function FleetPageClient({ data: initialData }) {
               const items = Array.isArray(fleetData?.items) ? fleetData.items : [];
               return items.map((item, itemIdx) => ({
                 ...item,
-                id: item.id ? `${item.id}-cfg${cfgIndex}` : `cfg-${cfgIndex}-item${itemIdx}`,
+                id: item.id ? `${item.id}-cfg${cfg.id || cfgIndex}` : `cfg-${cfgIndex}-item${itemIdx}`,
                 __fleetSlug: cfg.slug,
                 __fleetName: cfg.display_name || cfg.slug,
                 __fleetType: cfg.fleet_type,
@@ -546,10 +546,10 @@ export default function FleetPageClient({ data: initialData }) {
           const ship = mapVehicleToShip(item);
           return {
             ...ship,
-            // Use admin display_name (__fleetName) as the primary ship name for model-type configs
+            id: item.id || ship.id,
             name: item.__fleetName || ship.name,
             sourceFleet: item.__fleetName || '',
-            fleetSlug: item.__fleetSlug || '',
+            fleetSlug: item.__fleetSlug || ship.slug || '',
             fleetType: item.__fleetType || 'small',
             ceoName: item.__ceoName || '',
             fleetQuantity: item.__fleetQuantity || 1,
@@ -632,6 +632,8 @@ export default function FleetPageClient({ data: initialData }) {
           fleetSlug: selectedShip.fleetSlug,
           sourceFleet: selectedShip.sourceFleet,
           ceoName: selectedShip.ceoName,
+          fleetType: selectedShip.fleetType,
+          fleetQuantity: selectedShip.fleetQuantity,
         });
       } catch (err) {
         if (!cancelled) {

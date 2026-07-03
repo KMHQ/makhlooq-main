@@ -114,7 +114,7 @@ export default function Hero({ isMuted, volume, data }) {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
-      videoRef.current.volume = volume;
+      videoRef.current.volume = Math.max(0, Math.min(1, Math.pow(volume, 2)));
     }
   }, [isMuted, volume]);
 

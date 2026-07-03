@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Plus, Search, Trash2, Edit3, Save, X, Shield, Users,
   RefreshCw, ExternalLink, ToggleLeft, ToggleRight, Loader2, CheckCircle2, AlertCircle,
-  LogOut, UserPlus, UserMinus,
+  LogOut, UserPlus, UserMinus, ArrowUp, ArrowDown, ArrowUpDown,
 } from 'lucide-react';
 import { AuthScreen, LoginScreen, DeniedScreen } from '../../../../src/components/fleet/admin/FleetAdminAuth';
 import AboutNewsEditor from '../../../../src/components/admin/AboutNewsEditor';
@@ -75,23 +75,6 @@ function FleetRow({ cfg, memberCount, onEdit, onDelete, onToggle, toggling, onMa
       </td>
       <td className="px-5 py-5">
         <span className="text-gray-300 text-xs font-medium truncate max-w-[120px] block">{cfg.ceo_name || '—'}</span>
-      </td>
-      <td className="px-5 py-5 text-center">
-        <span className="inline-flex items-center justify-center min-w-[28px] h-[28px] rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs shadow-[0_0_10px_rgba(16,185,129,0.1)]">×{cfg.quantity || 1}</span>
-      </td>
-      <td className="px-5 py-5 text-center">
-        <button
-          onClick={() => onManageMembers(cfg)}
-          className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/40 hover:shadow-[0_0_10px_rgba(59,130,246,0.15)] transition-all font-mono text-xs font-bold"
-        >
-          <Users size={12} />
-          {memberCount || 0}
-        </button>
-      </td>
-      <td className="px-5 py-5">
-        <span className="text-gray-600 text-[10px] font-mono uppercase tracking-wider">
-          {cfg.created_at ? new Date(cfg.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
-        </span>
       </td>
       <td className="px-5 py-5">
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -186,17 +169,6 @@ function EditRow({ data, onChange, onSave, onCancel, saving }) {
           className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/50 transition-colors"
         />
       </td>
-      <td className="px-5 py-3">
-        <input
-          type="number"
-          value={data.quantity || 1}
-          min="1"
-          onChange={e => onChange('quantity', parseInt(e.target.value, 10) || 1)}
-          className="w-16 rounded-lg border border-emerald-500/20 bg-white/5 px-2 py-1.5 text-white text-xs font-mono outline-none focus:border-emerald-500/50 transition-colors text-center"
-        />
-      </td>
-      <td className="px-5 py-3" /> {/* Members Column */}
-      <td className="px-5 py-3" /> {/* Registered Column */}
       <td className="px-5 py-3">
         <div className="flex flex-col gap-1.5">
           <button
@@ -670,6 +642,24 @@ export default function FleetAdminPage() {
   const [dragOverId, setDragOverId] = useState(null);
   const [sortSaving, setSortSaving] = useState(false);
 
+  // Column sort states (Status, Class, CO Name, Asset ID / Fleet)
+  const [sortField, setSortField] = useState(null); // 'slug' | 'enabled' | 'fleet_type' | 'ceo_name'
+  const [sortDir, setSortDir] = useState('asc'); // 'asc' | 'desc'
+
+  const handleHeaderSort = (key) => {
+    if (sortField === key) {
+      if (sortDir === 'asc') {
+        setSortDir('desc');
+      } else {
+        setSortField(null);
+        setSortDir('asc');
+      }
+    } else {
+      setSortField(key);
+      setSortDir('asc');
+    }
+  };
+
   // Member management states
   const [selectedFleetForMembers, setSelectedFleetForMembers] = useState(null);
   const [memberCounts, setMemberCounts] = useState({});
@@ -823,9 +813,31 @@ export default function FleetAdminPage() {
 
   const filtered = searchQ
     ? configs.filter(c =>
-        [c.slug, c.display_name].join(' ').toLowerCase().includes(searchQ.toLowerCase())
+        [c.slug, c.display_name, c.ceo_name].join(' ').toLowerCase().includes(searchQ.toLowerCase())
       )
     : configs;
+
+  const sortedFiltered = [...filtered].sort((a, b) => {
+    if (!sortField) return 0;
+    let valA, valB;
+    if (sortField === 'slug') {
+      valA = (a.display_name || a.slug || '').toLowerCase();
+      valB = (b.display_name || b.slug || '').toLowerCase();
+    } else if (sortField === 'enabled') {
+      valA = a.enabled ? 1 : 0;
+      valB = b.enabled ? 1 : 0;
+    } else if (sortField === 'fleet_type') {
+      const typeRank = { small: 1, medium: 2, large: 3, sub_capital: 4, capital: 5 };
+      valA = typeRank[a.fleet_type] || 0;
+      valB = typeRank[b.fleet_type] || 0;
+    } else if (sortField === 'ceo_name') {
+      valA = (a.ceo_name || '').toLowerCase();
+      valB = (b.ceo_name || '').toLowerCase();
+    }
+    if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   const enabledCount = configs.filter(c => c.enabled).length;
 
@@ -944,7 +956,7 @@ export default function FleetAdminPage() {
                 <Loader2 size={32} className="animate-spin text-emerald-500/50" />
                 <span className="font-mono text-[10px] uppercase tracking-widest">Accessing Registry Data...</span>
               </div>
-            ) : filtered.length === 0 ? (
+            ) : sortedFiltered.length === 0 ? (
               <div className="p-16 text-center text-gray-500">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
                   <Search size={24} className="text-gray-600" />
@@ -952,19 +964,45 @@ export default function FleetAdminPage() {
                 <p className="font-mono text-xs uppercase tracking-widest">No matching registry entries found.</p>
               </div>
             ) : (
-<table className="w-full text-sm text-left border-collapse">
+              <table className="w-full text-sm text-left border-collapse">
                 <thead className="sticky top-0 bg-[#050B08]/90 backdrop-blur-md z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
                   <tr>
                     <th className="pl-3 pr-0 py-4 w-8" />
-                    {['Asset ID / Fleet', 'Status', 'Class', 'CO Name', 'Qty', 'Members', 'Registered', 'Actions'].map(h => (
-                      <th key={h} className="px-5 py-4 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold whitespace-nowrap">
-                        {h}{h === 'Asset ID / Fleet' && sortSaving && <span className="ml-2 text-emerald-500/60 font-mono normal-case tracking-normal">saving…</span>}
+                    {[
+                      { label: 'Asset ID / Fleet', key: 'slug' },
+                      { label: 'Status', key: 'enabled' },
+                      { label: 'Class', key: 'fleet_type' },
+                      { label: 'CO Name', key: 'ceo_name' },
+                    ].map(col => (
+                      <th
+                        key={col.key}
+                        onClick={() => handleHeaderSort(col.key)}
+                        className="px-5 py-4 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold whitespace-nowrap cursor-pointer hover:text-emerald-400 transition-colors select-none"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>{col.label}</span>
+                          {col.key === 'slug' && sortSaving && (
+                            <span className="text-emerald-500/60 font-mono normal-case tracking-normal">saving…</span>
+                          )}
+                          {sortField === col.key ? (
+                            sortDir === 'asc' ? (
+                              <ArrowUp size={12} className="text-emerald-400" />
+                            ) : (
+                              <ArrowDown size={12} className="text-emerald-400" />
+                            )
+                          ) : (
+                            <ArrowUpDown size={10} className="opacity-40 hover:opacity-100 transition-opacity" />
+                          )}
+                        </div>
                       </th>
                     ))}
+                    <th className="px-5 py-4 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold whitespace-nowrap select-none">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
-                  {filtered.map(cfg =>
+                  {sortedFiltered.map(cfg =>
                     editId === cfg.id
                       ? <EditRow key={cfg.id} data={editData} onChange={handleEditChange} onSave={handleEditSave} onCancel={cancelEdit} saving={editSaving} />
                       : <FleetRow
