@@ -47,7 +47,9 @@ export const metadata = {
   keywords: ['Star Citizen', 'Organization', 'KMHQ', 'Khalai Makhlooq', 'Gaming Community'],
   
   metadataBase: new URL(SITE_URL),
-  canonical: SITE_URL,
+  alternates: {
+    canonical: '/',
+  },
 
   // ▸ OG TAGS (Social Media & Crawlers)
   openGraph: {
@@ -123,25 +125,7 @@ export default function RootLayout({ children }) {
       className={`${jetbrainsMono.variable} ${spaceGrotesk.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        {/* ▸ PRECONNECT TO EXTERNAL DOMAINS (Performance: DNS lookup speedup) */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://supabase.co" />
-        <link rel="dns-prefetch" href="https://cdn.discordapp.com" />
-
-        {/* ▸ CANONICAL URL (SEO: Prevents duplicate content) */}
-        <link rel="canonical" href={SITE_URL} />
-
-        {/* ▸ ALTERNATE LINKS (SEO: Multi-language support if needed) */}
-        <link rel="alternate" hrefLang="en" href={SITE_URL} />
-
-        {/* ▸ SITEMAP (SEO: Crawlability) */}
-        <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-
-        {/* ▸ FAVICON */}
-        <link rel="icon" href="/favicon.ico" />
-
+      <body>
         {/* ▸ STRUCTURED DATA (JSON-LD) */}
         <script
           type="application/ld+json"
@@ -156,8 +140,13 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-      </head>
-      <body>
+
+        {/* ▸ PRECONNECT TO EXTERNAL DOMAINS */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://supabase.co" />
+        <link rel="dns-prefetch" href="https://cdn.discordapp.com" />
+
         <PayloadRefresh />
         <ConditionalStudioWrapper>
         </ConditionalStudioWrapper>

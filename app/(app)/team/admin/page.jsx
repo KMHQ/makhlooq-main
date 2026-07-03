@@ -6,11 +6,11 @@ import Link from 'next/link';
 import { ArrowLeft, Plus, Trash2, Edit3, Save, X, Shield, Search, LogOut, RefreshCw, Award } from 'lucide-react';
 
 // Modular Components
-import { 
-  ColorPicker, 
-  AddMemberModal, 
-  STATUS_COLORS, 
-  ROLES, 
+import {
+  ColorPicker,
+  AddMemberModal,
+  STATUS_COLORS,
+  ROLES,
   CATS,
   SEC_LEVELS
 } from '../../../../src/components/team/AdminComponents';
@@ -150,7 +150,7 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-[#040806] text-white flex items-center justify-center p-6">
         <div className="w-full max-w-sm text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-black/40 border border-emerald-500/10 rounded-3xl p-10 backdrop-blur-xl"
@@ -182,7 +182,7 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-[#040806] text-white flex items-center justify-center p-6">
         <div className="w-full max-w-sm text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-red-500/5 border border-red-500/10 rounded-3xl p-10 backdrop-blur-xl"
@@ -273,9 +273,8 @@ export default function AdminPage() {
             { label: 'Admin Power', value: approvedMembers.filter(m => m.is_admin).length },
             { label: 'Pending Review', value: pendingMembers.length, highlight: pendingMembers.length > 0 },
           ].map(s => (
-            <div key={s.label} className={`rounded-2xl border px-6 py-5 backdrop-blur-sm ${
-              s.highlight ? 'border-amber-400/30 bg-amber-500/5' : 'border-emerald-500/10 bg-[#040c08]/50'
-            }`}>
+            <div key={s.label} className={`rounded-2xl border px-6 py-5 backdrop-blur-sm ${s.highlight ? 'border-amber-400/30 bg-amber-500/5' : 'border-emerald-500/10 bg-[#040c08]/50'
+              }`}>
               <div className={`text-[10px] uppercase tracking-[0.2em] font-bold mb-2 ${s.highlight ? 'text-amber-400/70' : 'text-gray-500'}`}>{s.label}</div>
               <div className={`text-3xl font-bold font-mono ${s.highlight && s.value > 0 ? 'text-amber-400' : 'text-white'}`}>{s.value}</div>
             </div>
@@ -448,23 +447,23 @@ export default function AdminPage() {
                         {/* Deployed */}
                         <td className="px-6 py-5">
                           {isEditing ? (
-                            <input 
-                              type="date" 
+                            <input
+                              type="date"
                               value={d.joined_at ? (() => {
                                 try {
                                   return new Date(d.joined_at).toISOString().split('T')[0];
                                 } catch {
                                   return '';
                                 }
-                              })() : ''} 
-                              onChange={e => setEditData(p => ({ ...p, joined_at: e.target.value ? new Date(e.target.value + 'T12:00:00Z').toISOString() : null }))} 
+                              })() : ''}
+                              onChange={e => setEditData(p => ({ ...p, joined_at: e.target.value ? new Date(e.target.value + 'T12:00:00Z').toISOString() : null }))}
                               className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
                             />
                           ) : (
                             <span className="text-gray-400 text-xs font-mono">
                               {(() => {
                                 try {
-                                  return d.joined_at ? new Date(d.joined_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : 'N/A';
+                                  return d.joined_at ? new Date(d.joined_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
                                 } catch {
                                   return 'N/A';
                                 }
