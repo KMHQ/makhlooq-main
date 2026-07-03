@@ -32,9 +32,9 @@ export default function FleetHangar({ ships }) {
         <div className="relative flex gap-8 overflow-x-auto scrollbar-hide pb-8 px-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {ships.map((ship, index) => (
             <motion.div key={ship.id} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: index * 0.1 }} className="flex-shrink-0 w-80 md:w-96">
-              <FleetGlassPanel className="p-4">
-                <div className="relative mb-4 overflow-hidden rounded-xl">
-                  <img src={ship.image} alt={ship.name} className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110" />
+              <FleetGlassPanel className="p-4 group transition-all duration-300 hover:border-lime-400/50 hover:shadow-[0_0_30px_rgba(163,230,53,0.3)]">
+                <div className="relative mb-4 overflow-hidden rounded-xl border border-white/10 group-hover:border-lime-400/40 transition-colors">
+                  <img src={ship.image} alt={ship.name} className="w-full h-48 object-cover opacity-95 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105 saturate-125" />
                   <div className="absolute top-2 right-2 px-3 py-1 bg-black/60 backdrop-blur-sm rounded-full">
                     <span className="text-cyan-400 font-mono text-[10px]">BAY {index + 1}</span>
                   </div>

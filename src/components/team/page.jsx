@@ -1061,9 +1061,9 @@ export default function FleetDirectoryPage({ pageData }) {
         >
           <div>
             <div className="font-mono text-sm font-black uppercase tracking-[0.4em] text-lime-300/55">{kicker}</div>
-            <div className="mt-2 leading-[0.82] tracking-[-0.09em]">
-              <div className="text-[12vw] font-black uppercase text-transparent [-webkit-text-stroke:1px_rgba(217,249,157,0.28)] md:text-[5rem] lg:text-[6rem]">{headingLine1}</div>
-              <div className="text-[12vw] font-black uppercase text-white md:text-[5rem] lg:text-[6rem]">{headingLine2}</div>
+            <div className="mt-2 flex flex-wrap items-baseline gap-x-4 sm:gap-x-5 leading-none tracking-[-0.09em]">
+              <span className="text-[12vw] font-black uppercase text-transparent [-webkit-text-stroke:1px_rgba(217,249,157,0.28)] md:text-[5rem] lg:text-[6rem]">{headingLine1}</span>
+              <span className="text-[12vw] font-black uppercase text-white md:text-[5rem] lg:text-[6rem]">{headingLine2}</span>
             </div>
             <p className="mt-2 max-w-2xl text-sm leading-snug text-white/40">
               {description}

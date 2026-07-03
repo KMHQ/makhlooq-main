@@ -34,14 +34,14 @@ export default function FleetShipDetails({ ship, stackedCeos = [] }) {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lime-400/30 to-transparent" />
 
         {/* LEFT: Identity */}
-        <div className="flex flex-col justify-center px-5 py-4 flex-1 min-w-0 border-r border-white/[0.06]">
-          <div className="text-[9px] font-mono font-black uppercase tracking-[0.35em] text-lime-400/50 mb-0.5">
+        <div className="flex flex-col justify-center px-5 py-3 flex-1 min-w-0 border-r border-white/[0.06]">
+          <div className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-lime-400/70 leading-none mb-0 pb-0">
             {ship.manufacturer}
           </div>
-          <h2 className="text-xl font-black uppercase tracking-[-0.04em] text-white leading-none truncate mb-2">
+          <h2 className="text-2xl sm:text-3xl font-mono font-black uppercase tracking-tight text-white leading-tight truncate mt-0.5 mb-2.5">
             {ship.name}
           </h2>
-          <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-3">
+          <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 leading-none mb-2">
             {ship.role || ship.class}
           </div>
 
@@ -99,10 +99,10 @@ export default function FleetShipDetails({ ship, stackedCeos = [] }) {
                 ${i < 2 ? 'border-b border-white/[0.06]' : ''}
               `}
             >
-              <div className="text-[8px] font-mono font-black uppercase tracking-[0.28em] text-lime-400/50 mb-1">
+              <div className="text-[9px] font-sans font-bold uppercase tracking-[0.2em] text-lime-400/70 mb-1">
                 {s.label}
               </div>
-              <div className="text-sm font-black text-white truncate leading-none">
+              <div className="text-sm font-sans font-black text-white truncate leading-normal py-0.5">
                 {s.val}
               </div>
             </div>

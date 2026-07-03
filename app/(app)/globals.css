@@ -2276,28 +2276,26 @@ button {
 }
 
 .fleet-showcase-card {
-  --ship-accent: rgba(255, 255, 255, 0.72);
+  --ship-accent: #a3e635;
   position: relative;
   min-height: 292px;
   overflow: hidden;
   border-radius: 28px;
-  border: 2px solid rgba(163, 230, 53, 0.58);
-  background: #071006;
-  box-shadow:
-    inset 0 0 0 3px rgba(0, 0, 0, 0.68),
-    inset 0 0 0 5px rgba(163, 230, 53, 0.18),
-    0 24px 60px rgba(0, 0, 0, 0.42),
-    0 0 26px rgba(132, 204, 22, 0.08);
+  border: 1.5px solid rgba(163, 230, 53, 0.35);
+  background: #040604;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), 0 0 18px rgba(163, 230, 53, 0.12);
   isolation: isolate;
+  transition: border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.fleet-showcase-card:hover,
 .fleet-showcase-card.is-active {
-  border-color: var(--ship-accent);
+  border-color: var(--ship-accent, #a3e635);
   box-shadow:
-    inset 0 0 0 3px rgba(0, 0, 0, 0.72),
-    inset 0 0 0 5px color-mix(in srgb, var(--ship-accent) 34%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ship-accent) 65%, transparent),
-    0 24px 70px rgba(0, 0, 0, 0.55);
+    0 0 40px color-mix(in srgb, var(--ship-accent, #a3e635) 50%, transparent),
+    0 0 18px color-mix(in srgb, var(--ship-accent, #a3e635) 35%, transparent),
+    inset 0 0 22px color-mix(in srgb, var(--ship-accent, #a3e635) 20%, transparent),
+    0 20px 60px rgba(0, 0, 0, 0.8);
 }
 
 .fleet-showcase-card-img,
@@ -2311,15 +2309,42 @@ button {
 
 .fleet-showcase-card-img {
   object-fit: cover;
-  filter: saturate(0.92) contrast(1.06) brightness(0.82) sepia(0.08);
-  transform: scale(1.01);
-  transition: transform 0.55s ease, filter 0.55s ease;
+  filter: saturate(1.2) contrast(1.08) brightness(0.95);
+  transform: scale(1.005);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), filter 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fleet-showcase-card:hover .fleet-showcase-card-img,
 .fleet-showcase-card.is-active .fleet-showcase-card-img {
-  filter: saturate(1.04) contrast(1.08) brightness(0.95);
-  transform: scale(1.055);
+  filter: saturate(1.35) contrast(1.12) brightness(1.05);
+  transform: scale(1.06);
+}
+
+.fleet-dashboard-card {
+  position: relative;
+  border-radius: 28px;
+  border: 1.5px solid rgba(163, 230, 53, 0.35);
+  background: #040604;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), 0 0 18px rgba(163, 230, 53, 0.12);
+  transition: border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fleet-dashboard-card img {
+  filter: saturate(1.2) contrast(1.08) brightness(0.95);
+  transition: filter 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fleet-dashboard-card:hover {
+  border-color: #a3e635;
+  box-shadow:
+    0 0 45px rgba(163, 230, 53, 0.45),
+    0 0 18px rgba(163, 230, 53, 0.3),
+    inset 0 0 20px rgba(163, 230, 53, 0.15);
+}
+
+.fleet-dashboard-card:hover img {
+  filter: saturate(1.35) contrast(1.12) brightness(1.05);
+  transform: scale(1.04);
 }
 
 .fleet-showcase-card-empty {
@@ -2708,4 +2733,36 @@ button {
   html {
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   }
+}
+
+/* ═════════════════════════════════════════════════════════════ */
+/* BOLD VISIBLE SCI-FI SCROLLBAR FOR FLEET LISTS                 */
+/* ═════════════════════════════════════════════════════════ */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #a3e635 rgba(255, 255, 255, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a3e635, #65a30d);
+  border-radius: 9999px;
+  border: 1.5px solid #040604;
+  box-shadow: 0 0 10px rgba(163, 230, 53, 0.6);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #bef264, #84cc16);
+  box-shadow: 0 0 16px rgba(163, 230, 53, 0.9);
 }

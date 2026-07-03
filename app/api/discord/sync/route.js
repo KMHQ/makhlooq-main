@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { fetchDiscordMembers, mapDiscordStatus } from '../../../../lib/discord';
+import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, mapDiscordStatus } from '../../../../lib/discord';
 import { requireFleetAdmin } from '../../../../lib/adminAuth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
@@ -14,52 +14,132 @@ export async function POST(request) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    // 1. Fetch live members from Discord
-    const discordMembers = await fetchDiscordMembers();
+    // 1. Fetch live members and roles from Discord
+    const [discordMembers, rawRoles] = await Promise.all([
+      fetchDiscordMembers(),
+      fetchDiscordRoles()
+    ]);
     
     if (!discordMembers || discordMembers.length === 0) {
       return NextResponse.json({ error: 'No Discord members found or API error' }, { status: 500 });
     }
 
+    const rolesMap = new Map((rawRoles || []).map(r => [r.id, r]));
+
     // 2. Fetch existing roster from Supabase
     const { data: existingMembers, error: fetchError } = await supabase
       .from('team_members')
-      .select('id, discord_uid');
+      .select('*');
 
     if (fetchError) throw fetchError;
 
-    const updates = [];
-    
-    // 3. Map Discord data to Supabase updates
+    const existingMap = new Map((existingMembers || []).map(m => [m.discord_uid, m]));
+
+    let createdCount = 0;
+    let updatedCount = 0;
+    const operations = [];
+
+    // 3. Process each Discord member
     for (const dm of discordMembers) {
-      const { user, nick, roles, presence } = dm;
+      const { user, nick, roles = [], presence } = dm;
+      if (!user || user.bot) continue; // Skip bot accounts
+
       const uid = user.id;
+      const avatarUrl = user.avatar
+        ? `https://cdn.discordapp.com/avatars/${uid}/${user.avatar}.png`
+        : `https://cdn.discordapp.com/embed/avatars/${(BigInt(uid) >> 22n) % 5n}.png`;
+
+      const tag = user.discriminator && user.discriminator !== '0'
+        ? `${user.username}#${user.discriminator}`
+        : user.username;
+
+      const displayName = nick || user.global_name || user.username;
       
-      const existing = existingMembers.find(m => m.discord_uid === uid);
-      
+      // Auto-derive security level, rank (category), role/flair, admin status, and awards from Discord roles
+      const parsed = parseMemberRoles(roles, rolesMap, uid);
+      const status = mapDiscordStatus(presence?.status);
+
+      const existing = existingMap.get(uid);
+
       if (existing) {
-        // Update status, avatar, and possibly name if not set
-        updates.push(
+        // Prepare update
+        const payload = {
+          discord_tag: tag,
+          avatar_url: avatarUrl,
+          sec_level: parsed.sec_level,
+          category: parsed.category,
+          status: 'active',
+          is_approved: true,
+          updated_at: new Date().toISOString()
+        };
+
+        // Update name if not customized or matching discord
+        if (!existing.name || existing.name === user.username) {
+          payload.name = displayName;
+        }
+
+        // Update role if current role is default or empty
+        if (!existing.role || existing.role === 'KMHQ' || existing.role === 'Officer') {
+          payload.role = parsed.role;
+        }
+
+        // Update is_admin if parsed grants admin
+        if (parsed.is_admin) {
+          payload.is_admin = true;
+        }
+
+        // Update awards if parsed has awards or existing has none
+        if (parsed.awards && parsed.awards.length > 0) {
+          payload.awards = parsed.awards;
+        }
+
+        operations.push(
           supabase
             .from('team_members')
-            .update({
-              status: mapDiscordStatus(presence?.status),
-              avatar_url: `https://cdn.discordapp.com/avatars/${uid}/${user.avatar}.png`,
-              discord_tag: `${user.username}#${user.discriminator}`,
-              // Update name only if it's the first sync or we want to sync nicks
-              // name: nick || user.username, 
-            })
+            .update(payload)
             .eq('discord_uid', uid)
         );
+        updatedCount++;
+      } else {
+        // Prepare insert for new member from Discord server
+        const newPayload = {
+          discord_uid: uid,
+          discord_tag: tag,
+          name: displayName,
+          role: parsed.role,
+          category: parsed.category,
+          sec_level: parsed.sec_level,
+          avatar_url: avatarUrl,
+          node_color: '#10b981',
+          status: 'active',
+          is_approved: true,
+          is_admin: parsed.is_admin,
+          awards: parsed.awards || [],
+          joined_at: dm.joined_at || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        operations.push(
+          supabase
+            .from('team_members')
+            .insert(newPayload)
+        );
+        createdCount++;
       }
     }
 
-    // Execute all updates
-    await Promise.all(updates);
+    // Batch process all updates and inserts
+    const batchSize = 20;
+    for (let i = 0; i < operations.length; i += batchSize) {
+      const batch = operations.slice(i, i + batchSize);
+      await Promise.all(batch);
+    }
 
     return NextResponse.json({ 
       success: true, 
-      synced: updates.length,
+      synced: operations.length,
+      created: createdCount,
+      updated: updatedCount,
       totalDiscord: discordMembers.length 
     });
   } catch (error) {

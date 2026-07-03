@@ -146,8 +146,8 @@ function StackGhosts({ count = 1, compact = false }) {
             key={offset}
             aria-hidden="true"
             className={`pointer-events-none absolute inset-0 rounded-xl border border-lime-300/15 bg-black/70 transition-all duration-300 ${compact
-                ? 'translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2'
-                : 'translate-x-1.5 translate-y-1.5 group-hover:translate-x-3 group-hover:translate-y-2'
+              ? 'translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2'
+              : 'translate-x-1.5 translate-y-1.5 group-hover:translate-x-3 group-hover:translate-y-2'
               }`}
             style={{
               zIndex: -offset,
@@ -520,14 +520,14 @@ export default function FleetPageClient({ data: initialData }) {
 
             if (fleetRes.ok && !fleetData?.error) {
               const items = Array.isArray(fleetData?.items) ? fleetData.items : [];
-              return items.map((item, itemIdx) => ({ 
-                ...item, 
+              return items.map((item, itemIdx) => ({
+                ...item,
                 id: item.id ? `${item.id}-cfg${cfgIndex}` : `cfg-${cfgIndex}-item${itemIdx}`,
-                __fleetSlug: cfg.slug, 
-                __fleetName: cfg.display_name || cfg.slug, 
-                __fleetType: cfg.fleet_type, 
-                __ceoName: cfg.ceo_name, 
-                __fleetQuantity: cfg.quantity || 1, 
+                __fleetSlug: cfg.slug,
+                __fleetName: cfg.display_name || cfg.slug,
+                __fleetType: cfg.fleet_type,
+                __ceoName: cfg.ceo_name,
+                __fleetQuantity: cfg.quantity || 1,
                 __sourceType: 'fleet',
               }));
             }
@@ -752,7 +752,7 @@ export default function FleetPageClient({ data: initialData }) {
                 {(() => {
                   const CARDS_PER_SLIDE = 4;
                   const totalPages = Math.max(1, Math.ceil(capitalFleets.length / CARDS_PER_SLIDE));
-                  
+
                   const handleScroll = (e) => {
                     const container = e.currentTarget;
                     const page = Math.round(container.scrollLeft / container.clientWidth);
@@ -790,7 +790,7 @@ export default function FleetPageClient({ data: initialData }) {
                   return (
                     <div>
                       {/* Horizontal Scroll-Snap Container */}
-                      <div 
+                      <div
                         ref={carouselRef}
                         onScroll={handleScroll}
                         onWheel={handleWheel}
@@ -800,7 +800,7 @@ export default function FleetPageClient({ data: initialData }) {
                         {Array.from({ length: totalPages }).map((_, pageIdx) => {
                           const slideShips = capitalFleets.slice(pageIdx * CARDS_PER_SLIDE, (pageIdx + 1) * CARDS_PER_SLIDE);
                           const globalOffset = pageIdx * CARDS_PER_SLIDE;
-                          
+
                           return (
                             <div key={pageIdx} className="w-full shrink-0 snap-start snap-always grid grid-cols-2 gap-2.5">
                               {slideShips.map((ship, i) => {
@@ -833,7 +833,7 @@ export default function FleetPageClient({ data: initialData }) {
                                       {/* Main Card */}
                                       <div className={`absolute inset-0 rounded-xl overflow-hidden bg-black transition-all ${isExpanded ? 'opacity-20' : ''}`}>
                                         {ship.thumbnail
-                                          ? <img src={ship.thumbnail} alt={ship.name} className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity grayscale group-hover:grayscale-0" />
+                                          ? <img src={ship.thumbnail} alt={ship.name} className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-all duration-500 saturate-125 contrast-105 scale-100 group-hover:scale-105" />
                                           : <div className="absolute inset-0 flex items-center justify-center border border-dashed border-white/10 text-white/20"><div className="w-12 h-12 border border-white/10 rounded-full" /></div>
                                         }
 
@@ -846,16 +846,16 @@ export default function FleetPageClient({ data: initialData }) {
                                         </div>
 
                                         {/* Bottom Info */}
-                                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 to-transparent z-10 text-left">
-                                          <div className="text-[9px] font-mono text-lime-400/50 uppercase truncate leading-none mb-0.5">{ship.manufacturer}</div>
-                                          <div className="font-bold text-white uppercase tracking-tight text-[11px] truncate leading-none mb-0.5">{ship.name}</div>
-                                          {ship.ceoName && (
-                                            <div className="flex items-center gap-1">
-                                              <span className="text-[7px] font-mono font-black uppercase tracking-widest text-lime-400/60 bg-lime-400/10 border border-lime-400/20 rounded px-1 py-px leading-none">CO</span>
-                                              <span className="text-[8px] font-mono text-white/40 uppercase truncate">{ship.count > 1 ? 'MULTIPLE' : ship.ceoName}</span>
-                                            </div>
-                                          )}
-                                        </div>
+                                        <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black via-black/90 to-transparent z-10 text-left">
+                                           <div className="text-[9px] font-mono font-bold text-lime-400/70 uppercase truncate leading-none mb-0">{ship.manufacturer}</div>
+                                           <div className="text-[13px] font-mono font-black text-white uppercase tracking-tight truncate leading-tight mt-0.5 mb-1.5">{ship.name}</div>
+                                           {ship.ceoName && (
+                                             <div className="flex items-center gap-1.5">
+                                               <span className="text-[7px] font-mono font-black uppercase tracking-widest text-lime-400/90 bg-lime-400/15 border border-lime-400/30 rounded px-1.5 py-0.5 leading-none">CO</span>
+                                               <span className="text-[9px] font-mono text-white/60 uppercase truncate leading-none">{ship.count > 1 ? 'MULTIPLE' : ship.ceoName}</span>
+                                             </div>
+                                           )}
+                                         </div>
                                       </div>
                                     </button>
 
@@ -909,9 +909,8 @@ export default function FleetPageClient({ data: initialData }) {
                               <button
                                 key={pi}
                                 onClick={() => scrollToPage(pi)}
-                                className={`w-1.5 h-1.5 rounded-full transition-all ${
-                                  pi === capitalPage ? 'bg-lime-400 w-4' : 'bg-white/20 hover:bg-white/40'
-                                }`}
+                                className={`w-1.5 h-1.5 rounded-full transition-all ${pi === capitalPage ? 'bg-lime-400 w-4' : 'bg-white/20 hover:bg-white/40'
+                                  }`}
                               />
                             ))}
                           </div>
@@ -994,7 +993,7 @@ export default function FleetPageClient({ data: initialData }) {
 
                           <div className={`absolute inset-0 transition-all ${isExpanded ? 'opacity-20' : ''}`}>
                             {ship.thumbnail
-                              ? <img src={ship.thumbnail} alt={ship.name} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-65 group-hover:scale-105 transition-all duration-500" />
+                              ? <img src={ship.thumbnail} alt={ship.name} className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 saturate-125 contrast-105" />
                               : <div className="absolute inset-0 bg-gradient-to-br from-lime-900/10 to-black/50" />
                             }
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
@@ -1010,8 +1009,8 @@ export default function FleetPageClient({ data: initialData }) {
                             )}
 
                             <div className="absolute bottom-0 left-0 right-0 p-2.5 text-left">
-                              <div className="text-[9px] font-mono text-lime-300/60 uppercase truncate">{ship.manufacturer}</div>
-                              <div className="text-xs font-black uppercase text-white leading-tight truncate">{ship.name}</div>
+                              <div className="text-[9px] font-mono text-lime-300/60 uppercase truncate leading-[1.4] py-0.5">{ship.manufacturer}</div>
+                              <div className="text-xs font-mono font-black uppercase text-white leading-[1.4] py-0.5 truncate">{ship.name}</div>
                             </div>
                           </div>
                         </button>

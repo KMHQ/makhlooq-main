@@ -68,28 +68,28 @@ export default function FleetShipSelector({
               <div className="fleet-showcase-corners" />
 
               <div className="absolute left-5 top-5 z-10 text-left">
-                <div className="max-w-[85%] text-3xl font-black leading-none tracking-[-0.06em] text-white/95 drop-shadow-lg">
+                <div className="max-w-[85%] text-3xl font-black leading-none tracking-[-0.06em] text-white/50 transition-colors duration-300 group-hover:text-white group-[.is-active]:text-white drop-shadow-lg">
                   {ship.name}
                 </div>
-                <div className="mt-4 text-base font-medium text-lime-100/45 drop-shadow">
+                <div className="mt-4 text-base font-medium text-white/35 transition-colors duration-300 group-hover:text-lime-300 group-[.is-active]:text-lime-300 drop-shadow">
                   {ship.manufacturer}
                 </div>
               </div>
 
-              <div className="absolute right-5 top-5 z-10 rounded-md border border-lime-300/20 bg-black/20 p-1.5 text-lime-200/80 backdrop-blur-sm">
+              <div className="absolute right-5 top-5 z-10 rounded-md border border-white/10 bg-black/40 p-1.5 text-white/40 backdrop-blur-sm transition-all duration-300 group-hover:border-lime-400/30 group-hover:text-lime-400 group-hover:shadow-[0_0_15px_rgba(163,230,53,0.3)]">
                 <Bookmark size={22} />
               </div>
 
-              <div className="absolute left-0 top-[34%] z-10 flex items-center overflow-hidden rounded-r-xl border-y border-r border-lime-300/15 bg-lime-300 text-black shadow-xl">
+              <div className="absolute left-0 top-[34%] z-10 flex items-center overflow-hidden rounded-r-xl border-y border-r border-white/15 bg-white/10 text-white/60 shadow-xl transition-all duration-300 group-hover:bg-lime-400 group-hover:text-black group-hover:border-lime-400 group-hover:shadow-[0_0_20px_rgba(163,230,53,0.4)] group-[.is-active]:bg-lime-400 group-[.is-active]:text-black">
                 <span className="flex h-14 w-14 items-center justify-center">
                   <DollarSign size={20} />
                 </span>
-                <span className="max-w-0 whitespace-nowrap text-sm font-black opacity-0 transition-all duration-300 group-hover:max-w-[140px] group-hover:pr-4 group-hover:opacity-100">
+                <span className="max-w-0 whitespace-nowrap text-sm font-black opacity-0 transition-all duration-300 group-hover:max-w-[140px] group-hover:pr-4 group-hover:opacity-100 group-[.is-active]:max-w-[140px] group-[.is-active]:pr-4 group-[.is-active]:opacity-100">
                   {price}
                 </span>
               </div>
 
-              <div className="absolute bottom-4 right-5 z-10 rounded-full border border-white/15 bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-lime-100/65 backdrop-blur">
+              <div className="absolute bottom-4 right-5 z-10 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 backdrop-blur transition-all duration-300 group-hover:border-lime-400/30 group-hover:text-lime-300 group-[.is-active]:text-lime-300">
                 {ship.role}
               </div>
             </motion.button>
