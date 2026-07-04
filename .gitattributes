@@ -1,0 +1,3 @@
+# Ignore HTML files (like the large Lucidchart export in public/) from GitHub language statistics
+*.html linguist-generated=true
+public/*.html linguist-generated=true
