@@ -11,6 +11,17 @@ export const SiteSettings: GlobalConfig = {
     afterChange: [revalidateAllHook()],
   },
   fields: [
+    // --- SEO ---
+    {
+      name: "seo",
+      type: "group",
+      label: "SEO / Global Metadata",
+      fields: [
+        { name: "title", type: "text", label: "Global Site Title", defaultValue: "KHALAI MAKHLOOQ — Elite Star Citizen Organization" },
+        { name: "description", type: "textarea", label: "Global Site Description", defaultValue: "Khalai Makhlooq is a Star Citizen crew with big ships, chill energy, and serious coordination when the scene gets spicy." },
+        { name: "imageUrl", type: "text", label: "Global SEO Image URL", defaultValue: "/opengraph-image.jpg" },
+      ],
+    },
     // --- Navigation ---
     {
       name: "navLinks",

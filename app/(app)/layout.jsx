@@ -40,75 +40,88 @@ const organizationSchema = {
   },
 };
 
-export const metadata = {
-  // ▸ CORE SEO
-  title: 'KHALAI MAKHLOOQ — Elite Star Citizen Organization',
-  description: 'Khalai Makhlooq is a Star Citizen crew with big ships, chill energy, and serious coordination when the scene gets spicy.',
-  keywords: ['Star Citizen', 'Organization', 'KMHQ', 'Khalai Makhlooq', 'Gaming Community'],
-  
-  metadataBase: new URL(SITE_URL),
-  alternates: {
-    canonical: '/',
-  },
+import { getPayloadInstance } from '../../lib/payload';
 
-  // ▸ OG TAGS (Social Media & Crawlers)
-  openGraph: {
-    title: 'KHALAI MAKHLOOQ — Elite Star Citizen Organization',
-    description: 'Star Citizen crew [KMHQ]. Hangar is open.',
-    url: SITE_URL,
-    type: 'website',
-    siteName: 'Khalai Makhlooq',
-    locale: 'en_US',
-    images: [
-      {
-        url: '/opengraph-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Khalai Makhlooq - Star Citizen Crew',
-        type: 'image/jpeg',
-      },
-    ],
-  },
+export async function generateMetadata() {
+  let siteSettings = null;
+  try {
+    const payload = await getPayloadInstance();
+    siteSettings = await payload.findGlobal({ slug: 'site-settings' });
+  } catch (e) {
+    console.error("Error fetching site settings for metadata:", e);
+  }
 
-  // ▸ TWITTER CARD (Social Media)
-  twitter: {
-    card: 'summary_large_image',
-    title: 'KHALAI MAKHLOOQ — Elite Star Citizen Organization',
-    description: 'Star Citizen crew [KMHQ]',
-    images: ['/opengraph-image.jpg'],
-    creator: '@makhlooq', // Update with your Twitter handle
-  },
+  const title = siteSettings?.seo?.title?.trim() && siteSettings.seo.title !== 'Untitled' 
+    ? siteSettings.seo.title.trim() 
+    : 'KHALAI MAKHLOOQ — Elite Star Citizen Organization';
+    
+  const description = siteSettings?.seo?.description?.trim() && siteSettings.seo.description !== 'Untitled' 
+    ? siteSettings.seo.description.trim() 
+    : 'Khalai Makhlooq is a Star Citizen crew with big ships, chill energy, and serious coordination when the scene gets spicy.';
+    
+  const imageUrl = siteSettings?.seo?.imageUrl?.trim() || '/opengraph-image.jpg';
 
-  // ▸ SEO CRAWLING
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+  return {
+    title,
+    description,
+    keywords: ['Star Citizen', 'Organization', 'KMHQ', 'Khalai Makhlooq', 'Gaming Community'],
+    
+    metadataBase: new URL(SITE_URL),
+    alternates: {
+      canonical: '/',
+    },
+
+    openGraph: {
+      title,
+      description,
+      url: SITE_URL,
+      type: 'website',
+      siteName: 'Khalai Makhlooq',
+      locale: 'en_US',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'Khalai Makhlooq - Star Citizen Crew',
+          type: 'image/jpeg',
+        },
+      ],
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+      creator: '@makhlooq',
+    },
+
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
 
-  // ▸ MANIFEST & ICONS
-  icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
-    ],
-    shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-  },
-  manifest: '/site.webmanifest',
-
-  // ▸ VERIFICATION (For Google Search Console, etc.)
-  verification: {
-    // google: 'google-site-verification-code',
-    // Add your verification codes here
-  },
-};
+    icons: {
+      icon: [
+        { url: '/favicon.ico' },
+        { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      ],
+      shortcut: '/favicon.ico',
+      apple: '/apple-touch-icon.png',
+    },
+    manifest: '/site.webmanifest',
+    
+    verification: {},
+  };
+}
 
 export const viewport = {
   width: 'device-width',
