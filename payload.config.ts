@@ -57,8 +57,9 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL,
+      max: 5,
     },
-    push: false,
+    push: process.env.NODE_ENV === 'development',
   }),
   upload: {
     limits: {
