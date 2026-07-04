@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CalendarDays, Loader2, X } from 'lucide-react';
 
 import Header from '../../../src/components/Header';
 import FleetScene from '../../../src/components/fleet/FleetScene';
 import FleetShipDetails from '../../../src/components/fleet/FleetShipDetails';
+import ProfileModal from '../../../src/components/team/ProfileModal';
 
 const getShipType = (model = {}) => {
   const c = (model.classification || model.classificationLabel || '').toLowerCase();
@@ -478,6 +479,36 @@ export default function FleetPageClient({ data: initialData }) {
   const carouselRef = useRef(null);
   const lastScrollTime = useRef(0);
 
+  const [selectedMemberForModal, setSelectedMemberForModal] = useState(null);
+
+  const handleOpenCoModal = async (target, fallbackName) => {
+    if (!target && !fallbackName) return;
+    try {
+      const query = target || fallbackName;
+      const res = await fetch(`/api/team-members?discord_uid=${encodeURIComponent(query)}`);
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && !data.error && data.id) {
+        setSelectedMemberForModal(data);
+      } else {
+        setSelectedMemberForModal({
+          name: fallbackName || target,
+          role: 'Commanding Officer',
+          category: 'Makhlooq',
+          status: 'active',
+          bio: 'Commanding Officer assigned to this fleet asset.'
+        });
+      }
+    } catch {
+      setSelectedMemberForModal({
+        name: fallbackName || target,
+        role: 'Commanding Officer',
+        category: 'Makhlooq',
+        status: 'active',
+        bio: 'Commanding Officer assigned to this fleet asset.'
+      });
+    }
+  };
+
 
   useEffect(() => {
     let cancelled = false;
@@ -512,7 +543,7 @@ export default function FleetPageClient({ data: initialData }) {
             if (modelRes.ok && model) {
               // Assign a unique ID per config entry so same-slug ships are not deduped
               const uniqueId = cfg.id ? `cfg-${cfg.id}` : `cfg-${cfgIndex}-${cfg.slug}`;
-              return [{ ...model, id: uniqueId, __fleetSlug: cfg.slug, __fleetName: cfg.display_name || model.name || cfg.slug, __fleetType: cfg.fleet_type, __ceoName: cfg.ceo_name, __fleetQuantity: cfg.quantity || 1, __sourceType: 'model' }];
+              return [{ ...model, id: uniqueId, __fleetSlug: cfg.slug, __fleetName: cfg.display_name || model.name || cfg.slug, __fleetType: cfg.fleet_type, __ceoName: cfg.ceo_name, __ceoDiscordUid: cfg.ceo_discord_uid, __ceoAvatarUrl: cfg.ceo_avatar_url, __fleetQuantity: cfg.quantity || 1, __sourceType: 'model' }];
             }
 
             // 2) If it wasn't a valid model, fallback to treating it as a FLEET
@@ -528,6 +559,8 @@ export default function FleetPageClient({ data: initialData }) {
                 __fleetName: cfg.display_name || cfg.slug,
                 __fleetType: cfg.fleet_type,
                 __ceoName: cfg.ceo_name,
+                __ceoDiscordUid: cfg.ceo_discord_uid,
+                __ceoAvatarUrl: cfg.ceo_avatar_url,
                 __fleetQuantity: cfg.quantity || 1,
                 __sourceType: 'fleet',
               }));
@@ -553,6 +586,8 @@ export default function FleetPageClient({ data: initialData }) {
             fleetSlug: item.__fleetSlug || ship.slug || '',
             fleetType: item.__fleetType || 'small',
             ceoName: item.__ceoName || '',
+            ceoDiscordUid: item.__ceoDiscordUid || '',
+            ceoAvatarUrl: item.__ceoAvatarUrl || '',
             fleetQuantity: item.__fleetQuantity || 1,
           };
         });
@@ -630,6 +665,7 @@ export default function FleetPageClient({ data: initialData }) {
           ...selectedShip,
           name: selectedShip.name || model.name,
           ceoName: selectedShip.ceoName,
+          ceoDiscordUid: selectedShip.ceoDiscordUid,
           id: selectedShip.id,
           fleetSlug: selectedShip.fleetSlug,
           sourceFleet: selectedShip.sourceFleet,
@@ -1043,13 +1079,23 @@ export default function FleetPageClient({ data: initialData }) {
 
             {/* ── Ship Details Panel ── */}
             <div className="shrink-0 h-[190px]">
-              <FleetShipDetails ship={activeShip} />
+              <FleetShipDetails ship={activeShip} onOpenMemberModal={handleOpenCoModal} />
             </div>
 
           </div>
 
         </div>
       </div>
+
+      {/* Member Profile Modal Overlay */}
+      <AnimatePresence>
+        {selectedMemberForModal && (
+          <ProfileModal
+            member={selectedMemberForModal}
+            onClose={() => setSelectedMemberForModal(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }

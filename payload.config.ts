@@ -59,7 +59,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL,
       max: 5,
     },
-    push: process.env.NODE_ENV === 'development',
+    push: false,
   }),
   upload: {
     limits: {

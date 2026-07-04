@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { AuthScreen, LoginScreen, DeniedScreen } from '../../../../src/components/fleet/admin/FleetAdminAuth';
 import AboutNewsEditor from '../../../../src/components/admin/AboutNewsEditor';
+import COSelector from '../../../../src/components/fleet/admin/COSelector';
 
 /* ───────── Helper: validate a slug via FleetYards ───────── */
 async function validateFleetyardsSlug(slug) {
@@ -127,7 +128,7 @@ function FleetRow({ cfg, memberCount, onEdit, onDelete, onToggle, toggling, onMa
 }
 
 /* ───────── Edit row ───────── */
-function EditRow({ data, onChange, onSave, onCancel, saving }) {
+function EditRow({ data, onChange, onSave, onCancel, saving, teamMembers = [] }) {
   return (
     <tr className="bg-emerald-500/[0.03] border-y border-emerald-500/20 shadow-[inset_4px_0_0_rgba(16,185,129,1)] relative z-10">
       <td className="pl-3 pr-0 py-3 w-8" /> {/* drag handle placeholder */}
@@ -172,11 +173,15 @@ function EditRow({ data, onChange, onSave, onCancel, saving }) {
         </select>
       </td>
       <td className="px-5 py-3">
-        <input
-          value={data.ceo_name || ''}
-          onChange={e => onChange('ceo_name', e.target.value)}
-          placeholder="CO Name"
-          className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/50 transition-colors"
+        <COSelector
+          valueName={data.ceo_name || ''}
+          valueDiscordUid={data.ceo_discord_uid || ''}
+          teamMembers={teamMembers}
+          onChange={({ ceo_name, ceo_discord_uid }) => {
+            onChange('ceo_name', ceo_name);
+            onChange('ceo_discord_uid', ceo_discord_uid);
+          }}
+          placeholder="Assign CO..."
         />
       </td>
       <td className="px-5 py-3">
@@ -201,11 +206,13 @@ function EditRow({ data, onChange, onSave, onCancel, saving }) {
 }
 
 /* ───────── Add Fleet Modal ───────── */
-function AddFleetModal({ onClose, onAdd }) {
+function AddFleetModal({ onClose, onAdd, teamMembers = [] }) {
   const [slug, setSlug] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [fleetType, setFleetType] = useState('small');
   const [ceoName, setCeoName] = useState('');
+  const [ceoDiscordUid, setCeoDiscordUid] = useState('');
+  const [selectedMemberUid, setSelectedMemberUid] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [sortOrder, setSortOrder] = useState(0);
   const [validating, setValidating] = useState(false);
@@ -242,6 +249,7 @@ function AddFleetModal({ onClose, onAdd }) {
       enabled: true,
       fleet_type: fleetType,
       ceo_name: ceoName.trim(),
+      ceo_discord_uid: ceoDiscordUid,
       quantity: quantity
     });
     setSaving(false);
@@ -329,14 +337,18 @@ function AddFleetModal({ onClose, onAdd }) {
             />
           </div>
 
-          {/* CO Name - full width so it's always visible */}
+          {/* CO (Commanding Officer) Selector */}
           <div>
-            <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-2">CO Name</label>
-            <input
-              value={ceoName}
-              onChange={e => setCeoName(e.target.value)}
-              placeholder="e.g. John Doe"
-              className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-white text-sm outline-none focus:border-emerald-500/50 focus:bg-emerald-500/5 transition-all"
+            <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-2">CO (Commanding Officer)</label>
+            <COSelector
+              valueName={ceoName}
+              valueDiscordUid={ceoDiscordUid}
+              teamMembers={teamMembers}
+              onChange={({ ceo_name, ceo_discord_uid }) => {
+                setCeoName(ceo_name);
+                setCeoDiscordUid(ceo_discord_uid);
+              }}
+              placeholder="Search or assign CO..."
             />
           </div>
 
@@ -673,6 +685,16 @@ export default function FleetAdminPage() {
   // Member management states
   const [selectedFleetForMembers, setSelectedFleetForMembers] = useState(null);
   const [memberCounts, setMemberCounts] = useState({});
+  const [teamMembers, setTeamMembers] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/team-members')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setTeamMembers(data);
+      })
+      .catch(err => console.error('Failed to fetch team members for admin:', err));
+  }, []);
 
   const fetchConfigs = useCallback(async () => {
     setLoading(true);
@@ -1014,7 +1036,7 @@ export default function FleetAdminPage() {
                 <tbody className="divide-y divide-white/[0.04]">
                   {sortedFiltered.map(cfg =>
                     editId === cfg.id
-                      ? <EditRow key={cfg.id} data={editData} onChange={handleEditChange} onSave={handleEditSave} onCancel={cancelEdit} saving={editSaving} />
+                      ? <EditRow key={cfg.id} data={editData} onChange={handleEditChange} onSave={handleEditSave} onCancel={cancelEdit} saving={editSaving} teamMembers={teamMembers} />
                       : <FleetRow
                           key={cfg.id}
                           cfg={cfg}
@@ -1037,26 +1059,14 @@ export default function FleetAdminPage() {
           </div>
         </div>
 
-        {/* Info box */}
-        <div className="shrink-0 mt-6 rounded-[1.5rem] border border-emerald-500/10 bg-emerald-500/[0.02] p-5 text-sm text-gray-400 space-y-1.5 flex flex-col md:flex-row gap-6 items-center justify-between">
-          <div>
-            <div className="text-emerald-500/70 font-mono font-bold text-[10px] uppercase tracking-[0.2em] mb-1">System Architecture</div>
-            <p className="text-xs">
-              <strong className="text-white font-medium">Validation Required</strong>: All entries cross-referenced via FleetYards secure API.<br/>
-              Target Database: <code className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-1 py-0.5 rounded ml-1">fleet_configs</code>
-            </p>
-          </div>
-          <div className="text-right text-xs">
-            Admin access managed via <strong className="text-white">Discord Auth</strong>.
-          </div>
-        </div>
+
           </>
         )}
       </div>
 
       {/* Modals */}
       <AnimatePresence>
-        {showAddModal && <AddFleetModal onClose={() => setShowAddModal(false)} onAdd={handleAdd} />}
+        {showAddModal && <AddFleetModal onClose={() => setShowAddModal(false)} onAdd={handleAdd} teamMembers={teamMembers} />}
         {selectedFleetForMembers && (
           <ManageMembersModal
             fleet={selectedFleetForMembers}

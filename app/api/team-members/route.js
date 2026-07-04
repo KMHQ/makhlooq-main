@@ -11,11 +11,20 @@ export async function GET(request) {
   const discordUid = url.searchParams.get('discord_uid');
 
   if (discordUid) {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('team_members')
       .select('*')
       .eq('discord_uid', discordUid)
       .maybeSingle();
+
+    if (!data) {
+      const fallback = await supabase
+        .from('team_members')
+        .select('*')
+        .ilike('name', discordUid)
+        .maybeSingle();
+      if (fallback.data) data = fallback.data;
+    }
 
     if (error) {
       console.error(`Supabase error fetching member by discord_uid ${discordUid}:`, error.message);

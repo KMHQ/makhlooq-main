@@ -24,7 +24,6 @@ export const FleetConfigs: CollectionConfig = {
       name: 'slug',
       type: 'text',
       required: true,
-      unique: true,
       label: 'FleetYards Slug',
     },
     {
@@ -56,6 +55,7 @@ export const FleetConfigs: CollectionConfig = {
         { label: 'Small', value: 'small' },
         { label: 'Medium', value: 'medium' },
         { label: 'Large', value: 'large' },
+        { label: 'Sub-Capital', value: 'sub_capital' },
         { label: 'Capital', value: 'capital' },
       ],
       defaultValue: 'medium',
@@ -64,6 +64,11 @@ export const FleetConfigs: CollectionConfig = {
       name: 'ceo_name',
       type: 'text',
       label: 'CEO Name',
+    },
+    {
+      name: 'ceo_discord_uid',
+      type: 'text',
+      label: 'CEO Discord UID',
     },
     {
       name: 'quantity',

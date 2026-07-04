@@ -18,7 +18,7 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const updates = await request.json();
     
-    const allowedFields = ['slug', 'display_name', 'sort_order', 'enabled', 'fleet_type', 'ceo_name', 'quantity'];
+    const allowedFields = ['slug', 'display_name', 'sort_order', 'enabled', 'fleet_type', 'ceo_name', 'ceo_discord_uid', 'quantity'];
     const validFleetTypes = ['small', 'medium', 'large', 'sub_capital', 'capital'];
     const updateData = {};
     for (const field of allowedFields) {

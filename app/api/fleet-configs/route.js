@@ -36,11 +36,36 @@ export async function GET(request) {
     if (error) throw error;
     
     if (data && data.length > 0) {
+      // Fetch team members to map avatars by discord_uid, id, and name
+      const { data: members } = await supabase
+        .from('team_members')
+        .select('id, discord_uid, name, avatar_url');
+
+      const avatarsMap = {};
+      if (members && members.length > 0) {
+        members.forEach(m => {
+          if (!m.avatar_url) return;
+          if (m.discord_uid) avatarsMap[m.discord_uid] = m.avatar_url;
+          if (m.id) avatarsMap[m.id] = m.avatar_url;
+          if (m.name) avatarsMap[m.name.trim().toLowerCase()] = m.avatar_url;
+        });
+      }
+
+      const enrichedData = data.map(d => {
+        const avatar = (d.ceo_discord_uid && avatarsMap[d.ceo_discord_uid]) ||
+                       (d.ceo_name && avatarsMap[d.ceo_name.trim().toLowerCase()]) ||
+                       null;
+        return {
+          ...d,
+          ceo_avatar_url: avatar
+        };
+      });
+
       // Combine env configs with DB configs; since slugs are no longer unique,
       // we show all DB configs as-is, and prepend any env slugs not yet in DB.
-      const dbSlugs = new Set(data.map(d => d.slug));
+      const dbSlugs = new Set(enrichedData.map(d => d.slug));
       const filteredEnv = envConfigs.filter(env => !dbSlugs.has(env.slug));
-      return NextResponse.json([...filteredEnv, ...data]);
+      return NextResponse.json([...filteredEnv, ...enrichedData]);
     }
     return NextResponse.json(envConfigs);
   } catch (err) {
@@ -60,7 +85,7 @@ export async function POST(request) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { slug, display_name, sort_order, enabled, fleet_type, ceo_name, quantity } = await request.json();
+    const { slug, display_name, sort_order, enabled, fleet_type, ceo_name, ceo_discord_uid, quantity } = await request.json();
 
     if (!slug) {
       return NextResponse.json({ error: 'slug is required' }, { status: 400 });
@@ -79,6 +104,7 @@ export async function POST(request) {
         enabled: enabled ?? true,
         fleet_type: safeFleetType,
         ceo_name: ceo_name?.trim() || null,
+        ceo_discord_uid: ceo_discord_uid?.trim() || null,
         quantity: Math.max(1, parseInt(quantity) || 1)
       }])
       .select()

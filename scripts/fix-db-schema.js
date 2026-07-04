@@ -20,7 +20,6 @@ async function fixSchema() {
     const tables = ['site_settings', 'about_page', 'fleet_page', 'team_page', 'home_page'];
     
     for (const table of tables) {
-      console.log(`Checking table "${table}"...`);
       await client.query(`
         ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "seo_title" text;
         ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "seo_description" text;
@@ -28,29 +27,41 @@ async function fixSchema() {
       `);
     }
 
-    // Site settings columns
-    const siteSettingsQueries = [
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_org_name" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_org_short_name" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_description" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_status_badge1" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_status_badge2" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_nav_section_label" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_comms_section_label" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_email_address" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_discord_link" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_discord_link_text" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_signal_log1" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_signal_log2" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_signal_log3" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "footer_copyright" text;`,
-      `ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "discord_url" text;`,
-    ];
-
-    for (const q of siteSettingsQueries) {
-      await client.query(q);
+    // Add sub_capital to enum_fleet_configs_fleet_type if enum exists
+    try {
+      await client.query(`
+        ALTER TYPE "enum_fleet_configs_fleet_type" ADD VALUE IF NOT EXISTS 'sub_capital';
+      `);
+      console.log('Added "sub_capital" to enum_fleet_configs_fleet_type.');
+    } catch (e) {
+      console.log('Note on enum alter:', e.message);
     }
-    console.log('Successfully updated columns across all tables.');
+
+    // Drop unique constraint on fleet_configs(slug) so duplicate slugs with custom names are allowed
+    try {
+      await client.query(`DROP INDEX IF EXISTS "fleet_configs_slug_idx";`);
+      await client.query(`ALTER TABLE "fleet_configs" DROP CONSTRAINT IF EXISTS "fleet_configs_slug_idx";`);
+      await client.query(`ALTER TABLE "fleet_configs" DROP CONSTRAINT IF EXISTS "fleet_configs_slug_key";`);
+      console.log('Dropped unique constraint fleet_configs_slug_idx.');
+    } catch (e) {
+      console.log('Note on index drop:', e.message);
+    }
+
+    // Ensure team_members columns exist
+    await client.query(`
+      ALTER TABLE "team_members" ADD COLUMN IF NOT EXISTS "created_at" timestamp with time zone DEFAULT now();
+      ALTER TABLE "team_members" ADD COLUMN IF NOT EXISTS "updated_at" timestamp with time zone DEFAULT now();
+    `);
+
+    // Ensure fleet_configs columns exist
+    await client.query(`
+      ALTER TABLE "fleet_configs" ADD COLUMN IF NOT EXISTS "fleet_type" text DEFAULT 'small';
+      ALTER TABLE "fleet_configs" ADD COLUMN IF NOT EXISTS "ceo_name" text;
+      ALTER TABLE "fleet_configs" ADD COLUMN IF NOT EXISTS "ceo_discord_uid" text;
+      ALTER TABLE "fleet_configs" ADD COLUMN IF NOT EXISTS "quantity" integer DEFAULT 1;
+    `);
+
+    console.log('Successfully updated all database schemas & enums.');
 
   } catch (err) {
     console.error('Error fixing database schema:', err);
