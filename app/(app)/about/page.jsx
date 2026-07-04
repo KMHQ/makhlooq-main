@@ -35,8 +35,11 @@ export async function generateMetadata() {
   const defaultTitle = 'About | KHALAI MAKHLOOQ — Elite Star Citizen Organization'
   const defaultDesc = 'Learn about KMHQ, our mission, and our divisions.'
 
-  const title = data?.seo?.title?.trim() ? data.seo.title.trim() : defaultTitle
-  const description = data?.seo?.description?.trim() ? data.seo.description.trim() : defaultDesc
+  let title = data?.seo?.title?.trim() || defaultTitle;
+  if (title === 'Untitled') title = defaultTitle;
+  
+  let description = data?.seo?.description?.trim() || defaultDesc;
+  if (description === 'Untitled') description = defaultDesc;
 
   return {
     title,

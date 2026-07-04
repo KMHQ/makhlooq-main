@@ -1088,6 +1088,10 @@ export default function FleetDirectoryPage({ pageData }) {
     if (roleFilter) f = f.filter(m => m.role === roleFilter);
     if (categoryFilter) f = f.filter(m => m.category === categoryFilter);
     f.sort((a,b) => {
+      const sa = a.status === 'active' ? 0 : 1;
+      const sb = b.status === 'active' ? 0 : 1;
+      if (sa !== sb) return sa - sb;
+
       const oa = FLAIR_ORDER[a.role] || 99, ob = FLAIR_ORDER[b.role] || 99;
       if (oa !== ob) return oa - ob;
       const ra = RANK_ORDER[a.category] || 99, rb = RANK_ORDER[b.category] || 99;

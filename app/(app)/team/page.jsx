@@ -22,8 +22,11 @@ export async function generateMetadata() {
   const defaultTitle = 'Team | KHALAI MAKHLOOQ — Elite Star Citizen Organization'
   const defaultDesc = 'Meet the KMHQ team.'
 
-  const title = data?.seo?.title?.trim() ? data.seo.title.trim() : defaultTitle
-  const description = data?.seo?.description?.trim() ? data.seo.description.trim() : defaultDesc
+  let title = data?.seo?.title?.trim() || defaultTitle;
+  if (title === 'Untitled') title = defaultTitle;
+  
+  let description = data?.seo?.description?.trim() || defaultDesc;
+  if (description === 'Untitled') description = defaultDesc;
 
   return {
     title,

@@ -22,8 +22,11 @@ export async function generateMetadata() {
   const defaultTitle = 'KHALAI MAKHLOOQ — Elite Star Citizen Organization'
   const defaultDesc = 'Khalai Makhlooq is a Star Citizen crew with big ships, chill energy, and serious coordination.'
 
-  const title = data?.seo?.title?.trim() ? data.seo.title.trim() : defaultTitle
-  const description = data?.seo?.description?.trim() ? data.seo.description.trim() : defaultDesc
+  let title = data?.seo?.title?.trim() || defaultTitle;
+  if (title === 'Untitled') title = defaultTitle;
+  
+  let description = data?.seo?.description?.trim() || defaultDesc;
+  if (description === 'Untitled') description = defaultDesc;
 
   return {
     title,
