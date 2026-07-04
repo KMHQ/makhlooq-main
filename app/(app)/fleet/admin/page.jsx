@@ -30,6 +30,16 @@ function StatusBadge({ enabled }) {
   );
 }
 
+/* ───────── Helper: generate valid Fleetyards URL ───────── */
+function getFleetyardsUrl(cfg) {
+  if (!cfg?.slug) return 'https://fleetyards.net';
+  const cleanSlug = encodeURIComponent(String(cfg.slug).trim());
+  if (cfg.source_type === 'fleet' || cfg.type === 'fleet') {
+    return `https://fleetyards.net/fleets/${cleanSlug}`;
+  }
+  return `https://fleetyards.net/ships/${cleanSlug}`;
+}
+
 /* ───────── Single fleet row ───────── */
 function FleetRow({ cfg, memberCount, onEdit, onDelete, onToggle, toggling, onManageMembers, onDragStart, onDragOver, onDrop, onDragEnd, isDragOver }) {
   return (
@@ -55,7 +65,7 @@ function FleetRow({ cfg, memberCount, onEdit, onDelete, onToggle, toggling, onMa
         <div className="flex flex-col gap-1">
           <span className="text-white font-bold text-sm tracking-wide">{cfg.display_name || cfg.slug}</span>
           <a
-            href={`https://fleetyards.net/fleets/${cfg.slug}`}
+            href={getFleetyardsUrl(cfg)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-gray-500 text-[10px] font-mono hover:text-emerald-400 transition-colors w-fit"
@@ -302,8 +312,8 @@ function AddFleetModal({ onClose, onAdd }) {
                   : <AlertCircle size={14} />
                 }
                 {validation.found
-                  ? `Found: "${validation.fleet?.name || slug}" — ${validation.fleet?.memberCount ?? '?'} members`
-                  : 'Fleet not found on FleetYards. Double-check the slug.'
+                  ? `Found ${validation.type === 'fleet' ? 'Fleet' : 'Ship Model'}: "${validation.fleet?.name || slug}"`
+                  : 'Slug not found on FleetYards as a ship model or public fleet. Double-check the slug.'
                 }
               </div>
             )}

@@ -10,9 +10,34 @@ export async function GET(request) {
       return NextResponse.json({ error: 'slug is required' }, { status: 400 });
     }
 
-    const fleetUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}`;
-    const statsUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}/stats/members`;
+    const cleanSlug = slug.trim();
     const headers = { Accept: 'application/json' };
+
+    // 1. Check ship model first (most common for fleet asset entries)
+    const modelRes = await fetch(`https://api.fleetyards.net/v1/models/${encodeURIComponent(cleanSlug)}`, {
+      headers,
+      next: { revalidate: 60 },
+    });
+
+    if (modelRes.ok) {
+      const model = await modelRes.json();
+      const modelSlug = model.slug || cleanSlug;
+      return NextResponse.json({
+        found: true,
+        type: 'model',
+        webUrl: `https://fleetyards.net/ships/${modelSlug}`,
+        fleet: {
+          slug: modelSlug,
+          name: model.name,
+          memberCount: 1,
+        },
+        model,
+      });
+    }
+
+    // 2. Fallback to public fleet lookup
+    const fleetUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(cleanSlug)}`;
+    const statsUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(cleanSlug)}/stats/members`;
     const res = await fetch(fleetUrl, { headers, next: { revalidate: 60 } });
 
     if (res.ok) {
@@ -23,29 +48,11 @@ export async function GET(request) {
       return NextResponse.json({
         found: true,
         type: 'fleet',
+        webUrl: `https://fleetyards.net/fleets/${cleanSlug}`,
         fleet: {
           ...data,
           memberCount: memberStats?.total,
         },
-      });
-    }
-
-    const modelRes = await fetch(`https://api.fleetyards.net/v1/models/${encodeURIComponent(slug)}`, {
-      headers,
-      next: { revalidate: 60 },
-    });
-
-    if (modelRes.ok) {
-      const model = await modelRes.json();
-      return NextResponse.json({
-        found: true,
-        type: 'model',
-        fleet: {
-          slug: model.slug,
-          name: model.name,
-          memberCount: 1,
-        },
-        model,
       });
     }
 
@@ -58,3 +65,4 @@ export async function GET(request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
