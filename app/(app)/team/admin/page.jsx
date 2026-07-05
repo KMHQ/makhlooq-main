@@ -210,10 +210,10 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#040806] text-white selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-[#040806] text-white selection:bg-emerald-500/30 w-full">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(16,185,129,0.06),transparent_55%)]" />
 
-      <div className="relative z-10 w-full px-3 sm:px-5 2xl:px-8 pt-12 pb-24">
+      <div className="relative z-10 w-full px-4 md:px-6 lg:px-8 pt-8 pb-24">
         {/* Header */}
         <div className="flex flex-col gap-8 mb-12">
           <div className="flex items-center justify-between">

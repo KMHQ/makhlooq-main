@@ -53,14 +53,14 @@ export default function GlobalAdminPage() {
   if (!authed) return <LoginScreen onLogin={() => window.location.href = '/api/auth/discord/login?returnTo=/dashboard'} />;
 
   return (
-    <div className="min-h-[100dvh] bg-[#020402] text-white p-4 md:p-8 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#020402] text-white p-4 md:p-6 lg:p-8 relative overflow-hidden w-full">
       {/* Background Ambience */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.1),transparent)]" />
         <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(rgba(255,255,255,1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,1)_1px,transparent_1px)] [background-size:64px_64px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto relative z-10 flex flex-col h-[calc(100dvh-4rem)]">
+      <div className="w-full relative z-10 flex flex-col min-h-[calc(100dvh-4rem)]">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
           <div>

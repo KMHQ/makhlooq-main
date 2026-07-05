@@ -282,7 +282,7 @@ export default function AboutNewsEditor() {
   }, [news, categoryFilter, searchFilter]);
 
   return (
-    <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full pb-24 text-white">
+    <div className="flex flex-col gap-8 w-full pb-24 text-white">
       
       {/* HEADER COMMAND BAR & METRICS */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-[#050B08] rounded-[2rem] border border-white/10 shadow-2xl">
