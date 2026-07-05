@@ -8,8 +8,8 @@ export const NewsPosts: CollectionConfig = {
     defaultColumns: ["title", "category", "publishedAt"],
   },
   hooks: {
-    afterChange: [revalidatePathHook("/about")],
-    afterDelete: [revalidatePathHook("/about")],
+    afterChange: [revalidatePathHook("/news")],
+    afterDelete: [revalidatePathHook("/news")],
   },
   fields: [
     {

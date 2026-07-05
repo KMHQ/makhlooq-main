@@ -23,7 +23,7 @@ export async function GET(request) {
       published_at: item.publishedAt || new Date().toISOString(),
       media_url: item.coverImage?.url || null,
       media_type: item.coverImage ? 'image' : null,
-      category: item.category || null,
+      category: item.category || 'announcement',
       author_handle: item.authorHandle || null,
     }));
 
@@ -46,6 +46,8 @@ export async function POST(request) {
   let mediaType;
   let mediaFile;
   let publishedAt;
+  let category;
+  let authorHandle;
 
   if (contentType.includes('multipart/form-data')) {
     const formData = await request.formData();
@@ -55,6 +57,8 @@ export async function POST(request) {
     mediaType = String(formData.get('media_type') || '').trim() || null;
     mediaFile = formData.get('media_file');
     publishedAt = formData.get('published_at');
+    category = String(formData.get('category') || '').trim() || 'announcement';
+    authorHandle = String(formData.get('author_handle') || '').trim() || null;
   } else {
     const body = await request.json();
     title = String(body.title || '');
@@ -62,6 +66,8 @@ export async function POST(request) {
     mediaUrl = String(body.media_url || '').trim() || null;
     mediaType = String(body.media_type || '').trim() || null;
     publishedAt = body.published_at;
+    category = String(body.category || '').trim() || 'announcement';
+    authorHandle = String(body.author_handle || '').trim() || null;
   }
 
   if (!title?.trim() || !newsBody?.trim()) {
@@ -104,20 +110,40 @@ export async function POST(request) {
     }
   }
 
+  const insertPayload = {
+    title: title.trim(),
+    body: newsBody.trim(),
+    media_url: storedMediaUrl ? storedMediaUrl.trim() : null,
+    media_type: normalizedMediaType,
+    published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
+    category: category,
+    author_handle: authorHandle,
+  };
+
   const { data, error } = await supabase
     .from('about_news')
-    .insert({
-      title: title.trim(),
-      body: newsBody.trim(),
-      media_url: storedMediaUrl ? storedMediaUrl.trim() : null,
-      media_type: normalizedMediaType,
-      published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
-    })
+    .insert(insertPayload)
     .select()
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // If category/author_handle columns don't exist in Supabase table yet, fallback without them
+    const { data: fallbackData, error: fallbackError } = await supabase
+      .from('about_news')
+      .insert({
+        title: title.trim(),
+        body: newsBody.trim(),
+        media_url: storedMediaUrl ? storedMediaUrl.trim() : null,
+        media_type: normalizedMediaType,
+        published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (fallbackError) {
+      return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+    }
+    return NextResponse.json(fallbackData, { status: 201 });
   }
 
   return NextResponse.json(data, { status: 201 });

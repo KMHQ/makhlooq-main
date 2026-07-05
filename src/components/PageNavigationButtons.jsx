@@ -4,7 +4,7 @@ const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/team', label: 'Team' },
   { href: '/fleet', label: 'Fleet' },
-  { href: '/about', label: 'About' },
+  { href: '/news', label: 'News' },
 ];
 
 export default function PageNavigationButtons({ current }) {

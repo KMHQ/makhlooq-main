@@ -82,7 +82,7 @@ export const MSpaint: React.FC<MSpaintProps> = ({
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
       
       const loadState = async () => {
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from('team_whiteboard')
           .select('state')
           .eq('id', 'team_mspaint_last_drawing')
@@ -98,13 +98,13 @@ export const MSpaint: React.FC<MSpaintProps> = ({
       loadState();
 
       // REALTIME BROADCAST & CHANGES
-      const channel = supabase.channel('whiteboard_realtime', {
+      const channel = (supabase as any).channel('whiteboard_realtime', {
         config: { broadcast: { self: false } }
       });
       channelRef.current = channel;
 
       channel
-        .on('broadcast', { event: 'stroke' }, ({ payload }) => {
+        .on('broadcast', { event: 'stroke' }, ({ payload }: any) => {
           const { from, to, color: strokeColor, width: strokeWidth, tool: strokeTool, clear } = payload;
           const remoteCtx = getContext();
           if (!remoteCtx) return;
@@ -128,7 +128,7 @@ export const MSpaint: React.FC<MSpaintProps> = ({
         .on(
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'team_whiteboard', filter: 'id=eq.team_mspaint_last_drawing' },
-          (payload) => {
+          (payload: any) => {
             if (payload.new.state && !drawingRef.current) {
               const img = new Image();
               img.crossOrigin = "anonymous";
@@ -140,7 +140,7 @@ export const MSpaint: React.FC<MSpaintProps> = ({
         .subscribe();
 
       return () => {
-        supabase.removeChannel(channel);
+        (supabase as any).removeChannel(channel);
       };
     }
   }, [canvasHeight, canvasWidth, getContext]);
@@ -278,7 +278,7 @@ export const MSpaint: React.FC<MSpaintProps> = ({
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64data = reader.result as string;
-          const { error } = await supabase.from('team_whiteboard').upsert({
+          const { error } = await (supabase as any).from('team_whiteboard').upsert({
             id: 'team_mspaint_last_drawing',
             state: base64data,
             updated_at: new Date().toISOString(),

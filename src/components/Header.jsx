@@ -9,7 +9,7 @@ const navItems = [
   { href: '/', label: 'Home' },
   { href: '/team', label: 'Team' },
   { href: '/fleet', label: 'Fleet' },
-  { href: '/about', label: 'About' },
+  { href: '/news', label: 'News' },
 ];
 
 export default function Header({

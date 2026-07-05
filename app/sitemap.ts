@@ -48,6 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0, // Highest priority - homepage
     },
     {
+      url: `${baseUrl}/news`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/fleet`,
       lastModified,
       changeFrequency: 'weekly', // Fleet info updates regularly

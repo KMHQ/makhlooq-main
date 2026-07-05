@@ -31,7 +31,7 @@ export const SiteSettings: GlobalConfig = {
         { label: "Home", href: "/" },
         { label: "Team", href: "/team" },
         { label: "Fleet", href: "/fleet" },
-        { label: "About", href: "/about" },
+        { label: "News", href: "/news" },
       ],
       fields: [
         { name: "label", type: "text", label: "Link Label" },

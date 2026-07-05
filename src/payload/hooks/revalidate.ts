@@ -23,7 +23,7 @@ export const revalidateAllHook = () => {
     try {
       console.log(`[Revalidation] Hook triggered for all paths`);
       revalidatePath('/');
-      revalidatePath('/about');
+      revalidatePath('/news');
       revalidatePath('/fleet');
       revalidatePath('/team');
       console.log(`[Revalidation] Successfully revalidated all paths`);

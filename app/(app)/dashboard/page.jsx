@@ -71,7 +71,7 @@ export default function GlobalAdminPage() {
               Site <span className="text-emerald-500">Admin</span>
             </h1>
             <p className="text-gray-400 text-sm mt-3 max-w-xl leading-relaxed">
-              Global administration portal. Currently editing the About Page news dispatches.
+              Global administration portal. Currently editing News Page dispatches.
             </p>
           </div>
 

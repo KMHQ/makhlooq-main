@@ -47,7 +47,7 @@ function renderLexicalNode(node: any, key: number): React.ReactNode {
       const className = level === 'h2'
         ? 'text-2xl font-bold text-lime-400 mt-8 mb-3 uppercase tracking-wide'
         : 'text-xl font-semibold text-lime-300 mt-6 mb-2 uppercase tracking-wide'
-      const Tag = level as React.ElementType
+      const Tag = (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(level) ? level : 'h2') as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
       return <Tag key={key} className={className}>{renderLexicalNodes(node.children)}</Tag>
     }
     case 'quote':

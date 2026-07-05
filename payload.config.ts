@@ -37,7 +37,7 @@ export default buildConfig({
           if (globalConfig.slug === 'home-page') return `${baseUrl}/`;
         }
         if (collectionConfig) {
-          if (collectionConfig.slug === 'news-posts') return `${baseUrl}/about`;
+          if (collectionConfig.slug === 'news-posts') return `${baseUrl}/news`;
           if (collectionConfig.slug === 'team_members') return `${baseUrl}/team`;
           if (collectionConfig.slug === 'fleet_configs') return `${baseUrl}/fleet`;
         }
