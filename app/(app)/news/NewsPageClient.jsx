@@ -426,11 +426,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings }
                         </h2>
 
                         <div className="text-gray-200 text-base leading-relaxed tracking-[0.05em]" style={{ letterSpacing: '0.05em' }}>
-                          {Array.isArray(featuredPost.body) ? (
-                            <PortableTextRenderer content={featuredPost.body} />
-                          ) : (
-                            <p className="whitespace-pre-wrap">{featuredPost.body}</p>
-                          )}
+                          <PortableTextRenderer content={featuredPost.body} />
                         </div>
 
                         {featuredPost.authorHandle && (
@@ -508,11 +504,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings }
 
                             {/* Body Content */}
                             <div className="text-gray-200 text-sm leading-relaxed tracking-[0.04em] drop-shadow-sm" style={{ letterSpacing: '0.04em' }}>
-                              {Array.isArray(item.body) ? (
-                                <PortableTextRenderer content={item.body} />
-                              ) : (
-                                <p className="whitespace-pre-wrap">{item.body}</p>
-                              )}
+                              <PortableTextRenderer content={item.body} />
                             </div>
 
                             {/* Embedded Media URL if present and video/link */}

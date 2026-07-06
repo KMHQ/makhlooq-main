@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { requireFleetAdmin } from '../../../../lib/adminAuth';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { getPayloadInstance } from '../../../lib/payload';
 
 export async function PUT(request, { params }) {
   const auth = await requireFleetAdmin();
@@ -55,86 +51,99 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: 'Title and body are required.' }, { status: 400 });
   }
 
-  const allowedMediaTypes = ['image', 'video', 'link'];
-  let normalizedMediaType = null;
-  let storedMediaUrl = mediaUrl;
+  try {
+    const payload = await getPayloadInstance();
 
-  if (mediaFile && typeof mediaFile !== 'string' && typeof mediaFile.arrayBuffer === 'function') {
-    if (!mediaType || !['image', 'video'].includes(mediaType)) {
-      return NextResponse.json({ error: 'Media type must be image or video when uploading a file.' }, { status: 400 });
+    // Get current post
+    const currentPost = await payload.findByID({
+      collection: 'news-posts',
+      id,
+      depth: 1,
+    });
+
+    let mediaDocId = currentPost.coverImage?.id || currentPost.coverImage || null;
+
+    if (!keepMedia && !mediaFile && !mediaUrl) {
+      mediaDocId = null;
+    } else if (mediaFile && typeof mediaFile !== 'string' && typeof mediaFile.arrayBuffer === 'function') {
+      const bytes = Buffer.from(await mediaFile.arrayBuffer());
+      const mediaDoc = await payload.create({
+        collection: 'media',
+        data: {
+          alt: title.trim(),
+        },
+        file: {
+          data: bytes,
+          name: mediaFile.name,
+          mimetype: mediaFile.type,
+          size: mediaFile.size,
+        },
+      });
+      mediaDocId = mediaDoc.id;
+    } else if (mediaUrl && mediaUrl.startsWith('http') && mediaUrl !== currentPost.coverImage?.url) {
+      try {
+        const res = await fetch(mediaUrl);
+        if (res.ok) {
+          const arrayBuffer = await res.arrayBuffer();
+          const bytes = Buffer.from(arrayBuffer);
+          const mime = res.headers.get('content-type') || 'image/png';
+          const ext = mime.split('/')[1] || 'png';
+          const fileName = `${Date.now()}.${ext}`;
+
+          const mediaDoc = await payload.create({
+            collection: 'media',
+            data: {
+              alt: title.trim(),
+            },
+            file: {
+              data: bytes,
+              name: fileName,
+              mimetype: mime,
+              size: bytes.length,
+            },
+          });
+          mediaDocId = mediaDoc.id;
+        }
+      } catch (e) {
+        console.error('Failed to download external media:', e);
+      }
     }
 
-    const ext = String(mediaFile.name || '').split('.').pop() || (mediaType === 'image' ? 'png' : 'mp4');
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const path = `about-news/${fileName}`;
-    const bytes = Buffer.from(await mediaFile.arrayBuffer());
+    await payload.update({
+      collection: 'news-posts',
+      id,
+      data: {
+        title: title.trim(),
+        slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
+        category,
+        authorHandle,
+        coverImage: mediaDocId,
+        body: newsBody.trim(),
+      },
+    });
 
-    const { error: uploadError } = await supabase.storage
-      .from('media')
-      .upload(path, bytes, { contentType: mediaFile.type || (mediaType === 'image' ? 'image/png' : 'video/mp4'), upsert: true });
+    const populatedPost = await payload.findByID({
+      collection: 'news-posts',
+      id,
+      depth: 2,
+    });
 
-    if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
-    }
+    const formatted = {
+      id: populatedPost.id,
+      title: populatedPost.title,
+      body: typeof populatedPost.body === 'string' ? populatedPost.body : JSON.stringify(populatedPost.body || ''),
+      published_at: populatedPost.publishedAt,
+      media_url: populatedPost.coverImage?.url || null,
+      media_type: populatedPost.coverImage ? 'image' : null,
+      category: populatedPost.category,
+      author_handle: populatedPost.authorHandle,
+    };
 
-    const { data: publicData } = supabase.storage.from('media').getPublicUrl(path);
-    storedMediaUrl = publicData?.publicUrl || null;
-    normalizedMediaType = mediaType;
-  } else if (mediaUrl) {
-    if (mediaType && allowedMediaTypes.includes(mediaType)) {
-      normalizedMediaType = mediaType;
-    } else {
-      const url = mediaUrl.trim().toLowerCase();
-      if (url.match(/\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/)) normalizedMediaType = 'image';
-      else if (url.match(/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/)) normalizedMediaType = 'video';
-      else normalizedMediaType = 'link';
-    }
+    return NextResponse.json(formatted, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  const updateData = {
-    title: title.trim(),
-    body: newsBody.trim(),
-    category: category,
-    author_handle: authorHandle,
-  };
-
-  if (!keepMedia && !mediaFile && !mediaUrl) {
-    updateData.media_url = null;
-    updateData.media_type = null;
-  } else if (storedMediaUrl) {
-    updateData.media_url = storedMediaUrl;
-    updateData.media_type = normalizedMediaType;
-  }
-
-  if (publishedAt) {
-    updateData.published_at = new Date(publishedAt).toISOString();
-  }
-
-  const { data, error } = await supabase
-    .from('about_news')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    // Fallback if category/author_handle columns do not exist in table schema
-    delete updateData.category;
-    delete updateData.author_handle;
-    const { data: fallbackData, error: fallbackError } = await supabase
-      .from('about_news')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (fallbackError) {
-      return NextResponse.json({ error: fallbackError.message }, { status: 500 });
-    }
-    return NextResponse.json(fallbackData, { status: 200 });
-  }
-
-  return NextResponse.json(data, { status: 200 });
 }
 
 export async function DELETE(request, { params }) {
@@ -148,14 +157,15 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: 'News ID is required.' }, { status: 400 });
   }
 
-  const { error } = await supabase
-    .from('about_news')
-    .delete()
-    .eq('id', id);
+  try {
+    const payload = await getPayloadInstance();
+    await payload.delete({
+      collection: 'news-posts',
+      id,
+    });
 
-  if (error) {
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  return NextResponse.json({ success: true }, { status: 200 });
 }

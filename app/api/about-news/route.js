@@ -14,6 +14,7 @@ export async function GET(request) {
       collection: 'news-posts',
       sort: '-publishedAt',
       limit: 100,
+      depth: 2,
     });
 
     const formatted = result.docs.map((item) => ({
@@ -74,77 +75,86 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Title and body are required.' }, { status: 400 });
   }
 
-  const allowedMediaTypes = ['image', 'video', 'link'];
-  let normalizedMediaType = null;
-  let storedMediaUrl = mediaUrl;
+  try {
+    const payload = await getPayloadInstance();
 
-  if (mediaFile && typeof mediaFile !== 'string' && typeof mediaFile.arrayBuffer === 'function') {
-    if (!mediaType || !['image', 'video'].includes(mediaType)) {
-      return NextResponse.json({ error: 'Media type must be image or video when uploading a file.' }, { status: 400 });
+    let mediaDocId = null;
+    if (mediaFile && typeof mediaFile !== 'string' && typeof mediaFile.arrayBuffer === 'function') {
+      const bytes = Buffer.from(await mediaFile.arrayBuffer());
+      const mediaDoc = await payload.create({
+        collection: 'media',
+        data: {
+          alt: title.trim(),
+        },
+        file: {
+          data: bytes,
+          name: mediaFile.name,
+          mimetype: mediaFile.type,
+          size: mediaFile.size,
+        },
+      });
+      mediaDocId = mediaDoc.id;
+    } else if (mediaUrl && mediaUrl.startsWith('http')) {
+      try {
+        const res = await fetch(mediaUrl);
+        if (res.ok) {
+          const arrayBuffer = await res.arrayBuffer();
+          const bytes = Buffer.from(arrayBuffer);
+          const mime = res.headers.get('content-type') || 'image/png';
+          const ext = mime.split('/')[1] || 'png';
+          const fileName = `${Date.now()}.${ext}`;
+
+          const mediaDoc = await payload.create({
+            collection: 'media',
+            data: {
+              alt: title.trim(),
+            },
+            file: {
+              data: bytes,
+              name: fileName,
+              mimetype: mime,
+              size: bytes.length,
+            },
+          });
+          mediaDocId = mediaDoc.id;
+        }
+      } catch (e) {
+        console.error('Failed to download external media URL:', e);
+      }
     }
 
-    const ext = String(mediaFile.name || '').split('.').pop() || (mediaType === 'image' ? 'png' : 'mp4');
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const path = `about-news/${fileName}`;
-    const bytes = Buffer.from(await mediaFile.arrayBuffer());
-
-    const { error: uploadError } = await supabase.storage
-      .from('media')
-      .upload(path, bytes, { contentType: mediaFile.type || (mediaType === 'image' ? 'image/png' : 'video/mp4'), upsert: true });
-
-    if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
-    }
-
-    const { data: publicData } = supabase.storage.from('media').getPublicUrl(path);
-    storedMediaUrl = publicData?.publicUrl || null;
-    normalizedMediaType = mediaType;
-  } else if (mediaUrl) {
-    if (mediaType && allowedMediaTypes.includes(mediaType)) {
-      normalizedMediaType = mediaType;
-    } else {
-      const url = mediaUrl.trim().toLowerCase();
-      if (url.match(/\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/)) normalizedMediaType = 'image';
-      else if (url.match(/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/)) normalizedMediaType = 'video';
-      else normalizedMediaType = 'link';
-    }
-  }
-
-  const insertPayload = {
-    title: title.trim(),
-    body: newsBody.trim(),
-    media_url: storedMediaUrl ? storedMediaUrl.trim() : null,
-    media_type: normalizedMediaType,
-    published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
-    category: category,
-    author_handle: authorHandle,
-  };
-
-  const { data, error } = await supabase
-    .from('about_news')
-    .insert(insertPayload)
-    .select()
-    .single();
-
-  if (error) {
-    // If category/author_handle columns don't exist in Supabase table yet, fallback without them
-    const { data: fallbackData, error: fallbackError } = await supabase
-      .from('about_news')
-      .insert({
+    const createdPost = await payload.create({
+      collection: 'news-posts',
+      data: {
         title: title.trim(),
+        slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        publishedAt: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
+        category,
+        authorHandle,
+        coverImage: mediaDocId || null,
         body: newsBody.trim(),
-        media_url: storedMediaUrl ? storedMediaUrl.trim() : null,
-        media_type: normalizedMediaType,
-        published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
-      })
-      .select()
-      .single();
+      },
+    });
 
-    if (fallbackError) {
-      return NextResponse.json({ error: fallbackError.message }, { status: 500 });
-    }
-    return NextResponse.json(fallbackData, { status: 201 });
+    const populatedPost = await payload.findByID({
+      collection: 'news-posts',
+      id: createdPost.id,
+      depth: 2,
+    });
+
+    const formatted = {
+      id: populatedPost.id,
+      title: populatedPost.title,
+      body: typeof populatedPost.body === 'string' ? populatedPost.body : JSON.stringify(populatedPost.body || ''),
+      published_at: populatedPost.publishedAt,
+      media_url: populatedPost.coverImage?.url || null,
+      media_type: populatedPost.coverImage ? 'image' : null,
+      category: populatedPost.category,
+      author_handle: populatedPost.authorHandle,
+    };
+
+    return NextResponse.json(formatted, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  return NextResponse.json(data, { status: 201 });
 }

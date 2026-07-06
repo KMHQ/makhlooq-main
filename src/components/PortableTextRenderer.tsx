@@ -6,13 +6,29 @@ export function PortableTextRenderer({ content }: { content: any }) {
 
   // Plain string (legacy or simple content)
   if (typeof content === 'string') {
-    return (
-      <div className="prose-invert max-w-none">
-        {content.split('\n').map((line, i) => (
-          <p key={i} className="text-gray-300 leading-relaxed mb-4">{line}</p>
-        ))}
-      </div>
-    )
+    let parsedContent = null;
+    if (content.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(content);
+        if (parsed?.root?.children) {
+          parsedContent = parsed;
+        }
+      } catch (e) {
+        // Not a JSON structure, fall back to string parsing
+      }
+    }
+
+    if (parsedContent) {
+      content = parsedContent;
+    } else {
+      return (
+        <div className="prose-invert max-w-none">
+          {content.split('\n').map((line, i) => (
+            <p key={i} className="text-gray-300 leading-relaxed mb-4">{line}</p>
+          ))}
+        </div>
+      );
+    }
   }
 
   // Payload Lexical JSON root node

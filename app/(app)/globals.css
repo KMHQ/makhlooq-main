@@ -277,9 +277,12 @@ body::before {
   position: absolute;
   bottom: 32px;
   left: 32px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.015rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.05rem;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .preloader .shadow-top {

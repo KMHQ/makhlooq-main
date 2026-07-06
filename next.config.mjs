@@ -61,7 +61,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' *.discordapp.com giscus.app fleetyards.net api.fleetyards.net storage.fltyrd.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: fleetyards.net api.fleetyards.net storage.fltyrd.net; font-src 'self' data: fonts.googleapis.com fonts.gstatic.com; connect-src 'self' data: blob: *.supabase.co wss://*.supabase.co *.discordapp.com giscus.app fleetyards.net api.fleetyards.net storage.fltyrd.net; frame-src 'self' giscus.app fleetyards.net; media-src 'self' data: https: fleetyards.net api.fleetyards.net storage.fltyrd.net; worker-src 'self' blob:; object-src 'none';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' *.discordapp.com giscus.app fleetyards.net api.fleetyards.net storage.fltyrd.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https: fleetyards.net api.fleetyards.net storage.fltyrd.net; font-src 'self' data: fonts.googleapis.com fonts.gstatic.com; connect-src 'self' data: blob: *.supabase.co wss://*.supabase.co *.discordapp.com giscus.app fleetyards.net api.fleetyards.net storage.fltyrd.net; frame-src 'self' giscus.app fleetyards.net; media-src 'self' data: blob: https: fleetyards.net api.fleetyards.net storage.fltyrd.net; worker-src 'self' blob:; object-src 'none';",
           },
         ],
       },
