@@ -50,5 +50,22 @@ export async function generateMetadata() {
 
 export default async function Page() {
   const { newsPosts, siteSettings } = await getNewsPageData();
-  return <NewsPageClient newsPosts={newsPosts} siteSettings={siteSettings} />;
+
+  // Determine critical images to preload (default background + first few cover images)
+  const preloadUrls = ['/backgrounds/9a5b333b-3981-4d6a-a235-7e91fc1c6ff8.jpg'];
+  newsPosts.forEach((post) => {
+    const url = post.coverImage?.url || post.coverImage?.asset?.url || (post.media_type === 'image' ? post.media_url : null);
+    if (url && preloadUrls.length < 8) {
+      preloadUrls.push(url);
+    }
+  });
+
+  return (
+    <>
+      {preloadUrls.map((url) => (
+        <link key={url} rel="preload" as="image" href={url} />
+      ))}
+      <NewsPageClient newsPosts={newsPosts} siteSettings={siteSettings} />
+    </>
+  );
 }
