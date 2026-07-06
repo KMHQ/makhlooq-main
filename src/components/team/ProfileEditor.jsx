@@ -1,7 +1,29 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Upload, Palette, Shield } from 'lucide-react';
+import { Upload, Palette, Shield, Crown, Sword, Users, Zap, Terminal } from 'lucide-react';
+
+const ICON_MAP = {
+  crown: Crown,
+  shield: Shield,
+  sword: Sword,
+  users: Users,
+  zap: Zap,
+  terminal: Terminal
+};
+
+const getRoleConfig = (role) => {
+  const r = role?.toLowerCase() || '';
+  if (r.includes('founder') || r.includes('quaid') || r.includes('admiral'))
+    return { Icon: Crown,  accent: '#fbbf24', label: 'FOUNDER' };
+  if (r.includes('council'))
+    return { Icon: Shield, accent: '#f87171', label: 'COUNCIL' };
+  if (r.includes('advisor'))
+    return { Icon: Terminal, accent: '#60a5fa', label: 'ADVISOR' };
+  if (r.includes('kmhq'))
+    return { Icon: Zap,      accent: '#10b981', label: 'KMHQ' };
+  return { Icon: Users, accent: '#00ff41', label: 'CREW' };
+};
 import { ColorPicker, PRESET_COLORS } from './AdminComponents';
 import AvatarCropperModal from './AvatarCropperModal';
 import { AnimatePresence } from 'motion/react';
@@ -54,8 +76,28 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
         </div>
         <div>
           <div className="text-2xl font-bold text-white tracking-tight">{member.name}</div>
-          <div className="text-emerald-400 font-mono text-sm uppercase tracking-widest mt-1">{member.role}</div>
-          <div className="text-gray-600 text-xs mt-2 font-mono">{member.discord_tag || 'DISCORD_N/A'}</div>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {(member.role || 'KMHQ').split(',').map(r => r.trim()).filter(Boolean).map((flair, idx) => {
+              const { Icon: flairIcon, accent: flairAccent } = getRoleConfig(flair);
+              const showIcon = idx === 0 && member.flair_icon !== 'none' ? (ICON_MAP[member.flair_icon?.toLowerCase()] || flairIcon) : flairIcon;
+              const currentAccent = member.flair_color || flairAccent || '#10b981';
+              return (
+                <span
+                  key={flair}
+                  className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-full border"
+                  style={{
+                    color: currentAccent,
+                    background: `${currentAccent}12`,
+                    borderColor: `${currentAccent}30`,
+                  }}
+                >
+                  {showIcon && React.createElement(showIcon, { size: 10 })}
+                  {flair}
+                </span>
+              );
+            })}
+          </div>
+          <div className="text-gray-600 text-xs mt-2.5 font-mono">{member.discord_tag || 'DISCORD_N/A'}</div>
           {member.is_admin && (
             <div className="flex items-center gap-1.5 mt-3 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 w-fit">
               <Shield size={10} className="text-emerald-400" />

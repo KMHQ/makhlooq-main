@@ -117,7 +117,7 @@ const formatDate = (date) => {
 
 const getRoleConfig = (role) => {
   const r = role?.toLowerCase() || '';
-  if (r.includes('founder') || r.includes('quaid'))
+  if (r.includes('founder') || r.includes('quaid') || r.includes('admiral'))
     return { Icon: Crown,  accent: '#fbbf24', label: 'FOUNDER' };
   if (r.includes('council'))
     return { Icon: Shield, accent: '#f87171', label: 'COUNCIL' };
@@ -178,7 +178,7 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
       style={{ background: 'rgba(1, 8, 3, 0.9)' }}
     >
       <motion.div
-        className="relative w-full max-w-lg"
+        className="relative w-full max-w-2xl"
         style={{
           background: 'linear-gradient(160deg, #020f05 0%, #010c04 100%)',
           border: `1px solid ${frameColor}40`,
@@ -192,15 +192,15 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
         onClick={e => e.stopPropagation()}
       >
         {/* HUD Header */}
-        <div className="flex items-center justify-between px-4 h-9 border-b rounded-t-[4px]" style={{ borderColor: `${frameColor}25`, background: `${frameColor}08` }}>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-sm animate-pulse" style={{ background: frameColor }} />
-            <span className="font-mono text-[9px] tracking-[0.25em] uppercase" style={{ color: frameColor }}>
+        <div className="flex items-center justify-between px-6 h-11 border-b rounded-t-[4px]" style={{ borderColor: `${frameColor}25`, background: `${frameColor}08` }}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-2 h-2 rounded-sm animate-pulse" style={{ background: frameColor }} />
+            <span className="font-mono text-[11px] tracking-[0.25em] uppercase" style={{ color: frameColor }}>
               CITIZEN_DOSSIER // ACCESS_GRANTED
             </span>
           </div>
-          <button onClick={onClose} className="transition-colors p-1 cursor-pointer" style={{ color: frameColor }}>
-            <X size={14} />
+          <button onClick={onClose} className="transition-colors p-1.5 cursor-pointer hover:opacity-80" style={{ color: frameColor }}>
+            <X size={16} />
           </button>
         </div>
 
@@ -209,23 +209,23 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
           style={{ background: 'repeating-linear-gradient(0deg,transparent,transparent 3px,#00000018 3px,#00000018 4px)' }} />
 
         {/* Corner brackets */}
-        {['top-2 left-2 border-t border-l','top-2 right-2 border-t border-r',
-          'bottom-2 left-2 border-b border-l','bottom-2 right-2 border-b border-r'].map((c,i) => (
-          <div key={i} className={`absolute w-4 h-4 ${c} pointer-events-none`}
+        {['top-3 left-3 border-t border-l','top-3 right-3 border-t border-r',
+          'bottom-3 left-3 border-b border-l','bottom-3 right-3 border-b border-r'].map((c,i) => (
+          <div key={i} className={`absolute w-5 h-5 ${c} pointer-events-none`}
             style={{ borderColor: `${frameColor}50` }} />
         ))}
 
-        <div className="relative px-6 pt-5 pb-6">
+        <div className="relative px-8 pt-7 pb-8">
           {/* Top section */}
-          <div className="flex gap-5 mb-6">
+          <div className="flex gap-6 mb-8">
             {/* Avatar */}
             <div className="flex-shrink-0">
               <div
-                className="w-24 h-24 flex items-center justify-center text-4xl font-bold overflow-hidden"
+                className="w-32 h-32 flex items-center justify-center text-5xl font-bold overflow-hidden"
                 style={{
                   background: `${frameColor}10`,
                   border: `2px solid ${frameColor}60`,
-                  clipPath: 'polygon(0 0,calc(100% - 12px) 0,100% 14px,100% 100%,12px 100%,0 calc(100% - 12px))',
+                  clipPath: 'polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))',
                   color: frameColor,
                 }}
               >
@@ -235,42 +235,57 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                 }
               </div>
               {/* Status pill */}
-              <div className="mt-2 flex items-center justify-center gap-1.5 py-1 border font-mono text-[8px] tracking-widest uppercase"
+              <div className="mt-2.5 flex items-center justify-center gap-1.5 py-1.5 border font-mono text-[10px] tracking-widest uppercase"
                 style={{ borderColor: `${frameColor}25`, background: `${frameColor}08`, color: frameColor }}>
-                <div className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+                <div className={`w-2 h-2 rounded-full ${status.dot}`} />
                 {status.label}
               </div>
             </div>
 
             {/* Name block */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <h2 className="text-2xl font-bold text-white tracking-tight leading-none truncate">
+            <div className="flex-1 min-w-0 space-y-3">
+              <div className="flex items-center gap-3">
+                <h2 className="text-3xl font-bold text-white tracking-tight leading-none truncate">
                   {member.name || 'UNKNOWN_SUBJECT'}
                 </h2>
                 {currentIsAdmin && (
-                  <span className="flex-shrink-0 px-2 py-0.5 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
-                    <Shield size={10} className="text-purple-400" /> ADMIN
+                  <span className="flex-shrink-0 px-2.5 py-1 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                    <Shield size={11} className="text-purple-400" /> ADMIN
                   </span>
                 )}
               </div>
-              <div
-                className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase px-2 py-1 mb-3"
-                style={{ color: accent, background: `${accent}12`, border: `1px solid ${accent}30`, borderRadius:'2px' }}
-              >
-                {Icon && <Icon size={10} />}{member.role || 'KMHQ'}
+              <div className="flex flex-wrap gap-1.5">
+                {(member.role || 'KMHQ').split(',').map(r => r.trim()).filter(Boolean).map((flair, idx) => {
+                  const { Icon: flairIcon, accent: flairAccent } = getRoleConfig(flair);
+                  const showIcon = idx === 0 && member.flair_icon !== 'none' ? (ICON_MAP[member.flair_icon?.toLowerCase()] || flairIcon) : flairIcon;
+                  const currentAccent = member.flair_color || flairAccent || '#10b981';
+                  return (
+                    <span
+                      key={flair}
+                      className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded border"
+                      style={{
+                        color: currentAccent,
+                        background: `${currentAccent}12`,
+                        borderColor: `${currentAccent}30`,
+                      }}
+                    >
+                      {showIcon && React.createElement(showIcon, { size: 11 })}
+                      {flair}
+                    </span>
+                  );
+                })}
               </div>
               {/* Meta fields */}
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 pt-1">
                 {[
                   { label: 'RANK', val: member.category || 'Makhlooq' },
                   { label: 'DEPLOYED', val: formatDate(member.joined_at) },
                   { label: 'CLEARANCE', val: (member.sec_level && SEC_LEVELS.includes(member.sec_level)) ? member.sec_level : 'R0' },
                   { label: 'UID', val: member.discord_uid || '0x??????' },
                 ].map(f => (
-                  <div key={f.label} className="border-l-2 pl-2" style={{ borderColor: `${frameColor}30` }}>
-                    <div className="font-mono text-[7px] tracking-[0.2em] text-[#2a5c35] uppercase mb-0.5">{f.label}</div>
-                    <div className="font-mono text-[10px] text-white uppercase tracking-wide truncate">{f.val}</div>
+                  <div key={f.label} className="border-l-2 pl-3.5" style={{ borderColor: `${frameColor}30` }}>
+                    <div className="font-mono text-[9px] tracking-[0.2em] text-[#2a5c35] uppercase mb-0.5">{f.label}</div>
+                    <div className="font-mono text-[12px] text-white uppercase tracking-wide truncate">{f.val}</div>
                   </div>
                 ))}
               </div>
@@ -279,36 +294,36 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
 
           {/* Admin Controls */}
           {isAdmin && (
-            <div className="border-t pt-4 pb-2 mb-4" style={{ borderColor: `${frameColor}20` }}>
-              <div className="flex items-center justify-between mb-2.5">
+            <div className="border-t pt-5 pb-3 mb-5" style={{ borderColor: `${frameColor}20` }}>
+              <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2">
-                  <Shield size={12} className="text-emerald-400" />
-                  <span className="font-mono text-[9px] tracking-[0.25em] text-emerald-400 uppercase font-black">
+                  <Shield size={14} className="text-emerald-400" />
+                  <span className="font-mono text-[10px] tracking-[0.25em] text-emerald-400 uppercase font-black">
                     ADMIN_OVERRIDE_CONTROLS //
                   </span>
                 </div>
                 {updating && (
-                  <span className="font-mono text-[9px] text-lime-400 animate-pulse uppercase">SAVING…</span>
+                  <span className="font-mono text-[10px] text-lime-400 animate-pulse uppercase">SAVING…</span>
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 {/* Active / Inactive Status Toggle Button */}
                 <button
                   type="button"
                   onClick={handleToggleStatus}
                   disabled={updating}
-                  className={`flex items-center justify-between px-3.5 py-2 rounded-lg border font-mono text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg border font-mono text-sm font-bold transition-all cursor-pointer ${
                     currentStatus === 'active'
                       ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
                       : 'bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60'
                   }`}
                 >
                   <span className="flex items-center gap-2 truncate">
-                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${currentStatus === 'active' ? 'bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-gray-500'}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${currentStatus === 'active' ? 'bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-gray-500'}`} />
                     {currentStatus === 'active' ? 'ACTIVE' : 'INACTIVE'}
                   </span>
-                  <span className="text-[9px] uppercase tracking-widest opacity-60 ml-1">TOGGLE</span>
+                  <span className="text-[10px] uppercase tracking-widest opacity-60 ml-1">TOGGLE</span>
                 </button>
 
                 {/* Admin Power Toggle Button */}
@@ -316,17 +331,17 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                   type="button"
                   onClick={handleToggleAdmin}
                   disabled={updating}
-                  className={`flex items-center justify-between px-3.5 py-2 rounded-lg border font-mono text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg border font-mono text-sm font-bold transition-all cursor-pointer ${
                     currentIsAdmin
                       ? 'bg-purple-500/15 border-purple-500/40 text-purple-300 hover:bg-purple-500/25 shadow-[0_0_12px_rgba(168,85,247,0.15)]'
                       : 'bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60'
                   }`}
                 >
                   <span className="flex items-center gap-2 truncate">
-                    <Shield size={12} className={currentIsAdmin ? 'text-purple-400 flex-shrink-0' : 'text-gray-500 flex-shrink-0'} />
+                    <Shield size={14} className={currentIsAdmin ? 'text-purple-400 flex-shrink-0' : 'text-gray-500 flex-shrink-0'} />
                     {currentIsAdmin ? 'ADMIN: ON' : 'ADMIN: OFF'}
                   </span>
-                  <span className="text-[9px] uppercase tracking-widest opacity-60 ml-1">TOGGLE</span>
+                  <span className="text-[10px] uppercase tracking-widest opacity-60 ml-1">TOGGLE</span>
                 </button>
               </div>
             </div>
@@ -334,21 +349,21 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
 
           {/* Awards */}
           {member.awards && member.awards.length > 0 && (
-            <div className="border-t pt-4 pb-2" style={{ borderColor: `${frameColor}15` }}>
-              <div className="font-mono text-[8px] tracking-[0.2em] text-[#2a5c35] uppercase mb-3">SERVICE_AWARDS //</div>
-              <div className="flex flex-wrap gap-3">
+            <div className="border-t pt-5 pb-3" style={{ borderColor: `${frameColor}15` }}>
+              <div className="font-mono text-[10px] tracking-[0.2em] text-[#2a5c35] uppercase mb-4">SERVICE_AWARDS //</div>
+              <div className="flex flex-wrap gap-4">
                 {member.awards.map((award, i) => {
                   const imgUrl = getAwardImage(award.category, award.tier);
                   const details = AWARD_DETAILS[award.category];
                   const title = `${award.category} - ${award.tier}`;
                   return (
-                    <div key={i} className="group/award relative flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/40 hover:bg-white/[0.06] transition-all flex-shrink-0">
+                    <div key={i} className="group/award relative flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/40 hover:bg-white/[0.06] transition-all flex-shrink-0">
                       {imgUrl && (
-                        <img src={imgUrl} alt={title} className="w-8 h-8 object-contain flex-shrink-0" />
+                        <img src={imgUrl} alt={title} className="w-10 h-10 object-contain flex-shrink-0" />
                       )}
-                      <div className="flex flex-col pr-1 min-w-0">
-                        <span className="font-mono text-xs text-white font-bold leading-tight whitespace-nowrap">{award.category}</span>
-                        <span className="font-mono text-[10px] text-emerald-400 font-medium mt-0.5 tracking-wider uppercase whitespace-nowrap">{award.tier}</span>
+                      <div className="flex flex-col pr-1.5 min-w-0">
+                        <span className="font-mono text-sm text-white font-bold leading-tight whitespace-nowrap">{award.category}</span>
+                        <span className="font-mono text-xs text-emerald-400 font-medium mt-0.5 tracking-wider uppercase whitespace-nowrap">{award.tier}</span>
                       </div>
                       
                       {/* Tooltip on hover */}
@@ -369,9 +384,9 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
           )}
 
           {/* Bio */}
-          <div className="border-t pt-4" style={{ borderColor: `${frameColor}15` }}>
-            <div className="font-mono text-[8px] tracking-[0.2em] text-[#2a5c35] uppercase mb-2">SUBJECT_BIO //</div>
-            <p className="font-mono text-[11px] leading-relaxed" style={{ color: `${frameColor}90` }}>
+          <div className="border-t pt-5" style={{ borderColor: `${frameColor}15` }}>
+            <div className="font-mono text-[10px] tracking-[0.2em] text-[#2a5c35] uppercase mb-2.5">SUBJECT_BIO //</div>
+            <p className="font-mono text-xs md:text-sm leading-relaxed" style={{ color: `${frameColor}90` }}>
               {member.bio || 'NO BIO DATA FOUND'}
             </p>
           </div>

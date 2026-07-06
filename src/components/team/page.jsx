@@ -39,14 +39,14 @@ const CATEGORIES = [
 const SEC_LEVELS = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
 
 const STATUS_META = {
-  active:   { color: '#00ff41', label: 'ACTIVE',   dot: 'bg-[#00ff41] shadow-[0_0_8px_#00ff41] animate-pulse' },
+  active: { color: '#00ff41', label: 'ACTIVE', dot: 'bg-[#00ff41] shadow-[0_0_8px_#00ff41] animate-pulse' },
   inactive: { color: '#2a3a2a', label: 'INACTIVE', dot: 'bg-[#1a3020]' },
 };
 
 const PRESET_COLORS = [
-  '#10b981','#34d399','#6ee7b7','#a78bfa',
-  '#f59e0b','#ef4444','#3b82f6','#ec4899',
-  '#06b6d4','#84cc16','#f97316','#8b5cf6'
+  '#10b981', '#34d399', '#6ee7b7', '#a78bfa',
+  '#f59e0b', '#ef4444', '#3b82f6', '#ec4899',
+  '#06b6d4', '#84cc16', '#f97316', '#8b5cf6'
 ];
 
 const FLAIR_ORDER = {
@@ -177,19 +177,19 @@ const getAwardImage = (category, tier) => {
 
 const formatDate = (date) => {
   if (!date) return 'N/A';
-  return new Date(date).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
 const getRoleConfig = (role) => {
   const r = role?.toLowerCase() || '';
-  if (r.includes('founder') || r.includes('quaid'))
-    return { Icon: Crown,  accent: '#fbbf24', label: 'FOUNDER' };
+  if (r.includes('founder') || r.includes('quaid') || r.includes('admiral'))
+    return { Icon: Crown, accent: '#fbbf24', label: 'FOUNDER' };
   if (r.includes('council'))
     return { Icon: Shield, accent: '#f87171', label: 'COUNCIL' };
   if (r.includes('advisor'))
     return { Icon: Terminal, accent: '#60a5fa', label: 'ADVISOR' };
   if (r.includes('kmhq'))
-    return { Icon: Zap,      accent: '#10b981', label: 'KMHQ' };
+    return { Icon: Zap, accent: '#10b981', label: 'KMHQ' };
   return { Icon: Users, accent: '#00ff41', label: 'CREW' };
 };
 
@@ -235,12 +235,12 @@ const MemberCard = ({ member, onClick }) => {
         style={{ background: 'repeating-linear-gradient(0deg,transparent,transparent 3px,#00000012 3px,#00000012 4px)' }} />
 
       {/* Corner accents */}
-      {['top-0 left-0 border-t border-l','top-0 right-0 border-t border-r',
-        'bottom-0 left-0 border-b border-l','bottom-0 right-0 border-b border-r'].map((c,i) => (
-        <div key={i}
-          className={`absolute w-3 h-3 ${c} opacity-0 group-hover:opacity-100 transition-all duration-200`}
-          style={{ borderColor: frameColor }} />
-      ))}
+      {['top-0 left-0 border-t border-l', 'top-0 right-0 border-t border-r',
+        'bottom-0 left-0 border-b border-l', 'bottom-0 right-0 border-b border-r'].map((c, i) => (
+          <div key={i}
+            className={`absolute w-3 h-3 ${c} opacity-0 group-hover:opacity-100 transition-all duration-200`}
+            style={{ borderColor: frameColor }} />
+        ))}
 
       {/* Glitch bar */}
       <div className="absolute right-0 top-0 bottom-0 w-[2px] opacity-0 group-hover:opacity-100 transition-opacity"
@@ -278,18 +278,27 @@ const MemberCard = ({ member, onClick }) => {
           </div>
           <div>
             <h3 className="text-xl font-bold tracking-tight text-white transition-colors group-hover:text-lime-200">{member.name}</h3>
-            <span
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase px-3 py-1 bg-emerald-500/10 border border-emerald-500/20"
-              style={{
-                color: accent,
-                background: `${accent}12`,
-                borderColor: `${accent}30`,
-                borderRadius: '999px',
-              }}
-            >
-              {Icon && <Icon size={12} />}
-              {member.role || 'KMHQ'}
-            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {(member.role || 'KMHQ').split(',').map(r => r.trim()).filter(Boolean).map((flair, idx) => {
+                const { Icon: flairIcon, accent: flairAccent } = getRoleConfig(flair);
+                const showIcon = idx === 0 && member.flair_icon !== 'none' ? (ICON_MAP[member.flair_icon?.toLowerCase()] || flairIcon) : flairIcon;
+                const currentAccent = member.flair_color || flairAccent || '#10b981';
+                return (
+                  <span
+                    key={flair}
+                    className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full"
+                    style={{
+                      color: currentAccent,
+                      background: `${currentAccent}12`,
+                      borderColor: `${currentAccent}30`,
+                    }}
+                  >
+                    {showIcon && React.createElement(showIcon, { size: 10 })}
+                    {flair}
+                  </span>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -337,7 +346,7 @@ const MemberCard = ({ member, onClick }) => {
 // FILTER BAR
 // ============================================================
 
-const FilterBar = ({ search, setSearch, roleFilter, setRoleFilter, categoryFilter, setCategoryFilter, availableRoles = [] }) => (
+const FilterBar = ({ search, setSearch, statusFilter, setStatusFilter, categoryFilter, setCategoryFilter }) => (
   <div className="grid gap-4 rounded-[2rem] border border-lime-300/10 bg-black/35 p-4 shadow-[0_20px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:grid-cols-[1.7fr_1fr_1fr]">
     <div className="space-y-2">
       <label className="px-1 text-sm font-black uppercase tracking-[0.18em] text-lime-100/45">Crew Search</label>
@@ -354,15 +363,22 @@ const FilterBar = ({ search, setSearch, roleFilter, setRoleFilter, categoryFilte
     </div>
 
     <div className="space-y-2">
-      <label className="px-1 text-sm font-black uppercase tracking-[0.18em] text-lime-100/45">Flair</label>
-      <select
-        value={roleFilter}
-        onChange={e => setRoleFilter(e.target.value)}
-        className="w-full cursor-pointer appearance-none rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-4 text-base text-white transition-all hover:bg-lime-300/[0.055] focus:border-lime-300/35 focus:outline-none"
-      >
-        <option value="" className="bg-[#0a0a0a]">All Flairs</option>
-        {availableRoles.map(role => <option key={role} value={role} className="bg-[#0a0a0a]">{role}</option>)}
-      </select>
+      <label className="px-1 text-sm font-black uppercase tracking-[0.18em] text-lime-100/45">Status</label>
+      <div className="flex bg-white/[0.035] border border-white/10 rounded-2xl p-1 h-[58px]">
+        {['all', 'active', 'inactive'].map(status => (
+          <button
+            key={status}
+            type="button"
+            onClick={() => setStatusFilter(status)}
+            className={`flex-1 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.12em] transition-all cursor-pointer ${statusFilter === status
+                ? 'bg-lime-300 text-[#020402] shadow-[0_0_10px_rgba(163,230,53,0.2)]'
+                : 'text-lime-100/40 hover:text-white'
+              }`}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
     </div>
 
     <div className="space-y-2">
@@ -373,7 +389,14 @@ const FilterBar = ({ search, setSearch, roleFilter, setRoleFilter, categoryFilte
         className="w-full cursor-pointer appearance-none rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-4 text-base text-white transition-all hover:bg-lime-300/[0.055] focus:border-lime-300/35 focus:outline-none"
       >
         <option value="" className="bg-[#0a0a0a]">All Ranks</option>
-        {CATEGORIES.map(cat => <option key={cat} value={cat} className="bg-[#0a0a0a]">{cat}</option>)}
+        <optgroup label="Categories" className="bg-[#0a0a0a] text-lime-400 font-bold">
+          <option value="group:commanders" className="bg-[#0a0a0a] text-white">Commanders (C1-C3)</option>
+          <option value="group:officers" className="bg-[#0a0a0a] text-white">Officers (O1-O5)</option>
+          <option value="group:enlists" className="bg-[#0a0a0a] text-white">Enlists (E1-E5)</option>
+        </optgroup>
+        <optgroup label="Individual Ranks" className="bg-[#0a0a0a] text-lime-400 font-bold">
+          {CATEGORIES.map(cat => <option key={cat} value={cat} className="bg-[#0a0a0a] text-white">{cat}</option>)}
+        </optgroup>
       </select>
     </div>
   </div>
@@ -437,14 +460,14 @@ const JoinCommunityCTA = ({ joinCTA = {} }) => (
 
 const AddMemberModal = ({ onClose, onAdded }) => {
   const blank = {
-    discord_uid:'', discord_tag:'', name:'', role:'KMHQ',
-    category:'Makhlooq', sec_level:'R0', node_color:'#10b981', bio:'', status:'active', is_admin:false, avatar_url:'',
-    flair_color:'#10b981', flair_icon:'zap', awards: []
+    discord_uid: '', discord_tag: '', name: '', role: 'KMHQ',
+    category: 'Makhlooq', sec_level: 'R0', node_color: '#10b981', bio: '', status: 'active', is_admin: false, avatar_url: '',
+    flair_color: '#10b981', flair_icon: 'zap', awards: []
   };
   const [form, setForm] = useState(blank);
   const [saving, setSaving] = useState(false);
-  const [error, setError]   = useState('');
-  
+  const [error, setError] = useState('');
+
   const save = async () => {
     if (!form.discord_uid || !form.name) { setError('Discord UID and name are required.'); return; }
     setSaving(true);
@@ -459,19 +482,19 @@ const AddMemberModal = ({ onClose, onAdded }) => {
   };
 
   const inputCls = "w-full px-4 py-3 text-sm text-emerald-400 placeholder:text-emerald-900 focus:outline-none transition-all";
-  const inputStyle = { background:'#020d05', border:'1px solid #0f3a18', borderRadius:'12px', fontFamily:"'Share Tech Mono', monospace" };
+  const inputStyle = { background: '#020d05', border: '1px solid #0f3a18', borderRadius: '12px', fontFamily: "'Share Tech Mono', monospace" };
 
   return (
     <motion.div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl"
-      initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
       style={{ background: 'rgba(2,13,5,0.95)' }}
     >
       <motion.div
         className="w-full max-w-md overflow-y-auto max-h-[90vh] shadow-[0_0_50px_rgba(16,185,129,0.1)]"
-        style={{ background:'#020d05', border:'1px solid #0f5c1e', borderRadius:'24px' }}
-        initial={{ scale:0.95, y:20 }} animate={{ scale:1, y:0 }} exit={{ scale:0.95, y:20 }}
+        style={{ background: '#020d05', border: '1px solid #0f5c1e', borderRadius: '24px' }}
+        initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
@@ -484,10 +507,10 @@ const AddMemberModal = ({ onClose, onAdded }) => {
 
         <div className="p-6 space-y-5">
           {[
-            { label:'DISCORD_UID *', key:'discord_uid', type:'text', placeholder: 'e.g. 309682434507800578' },
-            { label:'DISCORD_TAG',   key:'discord_tag', type:'text', placeholder: 'e.g. Commander#0001' },
-            { label:'DISPLAY_NAME *',key:'name',        type:'text', placeholder: 'e.g. John Doe' },
-            { label:'AVATAR_URL',    key:'avatar_url',  type:'url',  placeholder: 'https://...'  },
+            { label: 'DISCORD_UID *', key: 'discord_uid', type: 'text', placeholder: 'e.g. 309682434507800578' },
+            { label: 'DISCORD_TAG', key: 'discord_tag', type: 'text', placeholder: 'e.g. Commander#0001' },
+            { label: 'DISPLAY_NAME *', key: 'name', type: 'text', placeholder: 'e.g. John Doe' },
+            { label: 'AVATAR_URL', key: 'avatar_url', type: 'url', placeholder: 'https://...' },
           ].map(f => (
             <div key={f.key} className="space-y-1.5">
               <label className="block font-mono text-[9px] tracking-[0.2em] text-emerald-500/50 uppercase font-bold px-1">{f.label}</label>
@@ -513,7 +536,7 @@ const AddMemberModal = ({ onClose, onAdded }) => {
               <div className="space-y-1.5">
                 <label className="block font-mono text-[9px] tracking-[0.2em] text-emerald-500/50 uppercase font-bold px-1">FLAIR ICON</label>
                 <select value={form.flair_icon} onChange={e => setForm(p => ({ ...p, flair_icon: e.target.value }))}
-                  className={inputCls} style={{ ...inputStyle, color:'#10b981' }}>
+                  className={inputCls} style={{ ...inputStyle, color: '#10b981' }}>
                   {['crown', 'shield', 'sword', 'users', 'zap', 'terminal', 'none'].map(o => (
                     <option key={o} value={o} className="bg-[#020d05]">{o.toUpperCase()}</option>
                   ))}
@@ -522,7 +545,7 @@ const AddMemberModal = ({ onClose, onAdded }) => {
               <div className="space-y-1.5">
                 <label className="block font-mono text-[9px] tracking-[0.2em] text-emerald-500/50 uppercase font-bold px-1">STATUS</label>
                 <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}
-                  className={inputCls} style={{ ...inputStyle, color:'#10b981' }}>
+                  className={inputCls} style={{ ...inputStyle, color: '#10b981' }}>
                   {['active', 'inactive'].map(o => (
                     <option key={o} value={o} className="bg-[#020d05]">{o.toUpperCase()}</option>
                   ))}
@@ -536,7 +559,7 @@ const AddMemberModal = ({ onClose, onAdded }) => {
                 {PRESET_COLORS.map(c => (
                   <button key={c} type="button" onClick={() => setForm(p => ({ ...p, flair_color: c }))}
                     className="aspect-square rounded-lg border-2 transition-all hover:scale-110 active:scale-95"
-                    style={{ background:c, borderColor: form.flair_color===c ? 'white' : 'transparent', boxShadow: form.flair_color===c ? `0 0 15px ${c}40` : 'none' }} />
+                    style={{ background: c, borderColor: form.flair_color === c ? 'white' : 'transparent', boxShadow: form.flair_color === c ? `0 0 15px ${c}40` : 'none' }} />
                 ))}
               </div>
             </div>
@@ -545,14 +568,14 @@ const AddMemberModal = ({ onClose, onAdded }) => {
               <div className="space-y-1.5">
                 <label className="block font-mono text-[9px] tracking-[0.2em] text-emerald-500/50 uppercase font-bold px-1">RANK</label>
                 <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-                  className={inputCls} style={{ ...inputStyle, color:'#10b981' }}>
+                  className={inputCls} style={{ ...inputStyle, color: '#10b981' }}>
                   {CATEGORIES.map(o => <option key={o} value={o} className="bg-[#020d05]">{o}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
                 <label className="block font-mono text-[9px] tracking-[0.2em] text-emerald-500/50 uppercase font-bold px-1">CLEARANCE</label>
                 <select value={form.sec_level} onChange={e => setForm(p => ({ ...p, sec_level: e.target.value }))}
-                  className={inputCls} style={{ ...inputStyle, color:'#10b981' }}>
+                  className={inputCls} style={{ ...inputStyle, color: '#10b981' }}>
                   {SEC_LEVELS.map(o => <option key={o} value={o} className="bg-[#020d05]">{o}</option>)}
                 </select>
               </div>
@@ -570,9 +593,9 @@ const AddMemberModal = ({ onClose, onAdded }) => {
             <label className="block font-mono text-[9px] tracking-[0.2em] text-emerald-500/50 uppercase font-bold px-1">SIGNATURE COLOR</label>
             <div className="grid grid-cols-6 gap-2">
               {PRESET_COLORS.map(c => (
-                <button key={c} onClick={() => setForm(p => ({ ...p, node_color:c }))}
+                <button key={c} onClick={() => setForm(p => ({ ...p, node_color: c }))}
                   className="aspect-square rounded-lg border-2 transition-all hover:scale-110 active:scale-95"
-                  style={{ background:c, borderColor: form.node_color===c ? 'white' : 'transparent', boxShadow: form.node_color===c ? `0 0 15px ${c}40` : 'none' }} />
+                  style={{ background: c, borderColor: form.node_color === c ? 'white' : 'transparent', boxShadow: form.node_color === c ? `0 0 15px ${c}40` : 'none' }} />
               ))}
             </div>
           </div>
@@ -594,7 +617,7 @@ const AddMemberModal = ({ onClose, onAdded }) => {
 
           <button onClick={save} disabled={saving}
             className="w-full py-4 font-bold text-sm tracking-[0.2em] uppercase transition-all disabled:opacity-50 active:scale-95 shadow-[0_0_30px_rgba(16,185,129,0.2)]"
-            style={{ background:'#10b981', color:'#010f04', borderRadius:'14px', marginTop:'8px' }}>
+            style={{ background: '#10b981', color: '#010f04', borderRadius: '14px', marginTop: '8px' }}>
             {saving ? 'SYNCHRONIZING…' : 'INITIALIZE DEPLOYMENT'}
           </button>
         </div>
@@ -668,14 +691,14 @@ const EditProfileModal = ({ member, onClose, onUpdated }) => {
   return (
     <motion.div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl"
-      initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
       style={{ background: 'rgba(2,13,5,0.95)' }}
     >
       <motion.div
         className="w-full max-w-2xl overflow-y-auto max-h-[90vh] shadow-[0_0_50px_rgba(16,185,129,0.1)]"
-        style={{ background:'#020d05', border:'1px solid #0f5c1e', borderRadius:'24px' }}
-        initial={{ scale:0.95, y:20 }} animate={{ scale:1, y:0 }} exit={{ scale:0.95, y:20 }}
+        style={{ background: '#020d05', border: '1px solid #0f5c1e', borderRadius: '24px' }}
+        initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-8 py-6 border-b border-white/5">
@@ -687,21 +710,21 @@ const EditProfileModal = ({ member, onClose, onUpdated }) => {
         </div>
 
         <div className="p-8">
-          <ProfileEditor 
-            member={member} 
-            form={form} 
-            setForm={setForm} 
-            onUploadAvatar={uploadAvatar} 
-            uploading={uploading} 
+          <ProfileEditor
+            member={member}
+            form={form}
+            setForm={setForm}
+            onUploadAvatar={uploadAvatar}
+            uploading={uploading}
           />
-          
+
           {error && (
             <div className="mt-6 font-mono text-[10px] text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
               {error}
             </div>
           )}
-          
+
           <div className="mt-8 flex gap-4">
             <button onClick={onClose} className="flex-1 py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all font-mono tracking-wider">
               CANCEL
@@ -726,17 +749,17 @@ export default function FleetDirectoryPage({ pageData }) {
   const briefing = pageData?.briefing || {};
   const joinCTA = pageData?.joinCTA || {};
 
-  const [members, setMembers]           = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [search, setSearch]             = useState('');
-  const [roleFilter, setRoleFilter]     = useState('');
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [session, setSession]             = useState(null);
+  const [session, setSession] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [fetchError, setFetchError]       = useState(null);
-  const [authError, setAuthError]         = useState(null);
+  const [fetchError, setFetchError] = useState(null);
+  const [authError, setAuthError] = useState(null);
 
   const [currentUserMember, setCurrentUserMember] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'network'
@@ -780,10 +803,10 @@ export default function FleetDirectoryPage({ pageData }) {
           if (data?.error) setAuthError(data.error);
         }
       })
-      .catch((err) => { 
+      .catch((err) => {
         console.error('Auth error:', err);
-        setSession(null); 
-        setCurrentUserMember(null); 
+        setSession(null);
+        setCurrentUserMember(null);
         setAuthError('Authentication service unreachable.');
       });
   }, [fetchMembers]);
@@ -817,32 +840,52 @@ export default function FleetDirectoryPage({ pageData }) {
 
   const isAdmin = currentUserMember?.is_admin || session?.source === 'env' || false;
 
-  const availableRoles = useMemo(() => {
-    const set = new Set(members.map(m => m.role).filter(Boolean));
-    return Array.from(set).sort();
-  }, [members]);
-
   const filteredMembers = useMemo(() => {
     let f = [...members];
     if (search) {
       const q = search.toLowerCase();
       f = f.filter(m => m.name?.toLowerCase().includes(q) || m.discord_tag?.toLowerCase().includes(q) || m.bio?.toLowerCase().includes(q));
     }
-    if (roleFilter) f = f.filter(m => m.role === roleFilter);
-    if (categoryFilter) f = f.filter(m => m.category === categoryFilter);
-    f.sort((a,b) => {
+
+    // Status filter: all, active, inactive
+    if (statusFilter === 'active') {
+      f = f.filter(m => m.status === 'active');
+    } else if (statusFilter === 'inactive') {
+      f = f.filter(m => m.status === 'inactive');
+    }
+
+    // Rank category/individual filter
+    if (categoryFilter) {
+      if (categoryFilter === 'group:commanders') {
+        const commanders = ['Field Marshal', 'General', 'Commander'];
+        f = f.filter(m => commanders.includes(m.category));
+      } else if (categoryFilter === 'group:officers') {
+        const officers = ['Colonel', 'Major', 'Captain', 'Officer', 'Lieutenant'];
+        f = f.filter(m => officers.includes(m.category));
+      } else if (categoryFilter === 'group:enlists') {
+        const enlists = ['Sergeant', 'Corporal', 'Soldier', 'Citizen', 'Makhlooq'];
+        f = f.filter(m => enlists.includes(m.category));
+      } else {
+        f = f.filter(m => m.category === categoryFilter);
+      }
+    }
+
+    // Default sort: rank high to low, then active first, then name alphabetical
+    f.sort((a, b) => {
+      // Primary sort: military rank (RANK_ORDER: Field Marshal (1) -> Makhlooq (13))
+      const ra = RANK_ORDER[a.category] || 99, rb = RANK_ORDER[b.category] || 99;
+      if (ra !== rb) return ra - rb;
+
+      // Secondary sort: status (active first)
       const sa = a.status === 'active' ? 0 : 1;
       const sb = b.status === 'active' ? 0 : 1;
       if (sa !== sb) return sa - sb;
 
-      const oa = FLAIR_ORDER[a.role] || 99, ob = FLAIR_ORDER[b.role] || 99;
-      if (oa !== ob) return oa - ob;
-      const ra = RANK_ORDER[a.category] || 99, rb = RANK_ORDER[b.category] || 99;
-      if (ra !== rb) return ra - rb;
-      return (a.name||'').localeCompare(b.name||'');
+      // Tertiary sort: alphabetical name
+      return (a.name || '').localeCompare(b.name || '');
     });
     return f;
-  }, [members, search, roleFilter, categoryFilter]);
+  }, [members, search, statusFilter, categoryFilter]);
 
   const onlineCount = members.filter(m => m.status === 'active').length;
 
@@ -897,7 +940,7 @@ export default function FleetDirectoryPage({ pageData }) {
                       <User size={13} /> My Profile
                     </button>
                   )}
-                   {isAdmin && (
+                  {isAdmin && (
                     <>
                       <button onClick={() => setShowAddModal(true)}
                         className="flex items-center gap-2 rounded-xl bg-lime-300 px-3 py-2 text-xs font-black uppercase tracking-[0.18em] text-black transition-all hover:bg-lime-200 active:scale-95">
@@ -930,29 +973,26 @@ export default function FleetDirectoryPage({ pageData }) {
           <div className="flex-1 min-w-0">
             <FilterBar
               search={search} setSearch={setSearch}
-              roleFilter={roleFilter} setRoleFilter={setRoleFilter}
+              statusFilter={statusFilter} setStatusFilter={setStatusFilter}
               categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter}
-              availableRoles={availableRoles}
             />
           </div>
           <div className="flex-shrink-0 flex items-center bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-[1.25rem] p-1 self-start xl:self-auto">
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-5 py-2.5 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
-                viewMode === 'grid'
+              className={`px-5 py-2.5 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${viewMode === 'grid'
                   ? 'bg-lime-300 text-[#020402] shadow-[0_0_15px_rgba(163,230,53,0.25)]'
                   : 'text-lime-100/40 hover:text-white'
-              }`}
+                }`}
             >
               Roster Wall
             </button>
             <button
               onClick={() => setViewMode('network')}
-              className={`px-5 py-2.5 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
-                viewMode === 'network'
+              className={`px-5 py-2.5 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${viewMode === 'network'
                   ? 'bg-lime-300 text-[#020402] shadow-[0_0_15px_rgba(163,230,53,0.25)]'
                   : 'text-lime-100/40 hover:text-white'
-              }`}
+                }`}
             >
               Ranks & Roles
             </button>
@@ -967,7 +1007,7 @@ export default function FleetDirectoryPage({ pageData }) {
             className="mb-8 flex items-center gap-5 rounded-[1.75rem] border border-amber-400/20 bg-amber-500/5 p-5 backdrop-blur-xl"
           >
             <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-amber-400/30 bg-amber-400/10 text-amber-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-mono text-xs font-black uppercase tracking-[0.28em] text-amber-400">Pending Crew Approval</div>
@@ -1022,7 +1062,7 @@ export default function FleetDirectoryPage({ pageData }) {
             <div className="flex flex-col items-center justify-center py-32 gap-6">
               <div className="relative w-16 h-16">
                 <div className="absolute inset-0 border-2 border-white/5 rounded-2xl animate-spin" />
-                <div className="absolute inset-2 border-2 border-emerald-500/30 rounded-xl animate-spin" style={{ animationDirection:'reverse', animationDuration:'0.8s' }} />
+                <div className="absolute inset-2 border-2 border-emerald-500/30 rounded-xl animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }} />
                 <Activity size={20} className="absolute inset-0 m-auto text-emerald-500" />
               </div>
               <span className="text-xs font-bold tracking-[0.4em] text-white/20 uppercase animate-pulse">
@@ -1069,7 +1109,7 @@ export default function FleetDirectoryPage({ pageData }) {
         <div className="mt-12 mb-24">
           <JoinCommunityCTA joinCTA={joinCTA} />
         </div>
-        </div>
+      </div>
 
       {/* Modals */}
       <AnimatePresence>
@@ -1082,13 +1122,13 @@ export default function FleetDirectoryPage({ pageData }) {
       </AnimatePresence>
       <AnimatePresence>
         {showEditModal && currentUserMember && (
-          <EditProfileModal 
-            member={currentUserMember} 
-            onClose={() => setShowEditModal(false)} 
+          <EditProfileModal
+            member={currentUserMember}
+            onClose={() => setShowEditModal(false)}
             onUpdated={(updatedMember) => {
               setCurrentUserMember(updatedMember);
               fetchMembers();
-            }} 
+            }}
           />
         )}
       </AnimatePresence>

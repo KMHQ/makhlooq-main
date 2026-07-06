@@ -12,6 +12,10 @@ export async function PUT(request, props) {
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const body = await request.json();
+  
+  // Enforce that display names are only synced via Discord
+  delete body.name;
+
   const { data, error } = await supabase
     .from('team_members')
     .update(body)
@@ -36,4 +40,3 @@ export async function DELETE(_request, props) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }
-

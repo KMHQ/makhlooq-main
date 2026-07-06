@@ -29,6 +29,19 @@ export const CATS = [
 ];
 export const SEC_LEVELS = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
 
+const getRoleConfig = (role) => {
+  const r = role?.toLowerCase() || '';
+  if (r.includes('founder') || r.includes('quaid') || r.includes('admiral'))
+    return { accent: '#fbbf24' };
+  if (r.includes('council'))
+    return { accent: '#f87171' };
+  if (r.includes('advisor'))
+    return { accent: '#60a5fa' };
+  if (r.includes('kmhq'))
+    return { accent: '#10b981' };
+  return { accent: '#00ff41' };
+};
+
 export function ColorPicker({ value, onChange }) {
   const [open, setOpen] = useState(false);
   return (
@@ -70,7 +83,7 @@ export function AddMemberModal({ onClose, onAdded }) {
   const [error, setError] = useState('');
 
   const save = async () => {
-    if (!form.discord_uid || !form.name) { setError('Discord UID and name are required.'); return; }
+    if (!form.discord_uid) { setError('Discord UID is required.'); return; }
     setSaving(true);
     const res = await fetch('/api/team-members', {
       method: 'POST',
@@ -132,8 +145,77 @@ export function AddMemberModal({ onClose, onAdded }) {
         <div className="space-y-4">
           {field('discord_uid', 'Discord UID *')}
           {field('discord_tag', 'Discord Tag')}
-          {field('name', 'Display Name *')}
-          {field('role', 'Flair')}
+          {/* Multiple Flairs Editor */}
+          <div className="space-y-2">
+            <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Flairs</label>
+            <div className="flex flex-wrap gap-1.5 p-2.5 rounded-lg border border-white/10 bg-white/5 min-h-[46px] items-center">
+              {(form.role || '').split(',').map(r => r.trim()).filter(Boolean).map((flair) => {
+                const { accent: flairAccent } = getRoleConfig(flair);
+                const currentAccent = flairAccent || '#10b981';
+                return (
+                  <span
+                    key={flair}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono border"
+                    style={{ color: currentAccent, borderColor: `${currentAccent}30`, background: `${currentAccent}10` }}
+                  >
+                    {flair}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const remaining = (form.role || '').split(',').map(x => x.trim()).filter(x => x !== flair).join(', ');
+                        setForm(f => ({ ...f, role: remaining }));
+                      }}
+                      className="hover:text-red-400 font-bold ml-1 transition-colors cursor-pointer"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                );
+              })}
+              {(form.role || '').split(',').map(r => r.trim()).filter(Boolean).length === 0 && (
+                <span className="text-gray-500 text-xs italic">No flairs configured</span>
+              )}
+            </div>
+            
+            <div className="flex gap-2">
+              <input
+                type="text"
+                id="new-flair-input"
+                placeholder="Type new flair..."
+                className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40 transition-colors"
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const val = e.target.value.trim();
+                    if (val) {
+                      const current = (form.role || '').split(',').map(x => x.trim()).filter(Boolean);
+                      if (!current.includes(val)) {
+                        setForm(f => ({ ...f, role: [...current, val].join(', ') }));
+                      }
+                      e.target.value = '';
+                    }
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const input = document.getElementById('new-flair-input');
+                  const val = input?.value.trim();
+                  if (val) {
+                    const current = (form.role || '').split(',').map(x => x.trim()).filter(Boolean);
+                    if (!current.includes(val)) {
+                      setForm(f => ({ ...f, role: [...current, val].join(', ') }));
+                    }
+                    input.value = '';
+                  }
+                }}
+                className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-mono text-xs border border-emerald-500/30 transition-colors cursor-pointer font-bold"
+              >
+                + Add
+              </button>
+            </div>
+          </div>
           {field('flair_icon', 'Flair Icon', 'text', ['crown', 'shield', 'sword', 'users', 'zap', 'terminal', 'none'])}
 
           <div className="py-2">

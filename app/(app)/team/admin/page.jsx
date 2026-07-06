@@ -15,6 +15,19 @@ import {
   SEC_LEVELS
 } from '../../../../src/components/team/AdminComponents';
 
+const getRoleConfig = (role) => {
+  const r = role?.toLowerCase() || '';
+  if (r.includes('founder') || r.includes('quaid') || r.includes('admiral'))
+    return { accent: '#fbbf24' };
+  if (r.includes('council'))
+    return { accent: '#f87171' };
+  if (r.includes('advisor'))
+    return { accent: '#60a5fa' };
+  if (r.includes('kmhq'))
+    return { accent: '#10b981' };
+  return { accent: '#00ff41' };
+};
+
 export default function AdminPage() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -368,7 +381,7 @@ export default function AdminPage() {
                             <div className="flex flex-col">
                               {isEditing ? (
                                 <div className="space-y-2">
-                                  <input value={d.name} onChange={e => setEditData(p => ({ ...p, name: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Name" />
+                                  <div className="text-white font-bold tracking-tight">{m.name}</div>
                                   <input value={d.avatar_url || ''} onChange={e => setEditData(p => ({ ...p, avatar_url: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Avatar URL" />
                                 </div>
                               ) : (
@@ -391,8 +404,75 @@ export default function AdminPage() {
                         {/* Role / Cat */}
                         <td className="px-6 py-5">
                           {isEditing ? (
-                            <div className="space-y-2">
-                              <input type="text" value={d.role} onChange={e => setEditData(p => ({ ...p, role: e.target.value }))} className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40" placeholder="Flair" />
+                            <div className="space-y-2 min-w-[200px]">
+                              {/* Multiple Flairs Pills */}
+                              <div className="flex flex-wrap gap-1 p-2 rounded-lg border border-emerald-500/20 bg-white/5 min-h-[46px] max-w-[220px] items-center">
+                                {(d.role || '').split(',').map(r => r.trim()).filter(Boolean).map((flair) => {
+                                  const { accent: flairAccent } = getRoleConfig(flair);
+                                  const currentAccent = flairAccent || '#10b981';
+                                  return (
+                                    <span
+                                      key={flair}
+                                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border"
+                                      style={{ color: currentAccent, borderColor: `${currentAccent}30`, background: `${currentAccent}10` }}
+                                    >
+                                      {flair}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const remaining = (d.role || '').split(',').map(x => x.trim()).filter(x => x !== flair).join(', ');
+                                          setEditData(p => ({ ...p, role: remaining }));
+                                        }}
+                                        className="hover:text-red-400 font-bold ml-1 transition-colors cursor-pointer"
+                                      >
+                                        &times;
+                                      </button>
+                                    </span>
+                                  );
+                                })}
+                                {(d.role || '').split(',').map(r => r.trim()).filter(Boolean).length === 0 && (
+                                  <span className="text-gray-500 text-[10px] italic">No flairs</span>
+                                )}
+                              </div>
+                              
+                              <div className="flex gap-1.5">
+                                <input
+                                  type="text"
+                                  id={`edit-flair-input-${m.id}`}
+                                  placeholder="New..."
+                                  className="flex-1 rounded-lg border border-emerald-500/20 bg-white/5 px-2.5 py-1 text-white text-xs outline-none focus:border-emerald-500/40"
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      const val = e.target.value.trim();
+                                      if (val) {
+                                        const current = (d.role || '').split(',').map(x => x.trim()).filter(Boolean);
+                                        if (!current.includes(val)) {
+                                          setEditData(p => ({ ...p, role: [...current, val].join(', ') }));
+                                        }
+                                        e.target.value = '';
+                                      }
+                                    }
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const input = document.getElementById(`edit-flair-input-${m.id}`);
+                                    const val = input?.value.trim();
+                                    if (val) {
+                                      const current = (d.role || '').split(',').map(x => x.trim()).filter(Boolean);
+                                      if (!current.includes(val)) {
+                                        setEditData(p => ({ ...p, role: [...current, val].join(', ') }));
+                                      }
+                                      input.value = '';
+                                    }
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-mono text-xs border border-emerald-500/30 transition-colors cursor-pointer font-bold"
+                                >
+                                  + Add
+                                </button>
+                              </div>
                               <div className="flex items-center gap-1.5 mt-1.5">
                                 <ColorPicker value={d.flair_color || '#10b981'} onChange={c => setEditData(p => ({ ...p, flair_color: c }))} />
                                 <select value={d.flair_icon || 'zap'} onChange={e => setEditData(p => ({ ...p, flair_icon: e.target.value }))} className="rounded-lg border border-emerald-500/20 bg-white/5 px-2 py-1 text-white text-[10px] outline-none">
@@ -408,8 +488,22 @@ export default function AdminPage() {
                             </div>
                           ) : (
                             <div>
-                              <div className="text-emerald-400 font-medium text-xs uppercase tracking-wider" style={{ color: m.flair_color || '#10b981' }}>{m.role}</div>
-                              <div className="text-gray-600 text-[10px] uppercase tracking-widest">{m.category}</div>
+                              <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                {(m.role || 'KMHQ').split(',').map(r => r.trim()).filter(Boolean).map(flair => (
+                                  <span
+                                    key={flair}
+                                    className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider border"
+                                    style={{
+                                      color: m.flair_color || '#10b981',
+                                      borderColor: (m.flair_color || '#10b981') + '25',
+                                      background: (m.flair_color || '#10b981') + '12'
+                                    }}
+                                  >
+                                    {flair}
+                                  </span>
+                                ))}
+                              </div>
+                              <div className="text-gray-600 text-[10px] uppercase tracking-widest mt-1.5">{m.category}</div>
                               <div className="text-gray-500 text-[9px] font-mono mt-0.5">SEC: {(m.sec_level && SEC_LEVELS.includes(m.sec_level)) ? m.sec_level : 'R0'}</div>
                             </div>
                           )}

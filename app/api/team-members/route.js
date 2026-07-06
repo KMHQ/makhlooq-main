@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireFleetAdmin, getAdminSession } from '../../../lib/adminAuth';
+import { fetchDiscordMembers } from '../../../lib/discord';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
@@ -74,6 +75,28 @@ export async function POST(request) {
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const body = await request.json();
+
+  // Automatically fetch Discord name for the member using their discord_uid
+  if (body.discord_uid) {
+    try {
+      const discordMembers = await fetchDiscordMembers();
+      const dm = discordMembers.find(m => m.user?.id === body.discord_uid);
+      if (dm) {
+        body.name = dm.nick || dm.user.global_name || dm.user.username;
+        if (dm.user.avatar && !body.avatar_url) {
+          body.avatar_url = `https://cdn.discordapp.com/avatars/${body.discord_uid}/${dm.user.avatar}.png`;
+        }
+      } else {
+        body.name = body.discord_tag || 'Unknown';
+      }
+    } catch (err) {
+      console.error('Failed to fetch Discord members for name lookup:', err);
+      body.name = body.discord_tag || 'Unknown';
+    }
+  } else {
+    body.name = body.discord_tag || 'Unknown';
+  }
+
   const { data, error } = await supabase
     .from('team_members')
     .insert(body)

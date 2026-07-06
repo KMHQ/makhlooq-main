@@ -79,10 +79,8 @@ export async function POST(request) {
           updated_at: new Date().toISOString()
         };
 
-        // Update name if not customized or matching discord
-        if (!existing.name || existing.name === user.username) {
-          payload.name = displayName;
-        }
+        // Always sync display name from Discord
+        payload.name = displayName;
 
         // Update role if current role is default or empty
         if (!existing.role || existing.role === 'KMHQ' || existing.role === 'Officer') {
