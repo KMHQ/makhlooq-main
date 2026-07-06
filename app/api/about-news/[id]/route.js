@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireFleetAdmin } from '../../../../lib/adminAuth';
-import { getPayloadInstance } from '../../../lib/payload';
+import { getPayloadInstance } from '../../../../lib/payload';
 
 export async function PUT(request, { params }) {
   const auth = await requireFleetAdmin();
