@@ -1,12 +1,12 @@
 import { GlobalConfig } from "payload";
 import { revalidatePathHook } from "../hooks/revalidate";
 
-export const AboutPage: GlobalConfig = {
-  slug: "about-page",
-  label: "About Page",
+export const NewsPage: GlobalConfig = {
+  slug: "news-page",
+  label: "News Page",
   admin: { group: "Pages" },
   hooks: {
-    afterChange: [revalidatePathHook("/about")],
+    afterChange: [revalidatePathHook("/news")],
   },
   fields: [
     {
@@ -14,8 +14,8 @@ export const AboutPage: GlobalConfig = {
       type: "group",
       label: "SEO",
       fields: [
-        { name: "title", type: "text", label: "SEO Title", defaultValue: "About | Khalai Makhlooq" },
-        { name: "description", type: "textarea", label: "SEO Description", defaultValue: "Learn about KMHQ, our mission, and our divisions." },
+        { name: "title", type: "text", label: "SEO Title", defaultValue: "News & Intel | Khalai Makhlooq" },
+        { name: "description", type: "textarea", label: "SEO Description", defaultValue: "Stay informed with the latest announcements, fleet dispatches, tactical operations, and lore updates from KMHQ command." },
         { name: "imageUrl", type: "text", label: "SEO Image URL" },
       ],
     },
@@ -24,54 +24,10 @@ export const AboutPage: GlobalConfig = {
       type: "group",
       label: "Hero Section",
       fields: [
-        { name: "kicker", type: "text", label: "Kicker", defaultValue: "KMHQ Organization" },
-        { name: "heading", type: "text", label: "Heading", defaultValue: "We Are Makhlooq" },
-        { name: "description", type: "textarea", label: "Description", defaultValue: "A premier Star Citizen organization dedicated to excellence across all sectors. We operate with precision, coordination, and overwhelming force." },
+        { name: "kicker", type: "text", label: "Kicker", defaultValue: "KMHQ SIGNAL NETWORK // GLOBAL FEED" },
+        { name: "heading", type: "text", label: "Heading", defaultValue: "News & Intel" },
+        { name: "tagline", type: "textarea", label: "Tagline", defaultValue: "Official tactical dispatches, organizational announcements, fleet developments, and operational reports straight from the bridge." },
         { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/9a5b333b-3981-4d6a-a235-7e91fc1c6ff8.jpg" },
-      ]
-    },
-    {
-      name: "divisions",
-      type: "group",
-      label: "Divisions Section",
-      fields: [
-        { name: "heading", type: "text", label: "Heading", defaultValue: "Our Divisions" },
-        {
-          name: "cards",
-          type: "array",
-          label: "Division Cards",
-          defaultValue: [
-            { title: "Security & Combat", desc: "Elite combat wings specialized in escort, defense, and aggressive negotiations. We ensure the safety of our operations across the verse." },
-            { title: "Logistics & Trade", desc: "The backbone of our operations, moving high-value assets securely across systems. Our trade networks are unmatched." },
-            { title: "Deep Exploration", desc: "Charting unknown territories and securing valuable intelligence and resources before they hit the open market." }
-          ],
-          fields: [
-            { name: "title", type: "text", label: "Card Title" },
-            { name: "desc", type: "textarea", label: "Card Description" }
-          ]
-        }
-      ]
-    },
-    {
-      name: "fleet",
-      type: "group",
-      label: "Fleet Section",
-      fields: [
-        { name: "heading", type: "text", label: "Heading", defaultValue: "Unmatched Firepower" },
-        { name: "description", type: "textarea", label: "Description", defaultValue: "Our fleet is a testament to our ambition. From agile light fighters to capital-class dreadnoughts, KMHQ possesses the logistical and combative capabilities to tackle any objective, anywhere in the galaxy." },
-        { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/SC-4.5.0_20251229_131102_Hathor-orbital-laser_f.png" },
-        { name: "imageLabel", type: "text", label: "Image Label", defaultValue: "Operation: Zenith" },
-        { name: "imageHeading", type: "text", label: "Image Heading", defaultValue: "Deep Space Deployment" },
-        { name: "imageSrc", type: "text", label: "Image Source", defaultValue: "/backgrounds/SC-4.4.0_20251214_152954_Wolf-Yela-rings_f.png" }
-      ]
-    },
-    {
-      name: "legacy",
-      type: "group",
-      label: "Legacy Section",
-      fields: [
-        { name: "heading", type: "text", label: "Heading", defaultValue: "A Legacy of Supremacy" },
-        { name: "description", type: "textarea", label: "Description", defaultValue: "Founded by a core group of veteran pilots, Makhlooq has grown from a specialized strike team into a multi-system powerhouse. We believe in quality over quantity, ensuring every member of our organization represents the pinnacle of skill and dedication." }
       ]
     }
   ],

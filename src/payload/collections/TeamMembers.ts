@@ -3,6 +3,7 @@ import { revalidatePathHook } from '../hooks/revalidate';
 
 export const TeamMembers: CollectionConfig = {
   slug: 'team_members',
+  lockDocuments: false,
   labels: {
     singular: 'Team Member',
     plural: 'Team Members',

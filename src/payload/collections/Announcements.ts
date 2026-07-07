@@ -2,6 +2,7 @@ import { CollectionConfig } from "payload";
 
 export const Announcements: CollectionConfig = {
   slug: "announcements",
+  lockDocuments: false,
   admin: {
     useAsTitle: "message",
   },

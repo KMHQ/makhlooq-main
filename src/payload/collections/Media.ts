@@ -4,7 +4,18 @@ export const Media: CollectionConfig = {
   slug: "media",
   upload: {
     staticDir: "media",
-    mimeTypes: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+    mimeTypes: [
+      // Images
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      // Videos
+      "video/mp4",
+      "video/webm",
+      "video/quicktime",
+      "video/ogg",
+    ],
   },
   fields: [
     {

@@ -3,6 +3,7 @@ import { revalidatePathHook } from '../hooks/revalidate';
 
 export const FleetConfigs: CollectionConfig = {
   slug: 'fleet_configs',
+  lockDocuments: false,
   labels: {
     singular: 'Fleet Config',
     plural: 'Fleet Configs',
