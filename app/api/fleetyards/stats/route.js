@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getOrSetCache } from '../../../../lib/redis';
 
 export async function GET(request) {
   try {
@@ -9,33 +10,36 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Missing fleet slug parameter' }, { status: 400 });
     }
 
-    const baseUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}/stats`;
-    const options = {
-      headers: { Accept: 'application/json' },
-      next: { revalidate: 60 },
-    };
+    const data = await getOrSetCache(`fleetyards:stats:${slug}`, async () => {
+      const baseUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}/stats`;
+      const options = {
+        headers: { Accept: 'application/json' },
+        next: { revalidate: 60 },
+      };
 
-    const [membersResponse, vehiclesResponse] = await Promise.all([
-      fetch(`${baseUrl}/members`, options),
-      fetch(`${baseUrl}/vehicles`, options),
-    ]);
+      const [membersResponse, vehiclesResponse] = await Promise.all([
+        fetch(`${baseUrl}/members`, options),
+        fetch(`${baseUrl}/vehicles`, options),
+      ]);
 
-    if (!membersResponse.ok || !vehiclesResponse.ok) {
-      const failedResponse = !membersResponse.ok ? membersResponse : vehiclesResponse;
-      const data = await failedResponse.json().catch(() => ({}));
+      if (!membersResponse.ok || !vehiclesResponse.ok) {
+        const failedResponse = !membersResponse.ok ? membersResponse : vehiclesResponse;
+        const resData = await failedResponse.json().catch(() => ({}));
 
-      return NextResponse.json(
-        { error: data?.message || data?.error || `FleetYards API error (${failedResponse.status})` },
-        { status: failedResponse.status }
-      );
-    }
+        throw new Error(
+          resData?.message || resData?.error || `FleetYards API error (${failedResponse.status})`
+        );
+      }
 
-    const [members, vehicles] = await Promise.all([
-      membersResponse.json(),
-      vehiclesResponse.json(),
-    ]);
+      const [members, vehicles] = await Promise.all([
+        membersResponse.json(),
+        vehiclesResponse.json(),
+      ]);
 
-    return NextResponse.json({ members, vehicles });
+      return { members, vehicles };
+    }, 300); // 5-minute cache
+
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
       { error: error?.message || 'Unexpected FleetYards fetch error' },

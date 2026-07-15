@@ -1,5 +1,9 @@
 import { getPayloadInstance } from '../../lib/payload'
-import HomePageClient from './HomePageClient'
+import nextDynamic from 'next/dynamic'
+
+const HomePageClient = nextDynamic(() => import('./HomePageClient'), {
+  ssr: true,
+})
 
 export const dynamic = 'force-dynamic';
 

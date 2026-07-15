@@ -1,5 +1,9 @@
 import { getPayloadInstance } from '../../../lib/payload'
-import TeamPageClient from './TeamPageClient'
+import nextDynamic from 'next/dynamic'
+
+const TeamPageClient = nextDynamic(() => import('./TeamPageClient'), {
+  ssr: true,
+})
 
 export const dynamic = 'force-dynamic';
 

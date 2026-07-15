@@ -29,6 +29,61 @@ export const NewsPage: GlobalConfig = {
         { name: "tagline", type: "textarea", label: "Tagline", defaultValue: "Official tactical dispatches, organizational announcements, fleet developments, and operational reports straight from the bridge." },
         { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/9a5b333b-3981-4d6a-a235-7e91fc1c6ff8.jpg" },
       ]
+    },
+    {
+      name: "announcementHero",
+      type: "group",
+      label: "Announcements Category Hero",
+      fields: [
+        { name: "kicker", type: "text", label: "Kicker", defaultValue: "HIGH COMMAND DIRECTIVE // PRIORITY BEACON" },
+        { name: "heading", type: "text", label: "Heading", defaultValue: "Official Announcements" },
+        { name: "tagline", type: "textarea", label: "Tagline", defaultValue: "Official high-level decrees, org updates, and critical leadership directives." },
+        { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/SC-4.5.0_20251229_131102_Hathor-orbital-laser_f.png" },
+      ]
+    },
+    {
+      name: "opsHero",
+      type: "group",
+      label: "Tactical Ops Category Hero",
+      fields: [
+        { name: "kicker", type: "text", label: "Kicker", defaultValue: "COMBAT INTEL // STRIKE FORCE DISPATCHES" },
+        { name: "heading", type: "text", label: "Heading", defaultValue: "Tactical Operations" },
+        { name: "tagline", type: "textarea", label: "Tagline", defaultValue: "PvP strike reports, escort missions, sector defense strategies, and combat debriefs." },
+        { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/SC-3.24_20241207_170744_Hornets-Over-Lake_f.png" },
+      ]
+    },
+    {
+      name: "fleetHero",
+      type: "group",
+      label: "Fleet Updates Category Hero",
+      fields: [
+        { name: "kicker", type: "text", label: "Kicker", defaultValue: "HANGAR REGISTRY // CAPITAL ASSET RECLASSIFICATION" },
+        { name: "heading", type: "text", label: "Heading", defaultValue: "Fleet Updates" },
+        { name: "tagline", type: "textarea", label: "Tagline", defaultValue: "New ship acquisitions, capital ship deployments, logistics routes, and fleet roster changes." },
+        { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/SC-3.19_20230524_130313_Fleet-selfie_ILW2953_f.png" },
+      ]
+    },
+    {
+      name: "loreHero",
+      type: "group",
+      label: "Org Lore Category Hero",
+      fields: [
+        { name: "kicker", type: "text", label: "Kicker", defaultValue: "ARCHIVAL RECORDS // CHRONICLES OF SECTOR 7" },
+        { name: "heading", type: "text", label: "Heading", defaultValue: "Org Lore & Archives" },
+        { name: "tagline", type: "textarea", label: "Tagline", defaultValue: "Deep space histories, squad origins, operational philosophies, and narrative chronicles." },
+        { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/SC-4.0_20250102_160626_Fuego-night-sky_f.png" },
+      ]
+    },
+    {
+      name: "communityHero",
+      type: "group",
+      label: "Community Category Hero",
+      fields: [
+        { name: "kicker", type: "text", label: "Kicker", defaultValue: "CREW NETWORK // SOCIAL & MEMBER HIGHLIGHTS" },
+        { name: "heading", type: "text", label: "Heading", defaultValue: "Community Dispatches" },
+        { name: "tagline", type: "textarea", label: "Tagline", defaultValue: "Member spotlights, casual hangouts, community accomplishments, and event highlights." },
+        { name: "backgroundImage", type: "text", label: "Background Image", defaultValue: "/backgrounds/SC-3.22_20240110_133821_mT-flower-hill-sunset_f.png" },
+      ]
     }
   ],
 };

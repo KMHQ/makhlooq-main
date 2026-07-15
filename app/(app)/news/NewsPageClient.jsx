@@ -386,19 +386,35 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
 
   const activeTheme = useMemo(() => {
     const base = CATEGORY_THEMES[selectedCategory] || CATEGORY_THEMES.all;
-    if (selectedCategory === 'all' && newsPage?.hero) {
-      const headingText = newsPage.hero.heading || 'News & Intel';
+    
+    let categoryConfig = null;
+    if (selectedCategory === 'all') {
+      categoryConfig = newsPage?.hero;
+    } else if (selectedCategory === 'announcement') {
+      categoryConfig = newsPage?.announcementHero;
+    } else if (selectedCategory === 'ops') {
+      categoryConfig = newsPage?.opsHero;
+    } else if (selectedCategory === 'fleet') {
+      categoryConfig = newsPage?.fleetHero;
+    } else if (selectedCategory === 'lore') {
+      categoryConfig = newsPage?.loreHero;
+    } else if (selectedCategory === 'community') {
+      categoryConfig = newsPage?.communityHero;
+    }
+
+    if (categoryConfig) {
+      const headingText = categoryConfig.heading || base.headingTitle + (base.headingAccent ? ' ' + base.headingAccent : '');
       const parts = headingText.split(' ');
       const accent = parts.pop() || '';
       const title = parts.join(' ') || '';
 
       return {
         ...base,
-        kicker: newsPage.hero.kicker || base.kicker,
+        kicker: categoryConfig.kicker || base.kicker,
         headingTitle: title ? `${title} ` : '',
         headingAccent: accent || base.headingAccent,
-        tagline: newsPage.hero.tagline || base.tagline,
-        backgroundImage: newsPage.hero.backgroundImage || base.backgroundImage,
+        tagline: categoryConfig.tagline || base.tagline,
+        backgroundImage: categoryConfig.backgroundImage || base.backgroundImage,
       };
     }
     return base;

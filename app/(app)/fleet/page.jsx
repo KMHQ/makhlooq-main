@@ -1,5 +1,9 @@
 import { getPayloadInstance } from '../../../lib/payload'
-import FleetPageClient from './FleetPageClient'
+import nextDynamic from 'next/dynamic'
+
+const FleetPageClient = nextDynamic(() => import('./FleetPageClient'), {
+  ssr: true,
+})
 
 export const dynamic = 'force-dynamic';
 
