@@ -1,6 +1,7 @@
 <div align="center">
 
 # Khalai Makhlooq
+
 ### Official Star Citizen Organization Website
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
@@ -28,15 +29,15 @@
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Framework** | Next.js 16 (App Router) |
-| **UI** | React 19, Tailwind CSS v3, shadcn/ui |
+| Layer              | Technology                                      |
+| ------------------ | ----------------------------------------------- |
+| **Framework**      | Next.js 16 (App Router)                         |
+| **UI**             | React 19, Tailwind CSS v3, shadcn/ui            |
 | **3D / Animation** | Three.js, React Three Fiber, Drei, GSAP, PixiJS |
-| **CMS** | Payload CMS 3 (Postgres adapter) |
-| **Database** | Supabase (PostgreSQL) |
-| **Auth** | Discord OAuth2 + Bot API guild verification |
-| **Hosting** | Hostinger Node.js (LiteSpeed reverse proxy) |
+| **CMS**            | Payload CMS 3 (Postgres adapter)                |
+| **Database**       | Supabase (PostgreSQL)                           |
+| **Auth**           | Discord OAuth2 + Bot API guild verification     |
+| **Hosting**        | Hostinger Node.js (LiteSpeed reverse proxy)     |
 
 ---
 
@@ -64,19 +65,19 @@ Copy `.env.example` to `.env` and fill in the values:
 cp .env.example .env
 ```
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | Supabase Postgres connection URI (URL-encode special chars in password) |
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase `anon` / publishable key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase `service_role` secret key |
-| `DISCORD_CLIENT_ID` | Discord App OAuth2 Client ID |
-| `DISCORD_CLIENT_SECRET` | Discord App OAuth2 Client Secret |
-| `DISCORD_BOT_TOKEN` | Discord Bot token (for guild membership checks) |
-| `DISCORD_GUILD_ID` | Your Discord server (guild) ID |
-| `ADMIN_DISCORD_IDS` | Comma-separated Discord User IDs with super-admin access |
-| `NEXT_PUBLIC_SITE_URL` | Public site URL, e.g. `https://kmhq.org` |
-| `PAYLOAD_SECRET` | *(Optional)* Secret for Payload CMS JWT signing |
+| Variable                        | Description                                                             |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `DATABASE_URL`                  | Supabase Postgres connection URI (URL-encode special chars in password) |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL                                               |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase `anon` / publishable key                                       |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase `service_role` secret key                                      |
+| `DISCORD_CLIENT_ID`             | Discord App OAuth2 Client ID                                            |
+| `DISCORD_CLIENT_SECRET`         | Discord App OAuth2 Client Secret                                        |
+| `DISCORD_BOT_TOKEN`             | Discord Bot token (for guild membership checks)                         |
+| `DISCORD_GUILD_ID`              | Your Discord server (guild) ID                                          |
+| `ADMIN_DISCORD_IDS`             | Comma-separated Discord User IDs with super-admin access                |
+| `NEXT_PUBLIC_SITE_URL`          | Public site URL, e.g. `https://kmhq.org`                                |
+| `PAYLOAD_SECRET`                | _(Optional)_ Secret for Payload CMS JWT signing                         |
 
 > [!IMPORTANT]
 > `DATABASE_URL` must have special characters in the password **percent-encoded**.
@@ -151,10 +152,10 @@ npm run build
 1. Upload `deploy.zip` via **hPanel → File Manager** to `~/domains/kmhq.org/nodejs/`
 2. SSH in and extract: `unzip deploy.zip -d ~/domains/kmhq.org/nodejs/`
 3. Install production dependencies:
-   ```bash
-   cd ~/domains/kmhq.org/nodejs
-   npm install --omit=dev
-   ```
+    ```bash
+    cd ~/domains/kmhq.org/nodejs
+    npm install --omit=dev
+    ```
 4. Restart the Node.js app from **hPanel → Node.js → Restart**
 
 ### Environment Variables on Hostinger
@@ -165,6 +166,7 @@ Set all variables from the [table above](#2-environment-variables) via:
 > [!NOTE]
 > **Static assets** — LiteSpeed intercepts `/_next/static` before Node.js.
 > After first deploy, SSH in and run:
+>
 > ```bash
 > mkdir -p ~/domains/kmhq.org/public_html/_next
 > ln -s ~/domains/kmhq.org/nodejs/.next/static ~/domains/kmhq.org/public_html/_next/static

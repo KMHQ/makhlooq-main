@@ -21,50 +21,50 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 export default buildConfig({
-  admin: {
-    user: Users.slug,
-    suppressHydrationWarning: true,
-    meta: {
-      titleSuffix: "— KMHQ CMS",
-      icons: [{ rel: "icon", url: "/favicon.ico" }],
+    admin: {
+        user: Users.slug,
+        suppressHydrationWarning: true,
+        meta: {
+            titleSuffix: "— KMHQ CMS",
+            icons: [{ rel: "icon", url: "/favicon.ico" }],
+        },
+        livePreview: {
+            url: ({ collectionConfig, globalConfig }) => {
+                const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "https://kmhq.org";
+                if (globalConfig) {
+                    if (globalConfig.slug === "news-page") return `${baseUrl}/news`;
+                    if (globalConfig.slug === "fleet-page") return `${baseUrl}/fleet`;
+                    if (globalConfig.slug === "team-page") return `${baseUrl}/team`;
+                    if (globalConfig.slug === "home-page") return `${baseUrl}/`;
+                }
+                if (collectionConfig) {
+                    if (collectionConfig.slug === "news-posts") return `${baseUrl}/news`;
+                    if (collectionConfig.slug === "team_members") return `${baseUrl}/team`;
+                    if (collectionConfig.slug === "fleet_configs") return `${baseUrl}/fleet`;
+                }
+                return baseUrl;
+            },
+            collections: ["news-posts", "team_members", "fleet_configs"],
+            globals: ["home-page", "site-settings", "news-page", "fleet-page", "team-page"],
+        },
     },
-    livePreview: {
-      url: ({ collectionConfig, globalConfig }) => {
-        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://kmhq.org';
-        if (globalConfig) {
-          if (globalConfig.slug === 'news-page') return `${baseUrl}/news`;
-          if (globalConfig.slug === 'fleet-page') return `${baseUrl}/fleet`;
-          if (globalConfig.slug === 'team-page') return `${baseUrl}/team`;
-          if (globalConfig.slug === 'home-page') return `${baseUrl}/`;
-        }
-        if (collectionConfig) {
-          if (collectionConfig.slug === 'news-posts') return `${baseUrl}/news`;
-          if (collectionConfig.slug === 'team_members') return `${baseUrl}/team`;
-          if (collectionConfig.slug === 'fleet_configs') return `${baseUrl}/fleet`;
-        }
-        return baseUrl;
-      },
-      collections: ['news-posts', 'team_members', 'fleet_configs'],
-      globals: ['home-page', 'site-settings', 'news-page', 'fleet-page', 'team-page'],
+    collections: [Users, Media, NewsPosts, Announcements, FleetConfigs, TeamMembers],
+    globals: [HomePage, SiteSettings, NewsPage, FleetPage, TeamPage],
+    editor: lexicalEditor({}),
+    secret: process.env.PAYLOAD_SECRET || "KMHQ_DEFAULT_SECRET_CHANGE_ME",
+    typescript: {
+        outputFile: path.resolve(dirname, "payload-types.ts"),
     },
-  },
-  collections: [Users, Media, NewsPosts, Announcements, FleetConfigs, TeamMembers],
-  globals: [HomePage, SiteSettings, NewsPage, FleetPage, TeamPage],
-  editor: lexicalEditor({}),
-  secret: process.env.PAYLOAD_SECRET || "KMHQ_DEFAULT_SECRET_CHANGE_ME",
-  typescript: {
-    outputFile: path.resolve(dirname, "payload-types.ts"),
-  },
-  db: postgresAdapter({
-    pool: {
-      connectionString: process.env.DATABASE_URL,
-      max: 5,
+    db: postgresAdapter({
+        pool: {
+            connectionString: process.env.DATABASE_URL,
+            max: 5,
+        },
+        push: false,
+    }),
+    upload: {
+        limits: {
+            fileSize: 20000000, // 20MB
+        },
     },
-    push: false,
-  }),
-  upload: {
-    limits: {
-      fileSize: 20000000, // 20MB
-    },
-  },
 });

@@ -4,12 +4,12 @@
  */
 
 export const metadata = {
-  robots: {
-    index: false, // Don't index admin pages
-    follow: false,
-  },
+    robots: {
+        index: false, // Don't index admin pages
+        follow: false,
+    },
 };
 
 export default function TeamAdminLayout({ children }) {
-  return <>{children}</>;
+    return <>{children}</>;
 }

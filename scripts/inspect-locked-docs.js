@@ -1,29 +1,29 @@
-const { Client } = require('pg');
-require('dotenv').config();
+const { Client } = require("pg");
+require("dotenv").config();
 
 async function inspect() {
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
-  await client.connect();
+    const client = new Client({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+    });
+    await client.connect();
 
-  const r1 = await client.query('SELECT COUNT(*) FROM payload_locked_documents');
-  console.log('locked_docs rows:', r1.rows[0].count);
+    const r1 = await client.query("SELECT COUNT(*) FROM payload_locked_documents");
+    console.log("locked_docs rows:", r1.rows[0].count);
 
-  const r2 = await client.query(
-    `SELECT column_name, data_type 
+    const r2 = await client.query(
+        `SELECT column_name, data_type 
      FROM information_schema.columns 
      WHERE table_name = 'payload_locked_documents_rels' 
-     ORDER BY ordinal_position`
-  );
-  console.log('\npayload_locked_documents_rels columns:');
-  r2.rows.forEach(row => console.log(' -', row.column_name, ':', row.data_type));
+     ORDER BY ordinal_position`,
+    );
+    console.log("\npayload_locked_documents_rels columns:");
+    r2.rows.forEach((row) => console.log(" -", row.column_name, ":", row.data_type));
 
-  // Try the failing query directly
-  try {
-    const r3 = await client.query(
-      `SELECT DISTINCT "payload_locked_documents"."id"
+    // Try the failing query directly
+    try {
+        const r3 = await client.query(
+            `SELECT DISTINCT "payload_locked_documents"."id"
        FROM "payload_locked_documents"
        LEFT JOIN "payload_locked_documents_rels" "t"
          ON ("payload_locked_documents"."id" = "t"."parent_id"
@@ -40,16 +40,16 @@ async function inspect() {
          )
        )
        ORDER BY "payload_locked_documents"."id" DESC`,
-      ['document', 1, 1, 1, 1, 1, 1]
-    );
-    console.log('\nQuery succeeded! Rows:', r3.rowCount);
-  } catch (err) {
-    console.error('\nQuery FAILED:', err.message);
-    console.error('Detail:', err.detail);
-    console.error('Hint:', err.hint);
-  }
+            ["document", 1, 1, 1, 1, 1, 1],
+        );
+        console.log("\nQuery succeeded! Rows:", r3.rowCount);
+    } catch (err) {
+        console.error("\nQuery FAILED:", err.message);
+        console.error("Detail:", err.detail);
+        console.error("Hint:", err.hint);
+    }
 
-  await client.end();
+    await client.end();
 }
 
 inspect().catch(console.error);

@@ -7,52 +7,52 @@
  * Safe to run multiple times (uses IF NOT EXISTS / ADD COLUMN IF NOT EXISTS).
  */
 
-const { Client } = require('pg');
-require('dotenv').config();
+const { Client } = require("pg");
+require("dotenv").config();
 
 async function migrate() {
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
-  await client.connect();
-  console.log('Connected.\n');
+    const client = new Client({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+    });
+    await client.connect();
+    console.log("Connected.\n");
 
-  // ── 1. Inspect current news_posts columns ──────────────────────────────────
-  const { rows: existingCols } = await client.query(`
+    // ── 1. Inspect current news_posts columns ──────────────────────────────────
+    const { rows: existingCols } = await client.query(`
     SELECT column_name, data_type
     FROM information_schema.columns
     WHERE table_name = 'news_posts'
     ORDER BY ordinal_position
   `);
-  console.log('Current news_posts columns:');
-  existingCols.forEach(r => console.log(' ', r.column_name, '|', r.data_type));
-  console.log();
+    console.log("Current news_posts columns:");
+    existingCols.forEach((r) => console.log(" ", r.column_name, "|", r.data_type));
+    console.log();
 
-  // ── 2. Add new columns to news_posts ──────────────────────────────────────
-  const newsCols = [
-    `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_source" text DEFAULT 'external'`,
-    // team_members uses uuid PK, store as text so no FK type mismatch
-    `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_member_id" text`,
-    `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_external" text`,
-    // legacy field, may already exist
-    `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_handle" text`,
-  ];
+    // ── 2. Add new columns to news_posts ──────────────────────────────────────
+    const newsCols = [
+        `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_source" text DEFAULT 'external'`,
+        // team_members uses uuid PK, store as text so no FK type mismatch
+        `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_member_id" text`,
+        `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_external" text`,
+        // legacy field, may already exist
+        `ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS "author_handle" text`,
+    ];
 
-  for (const sql of newsCols) {
-    try {
-      await client.query(sql);
-      console.log('✅', sql.replace('ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS ', '').split(' ')[0]);
-    } catch (err) {
-      console.log('⚠', err.message);
+    for (const sql of newsCols) {
+        try {
+            await client.query(sql);
+            console.log("✅", sql.replace('ALTER TABLE "news_posts" ADD COLUMN IF NOT EXISTS ', "").split(" ")[0]);
+        } catch (err) {
+            console.log("⚠", err.message);
+        }
     }
-  }
-  console.log();
+    console.log();
 
-  // ── 3. Create block child tables ──────────────────────────────────────────
+    // ── 3. Create block child tables ──────────────────────────────────────────
 
-  // text block
-  await client.query(`
+    // text block
+    await client.query(`
     CREATE TABLE IF NOT EXISTS "news_posts_blocks_text_block" (
       "id"          serial PRIMARY KEY,
       "_order"      integer NOT NULL,
@@ -62,14 +62,14 @@ async function migrate() {
       "block_name"  text
     )
   `);
-  await client.query(`
+    await client.query(`
     CREATE INDEX IF NOT EXISTS "news_posts_blocks_text_block_parent_idx"
     ON "news_posts_blocks_text_block" ("_parent_id", "_order")
   `);
-  console.log('✅ news_posts_blocks_text_block');
+    console.log("✅ news_posts_blocks_text_block");
 
-  // image block
-  await client.query(`
+    // image block
+    await client.query(`
     CREATE TABLE IF NOT EXISTS "news_posts_blocks_image_block" (
       "id"          serial PRIMARY KEY,
       "_order"      integer NOT NULL,
@@ -81,14 +81,14 @@ async function migrate() {
       "block_name"  text
     )
   `);
-  await client.query(`
+    await client.query(`
     CREATE INDEX IF NOT EXISTS "news_posts_blocks_image_block_parent_idx"
     ON "news_posts_blocks_image_block" ("_parent_id", "_order")
   `);
-  console.log('✅ news_posts_blocks_image_block');
+    console.log("✅ news_posts_blocks_image_block");
 
-  // video block
-  await client.query(`
+    // video block
+    await client.query(`
     CREATE TABLE IF NOT EXISTS "news_posts_blocks_video_block" (
       "id"            serial PRIMARY KEY,
       "_order"        integer NOT NULL,
@@ -102,14 +102,14 @@ async function migrate() {
       "block_name"    text
     )
   `);
-  await client.query(`
+    await client.query(`
     CREATE INDEX IF NOT EXISTS "news_posts_blocks_video_block_parent_idx"
     ON "news_posts_blocks_video_block" ("_parent_id", "_order")
   `);
-  console.log('✅ news_posts_blocks_video_block');
+    console.log("✅ news_posts_blocks_video_block");
 
-  // embed block
-  await client.query(`
+    // embed block
+    await client.query(`
     CREATE TABLE IF NOT EXISTS "news_posts_blocks_embed_block" (
       "id"          serial PRIMARY KEY,
       "_order"      integer NOT NULL,
@@ -120,16 +120,16 @@ async function migrate() {
       "block_name"  text
     )
   `);
-  await client.query(`
+    await client.query(`
     CREATE INDEX IF NOT EXISTS "news_posts_blocks_embed_block_parent_idx"
     ON "news_posts_blocks_embed_block" ("_parent_id", "_order")
   `);
-  console.log('✅ news_posts_blocks_embed_block');
+    console.log("✅ news_posts_blocks_embed_block");
 
-  // ── 4. Quick smoke test ──────────────────────────────────────────────────
-  console.log('\nRunning smoke-test query...');
-  try {
-    await client.query(`
+    // ── 4. Quick smoke test ──────────────────────────────────────────────────
+    console.log("\nRunning smoke-test query...");
+    try {
+        await client.query(`
       SELECT "news_posts"."id"
       FROM "news_posts"
       LEFT JOIN LATERAL (
@@ -155,13 +155,16 @@ async function migrate() {
       ORDER BY "news_posts"."created_at" DESC
       LIMIT 5
     `);
-    console.log('✅ Smoke test passed — all block tables are queryable.');
-  } catch (err) {
-    console.error('❌ Smoke test failed:', err.message);
-  }
+        console.log("✅ Smoke test passed — all block tables are queryable.");
+    } catch (err) {
+        console.error("❌ Smoke test failed:", err.message);
+    }
 
-  await client.end();
-  console.log('\nMigration complete. Restart your dev server.');
+    await client.end();
+    console.log("\nMigration complete. Restart your dev server.");
 }
 
-migrate().catch(err => { console.error(err); process.exit(1); });
+migrate().catch((err) => {
+    console.error(err);
+    process.exit(1);
+});

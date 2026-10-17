@@ -1,16 +1,17 @@
-const { Client } = require('pg');
+const { Client } = require("pg");
 
 async function main() {
-  const client = new Client({
-    connectionString: "postgresql://postgres.ptfkbrghslaxyfxaudxv:KaBTr!Jt)PSYW4@@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres"
-  });
+    const client = new Client({
+        connectionString:
+            "postgresql://postgres.ptfkbrghslaxyfxaudxv:KaBTr!Jt)PSYW4@@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres",
+    });
 
-  await client.connect();
+    await client.connect();
 
-  console.log("Connected to database. Adding category hero columns to news_page table...");
+    console.log("Connected to database. Adding category hero columns to news_page table...");
 
-  try {
-    await client.query(`
+    try {
+        await client.query(`
       ALTER TABLE "news_page" 
       ADD COLUMN IF NOT EXISTS "announcement_hero_kicker" text,
       ADD COLUMN IF NOT EXISTS "announcement_hero_heading" text,
@@ -33,12 +34,12 @@ async function main() {
       ADD COLUMN IF NOT EXISTS "community_hero_tagline" text,
       ADD COLUMN IF NOT EXISTS "community_hero_background_image" text;
     `);
-    console.log("Successfully added all category hero columns to 'news_page' table.");
-  } catch (err) {
-    console.error("Failed to alter table:", err);
-  } finally {
-    await client.end();
-  }
+        console.log("Successfully added all category hero columns to 'news_page' table.");
+    } catch (err) {
+        console.error("Failed to alter table:", err);
+    } finally {
+        await client.end();
+    }
 }
 
 main();

@@ -1,11 +1,11 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function NotFound() {
-  return (
-    <html lang="en">
-      <head>
-        <title>404 - Not Found | Khalai Makhlooq</title>
-        <style>{`
+    return (
+        <html lang="en">
+            <head>
+                <title>404 - Not Found | Khalai Makhlooq</title>
+                <style>{`
           body {
             background-color: #010301;
             color: #ffffff;
@@ -50,14 +50,14 @@ export default function NotFound() {
             opacity: 0.9;
           }
         `}</style>
-      </head>
-      <body>
-        <div className="container">
-          <h2>Signal Lost // 404</h2>
-          <p>The requested coordinates do not contain any active KMHQ dispatches.</p>
-          <a href="/">Return to Bridge</a>
-        </div>
-      </body>
-    </html>
-  );
+            </head>
+            <body>
+                <div className="container">
+                    <h2>Signal Lost // 404</h2>
+                    <p>The requested coordinates do not contain any active KMHQ dispatches.</p>
+                    <a href="/">Return to Bridge</a>
+                </div>
+            </body>
+        </html>
+    );
 }

@@ -1,67 +1,57 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { requireFleetAdmin } from '../../../../lib/adminAuth';
-import { invalidateCache } from '../../../../lib/redis';
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { requireFleetAdmin } from "../../../../lib/adminAuth";
+import { invalidateCache } from "../../../../lib/redis";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function PUT(request, props) {
-  const params = await props.params;
-  const auth = await requireFleetAdmin();
-  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const params = await props.params;
+    const auth = await requireFleetAdmin();
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-  const body = await request.json();
-  
-  // Enforce that display names are only synced via Discord
-  delete body.name;
+    const body = await request.json();
 
-  const { data, error } = await supabase
-    .from('team_members')
-    .update(body)
-    .eq('id', params.id)
-    .select()
-    .single();
+    // Enforce that display names are only synced via Discord
+    delete body.name;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const { data, error } = await supabase.from("team_members").update(body).eq("id", params.id).select().single();
 
-  // Invalidate cache
-  await invalidateCache('team-members:all');
-  await invalidateCache('team-members:approved');
-  if (data?.discord_uid) {
-    await invalidateCache(`team-members:uid:${data.discord_uid}`);
-  }
-  if (data?.name) {
-    await invalidateCache(`team-members:uid:${data.name}`);
-  }
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json(data);
+    // Invalidate cache
+    await invalidateCache("team-members:all");
+    await invalidateCache("team-members:approved");
+    if (data?.discord_uid) {
+        await invalidateCache(`team-members:uid:${data.discord_uid}`);
+    }
+    if (data?.name) {
+        await invalidateCache(`team-members:uid:${data.name}`);
+    }
+
+    return NextResponse.json(data);
 }
 
 export async function DELETE(_request, props) {
-  const params = await props.params;
-  const auth = await requireFleetAdmin();
-  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const params = await props.params;
+    const auth = await requireFleetAdmin();
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-  const { data, error } = await supabase
-    .from('team_members')
-    .delete()
-    .eq('id', params.id)
-    .select()
-    .maybeSingle();
+    const { data, error } = await supabase.from("team_members").delete().eq("id", params.id).select().maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Invalidate cache
-  await invalidateCache('team-members:all');
-  await invalidateCache('team-members:approved');
-  if (data?.discord_uid) {
-    await invalidateCache(`team-members:uid:${data.discord_uid}`);
-  }
-  if (data?.name) {
-    await invalidateCache(`team-members:uid:${data.name}`);
-  }
+    // Invalidate cache
+    await invalidateCache("team-members:all");
+    await invalidateCache("team-members:approved");
+    if (data?.discord_uid) {
+        await invalidateCache(`team-members:uid:${data.discord_uid}`);
+    }
+    if (data?.name) {
+        await invalidateCache(`team-members:uid:${data.name}`);
+    }
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
 }

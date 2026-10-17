@@ -1,119 +1,117 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from '../../../../../lib/adminAuth';
-import { KMHQ_ROLE_ID } from '../../../../../lib/discord';
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from "../../../../../lib/adminAuth";
+import { KMHQ_ROLE_ID } from "../../../../../lib/discord";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function sanitizeReturnTo(value) {
-  return value && value.startsWith('/') && !value.startsWith('//') ? value : '/team';
+    return value && value.startsWith("/") && !value.startsWith("//") ? value : "/team";
 }
 
 function redirectTo(request, returnTo, params = {}) {
-  const baseUrl = getBaseUrl(request);
-  const url = new URL(sanitizeReturnTo(returnTo), baseUrl);
-  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
-  return NextResponse.redirect(url);
+    const baseUrl = getBaseUrl(request);
+    const url = new URL(sanitizeReturnTo(returnTo), baseUrl);
+    Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+    return NextResponse.redirect(url);
 }
 
 function requiresAdmin(returnTo) {
-  return ['/fleet/admin', '/team/admin'].some(path => sanitizeReturnTo(returnTo).startsWith(path));
+    return ["/fleet/admin", "/team/admin"].some((path) => sanitizeReturnTo(returnTo).startsWith(path));
 }
 
 function getBaseUrl(request) {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
-  let url = new URL(request.url).origin;
-  if (url.endsWith('/')) url = url.slice(0, -1);
-  return url;
+    if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+    let url = new URL(request.url).origin;
+    if (url.endsWith("/")) url = url.slice(0, -1);
+    return url;
 }
 
 async function exchangeCode(request, code) {
-  const clientId = process.env.DISCORD_CLIENT_ID || process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID;
-  const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-  const redirectUri = `${getBaseUrl(request)}/api/auth/discord/callback`;
+    const clientId = process.env.DISCORD_CLIENT_ID || process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID;
+    const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+    const redirectUri = `${getBaseUrl(request)}/api/auth/discord/callback`;
 
-  if (!clientId || !clientSecret) {
-    throw new Error('DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET are required');
-  }
+    if (!clientId || !clientSecret) {
+        throw new Error("DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET are required");
+    }
 
-  const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: redirectUri,
-    }),
-  });
+    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            grant_type: "authorization_code",
+            code,
+            redirect_uri: redirectUri,
+        }),
+    });
 
-  if (!tokenRes.ok) throw new Error(`Discord token exchange failed: ${tokenRes.status}`);
-  return tokenRes.json();
+    if (!tokenRes.ok) throw new Error(`Discord token exchange failed: ${tokenRes.status}`);
+    return tokenRes.json();
 }
 
 async function fetchDiscordUser(accessToken) {
-  const userRes = await fetch('https://discord.com/api/users/@me', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+    const userRes = await fetch("https://discord.com/api/users/@me", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
-  if (!userRes.ok) throw new Error(`Discord user lookup failed: ${userRes.status}`);
-  return userRes.json();
+    if (!userRes.ok) throw new Error(`Discord user lookup failed: ${userRes.status}`);
+    return userRes.json();
 }
 
 async function isGuildMember(discordId) {
-  const botToken = process.env.DISCORD_BOT_TOKEN;
-  const guildId = process.env.DISCORD_GUILD_ID;
+    const botToken = process.env.DISCORD_BOT_TOKEN;
+    const guildId = process.env.DISCORD_GUILD_ID;
 
-  if (!botToken || !guildId) {
-    console.warn('Discord Bot Token or Guild ID is missing in environment. Allowing login.');
-    return true;
-  }
-
-  try {
-    const res = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}`, {
-      headers: { Authorization: `Bot ${botToken}` },
-    });
-
-    if (res.ok) {
-      const memberData = await res.json().catch(() => ({}));
-      if (Array.isArray(memberData.roles) && !memberData.roles.includes(KMHQ_ROLE_ID)) {
-        console.log(`User ${discordId} is in Discord guild but missing KMHQ role (${KMHQ_ROLE_ID}).`);
-        return false;
-      }
-      return true;
+    if (!botToken || !guildId) {
+        console.warn("Discord Bot Token or Guild ID is missing in environment. Allowing login.");
+        return true;
     }
 
-    const data = await res.json().catch(() => ({}));
+    try {
+        const res = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}`, {
+            headers: { Authorization: `Bot ${botToken}` },
+        });
 
-    // Code 10007 means the member is not in the guild
-    if (res.status === 404 && data.code === 10007) {
-      console.log(`User ${discordId} is not a member of the Discord guild.`);
-      return false;
+        if (res.ok) {
+            const memberData = await res.json().catch(() => ({}));
+            if (Array.isArray(memberData.roles) && !memberData.roles.includes(KMHQ_ROLE_ID)) {
+                console.log(`User ${discordId} is in Discord guild but missing KMHQ role (${KMHQ_ROLE_ID}).`);
+                return false;
+            }
+            return true;
+        }
+
+        const data = await res.json().catch(() => ({}));
+
+        // Code 10007 means the member is not in the guild
+        if (res.status === 404 && data.code === 10007) {
+            console.log(`User ${discordId} is not a member of the Discord guild.`);
+            return false;
+        }
+
+        // Any other error (like Unknown Guild 10004 or 401/403) is a bot setup issue.
+        // Allow login to prevent locking everyone out.
+        console.warn(
+            `Discord bot check failed with status ${res.status} (code: ${data.code}, message: ${data.message}). Falling back to allowing access.`,
+        );
+        return true;
+    } catch (err) {
+        console.error("Failed to contact Discord API for guild check:", err);
+        return true; // Don't lock users out on API/network failure
     }
-
-    // Any other error (like Unknown Guild 10004 or 401/403) is a bot setup issue.
-    // Allow login to prevent locking everyone out.
-    console.warn(`Discord bot check failed with status ${res.status} (code: ${data.code}, message: ${data.message}). Falling back to allowing access.`);
-    return true;
-  } catch (err) {
-    console.error('Failed to contact Discord API for guild check:', err);
-    return true; // Don't lock users out on API/network failure
-  }
 }
 
 async function isAdmin(discordId) {
-  if (isEnvAdminDiscordId(discordId)) return true;
+    if (isEnvAdminDiscordId(discordId)) return true;
 
-  const { data } = await supabase
-    .from('team_members')
-    .select('is_admin')
-    .eq('discord_uid', discordId)
-    .maybeSingle();
+    const { data } = await supabase.from("team_members").select("is_admin").eq("discord_uid", discordId).maybeSingle();
 
-  return !!data?.is_admin;
+    return !!data?.is_admin;
 }
 
 /**
@@ -122,94 +120,88 @@ async function isAdmin(discordId) {
  * Existing members are left untouched (no overwrite of their data).
  */
 async function autoRegisterMember(user, isEnvAdmin = false) {
-  try {
-    const avatarUrl = user.avatar
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-      : null;
-    const name = user.global_name || user.username;
+    try {
+        const avatarUrl = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null;
+        const name = user.global_name || user.username;
 
-    const { data: existing } = await supabase
-      .from('team_members')
-      .select('id, avatar_url')
-      .eq('discord_uid', user.id)
-      .maybeSingle();
+        const { data: existing } = await supabase.from("team_members").select("id, avatar_url").eq("discord_uid", user.id).maybeSingle();
 
-    if (!existing) {
-      await supabase.from('team_members').insert({
-        discord_uid: user.id,
-        discord_tag: user.username,
-        name: name,
-        avatar_url: avatarUrl,
-        role: isEnvAdmin ? 'Commander' : 'Member',
-        is_admin: isEnvAdmin,
-        is_approved: isEnvAdmin, // Env admins are auto-approved; others wait for review
-        joined_at: new Date().toISOString(),
-      });
-    } else {
-      // Sync name, avatar_url, and tag upon user login if they already exist
-      await supabase
-        .from('team_members')
-        .update({
-          name: name,
-          avatar_url: avatarUrl || existing.avatar_url,
-          discord_tag: user.username,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('discord_uid', user.id);
+        if (!existing) {
+            await supabase.from("team_members").insert({
+                discord_uid: user.id,
+                discord_tag: user.username,
+                name: name,
+                avatar_url: avatarUrl,
+                role: isEnvAdmin ? "Commander" : "Member",
+                is_admin: isEnvAdmin,
+                is_approved: isEnvAdmin, // Env admins are auto-approved; others wait for review
+                joined_at: new Date().toISOString(),
+            });
+        } else {
+            // Sync name, avatar_url, and tag upon user login if they already exist
+            await supabase
+                .from("team_members")
+                .update({
+                    name: name,
+                    avatar_url: avatarUrl || existing.avatar_url,
+                    discord_tag: user.username,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq("discord_uid", user.id);
+        }
+    } catch (err) {
+        // Non-fatal — log but don't block login
+        console.warn("autoRegisterMember failed:", err);
     }
-  } catch (err) {
-    // Non-fatal — log but don't block login
-    console.warn('autoRegisterMember failed:', err);
-  }
 }
 
 export async function GET(request) {
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
-  const expectedState = request.cookies.get('kmhq_discord_oauth_state')?.value;
-  const returnTo = sanitizeReturnTo(request.cookies.get('kmhq_discord_oauth_return_to')?.value);
+    const url = new URL(request.url);
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const expectedState = request.cookies.get("kmhq_discord_oauth_state")?.value;
+    const returnTo = sanitizeReturnTo(request.cookies.get("kmhq_discord_oauth_return_to")?.value);
 
-  if (!code || !state || !expectedState || state !== expectedState) {
-    console.error('OAuth state mismatch:', { code: !!code, state, expectedState });
-    const response = redirectTo(request, returnTo, { error: 'oauth_state' });
-    clearAdminSessionCookie(response);
-    return response;
-  }
-
-  try {
-    const token = await exchangeCode(request, code);
-    const user = await fetchDiscordUser(token.access_token);
-    const envAdmin = isEnvAdminDiscordId(user.id);
-    const adminRequired = requiresAdmin(returnTo);
-
-    const [isMember, admin] = await Promise.all([
-      envAdmin ? Promise.resolve(true) : isGuildMember(user.id),
-      envAdmin ? Promise.resolve(true) : isAdmin(user.id),
-    ]);
-
-    if (!isMember || (adminRequired && !admin)) {
-      const response = redirectTo(request, returnTo, { denied: '1' });
-      clearAdminSessionCookie(response);
-      response.cookies.delete('kmhq_discord_oauth_state');
-      response.cookies.delete('kmhq_discord_oauth_return_to');
-      return response;
+    if (!code || !state || !expectedState || state !== expectedState) {
+        console.error("OAuth state mismatch:", { code: !!code, state, expectedState });
+        const response = redirectTo(request, returnTo, { error: "oauth_state" });
+        clearAdminSessionCookie(response);
+        return response;
     }
 
-    // Auto-register member in DB (no-op if already exists)
-    await autoRegisterMember(user, envAdmin);
+    try {
+        const token = await exchangeCode(request, code);
+        const user = await fetchDiscordUser(token.access_token);
+        const envAdmin = isEnvAdminDiscordId(user.id);
+        const adminRequired = requiresAdmin(returnTo);
 
-    const response = redirectTo(request, returnTo);
-    setAdminSessionCookie(user, response);
-    response.cookies.delete('kmhq_discord_oauth_state');
-    response.cookies.delete('kmhq_discord_oauth_return_to');
-    return response;
-  } catch (error) {
-    console.error('Discord admin auth failed:', error);
-    const response = redirectTo(request, returnTo, { error: 'discord_auth' });
-    clearAdminSessionCookie(response);
-    response.cookies.delete('kmhq_discord_oauth_state');
-    response.cookies.delete('kmhq_discord_oauth_return_to');
-    return response;
-  }
+        const [isMember, admin] = await Promise.all([
+            envAdmin ? Promise.resolve(true) : isGuildMember(user.id),
+            envAdmin ? Promise.resolve(true) : isAdmin(user.id),
+        ]);
+
+        if (!isMember || (adminRequired && !admin)) {
+            const response = redirectTo(request, returnTo, { denied: "1" });
+            clearAdminSessionCookie(response);
+            response.cookies.delete("kmhq_discord_oauth_state");
+            response.cookies.delete("kmhq_discord_oauth_return_to");
+            return response;
+        }
+
+        // Auto-register member in DB (no-op if already exists)
+        await autoRegisterMember(user, envAdmin);
+
+        const response = redirectTo(request, returnTo);
+        setAdminSessionCookie(user, response);
+        response.cookies.delete("kmhq_discord_oauth_state");
+        response.cookies.delete("kmhq_discord_oauth_return_to");
+        return response;
+    } catch (error) {
+        console.error("Discord admin auth failed:", error);
+        const response = redirectTo(request, returnTo, { error: "discord_auth" });
+        clearAdminSessionCookie(response);
+        response.cookies.delete("kmhq_discord_oauth_state");
+        response.cookies.delete("kmhq_discord_oauth_return_to");
+        return response;
+    }
 }

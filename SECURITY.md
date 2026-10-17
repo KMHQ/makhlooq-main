@@ -4,10 +4,10 @@
 
 The following versions of the **Khalai Makhlooq (KHLA) Command Center** are currently receiving security updates. Only actively maintained branches will receive patches for reported vulnerabilities.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x (main) | ✅ Active — receives all security patches |
-| < 1.0 (pre-release) | ❌ No longer supported |
+| Version             | Supported                                 |
+| ------------------- | ----------------------------------------- |
+| 1.x (main)          | ✅ Active — receives all security patches |
+| < 1.0 (pre-release) | ❌ No longer supported                    |
 
 > **Note:** This project follows a rolling-release model on the `main` branch. We recommend always running the latest commit from `main` to stay up to date with security fixes.
 
@@ -23,7 +23,7 @@ We take the security of the KHLA Command Center seriously. If you discover a vul
 
 Please report vulnerabilities through one of the following channels:
 
-- **GitHub Private Security Advisory** *(preferred)*: Use the [Security tab](https://github.com/Looka-info/makhlooq-main/security/advisories/new) in this repository to submit a private advisory.
+- **GitHub Private Security Advisory** _(preferred)_: Use the [Security tab](https://github.com/Looka-info/makhlooq-main/security/advisories/new) in this repository to submit a private advisory.
 - **Email**: Send a detailed report to the maintainer via the contact listed in the GitHub profile at [github.com/Looka-info](https://github.com/Looka-info).
 
 ### What to Include in Your Report
@@ -38,12 +38,12 @@ To help us triage and resolve the issue as quickly as possible, please include:
 
 ### Response Timeline
 
-| Stage | Timeframe |
-| ----- | --------- |
-| Initial acknowledgement of your report | Within **48 hours** |
-| Triage and severity assessment | Within **5 business days** |
-| Status update on fix progress | Every **7 days** until resolved |
-| Patch released (if accepted) | Within **30 days** for Critical/High; **60 days** for Medium/Low |
+| Stage                                  | Timeframe                                                        |
+| -------------------------------------- | ---------------------------------------------------------------- |
+| Initial acknowledgement of your report | Within **48 hours**                                              |
+| Triage and severity assessment         | Within **5 business days**                                       |
+| Status update on fix progress          | Every **7 days** until resolved                                  |
+| Patch released (if accepted)           | Within **30 days** for Critical/High; **60 days** for Medium/Low |
 
 ### What to Expect
 
@@ -87,4 +87,4 @@ If you are contributing to this project, please follow these guidelines:
 
 ---
 
-*Khalai Makhlooq Security Team — See You In The 'Verse.*
+_Khalai Makhlooq Security Team — See You In The 'Verse._
