@@ -1,24 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { ArrowLeft, Save, CheckCircle, LogOut, Shield } from "lucide-react";
-import Header from "../../../../src/components/Header";
-
-// Modular Components
-import ProfileEditor from "../../../../src/components/team/ProfileEditor";
+import Header from "@/src/components/Header";
+import ProfileEditor, { type ProfileForm } from "@/src/components/team/ProfileEditor";
+import type { TeamMember } from "@/types/db";
+import type { SessionResponse, SessionUser } from "@/types/session";
 
 export default function UserProfilePage() {
-    const [session, setSession] = useState(null);
-    const [member, setMember] = useState(null);
+    const [session, setSession] = useState<SessionUser | null>(null);
+    const [member, setMember] = useState<TeamMember | null>(null);
     const [loading, setLoading] = useState(true);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState("");
     const [uploading, setUploading] = useState(false);
 
     // Form state
-    const [form, setForm] = useState({ node_color: "#10b981", bio: "", status: "active" });
+    const [form, setForm] = useState<ProfileForm>({ node_color: "#10b981", bio: "", status: "active" });
 
     useEffect(() => {
         let mounted = true;
@@ -26,7 +26,7 @@ export default function UserProfilePage() {
         const loadSession = async () => {
             setLoading(true);
             const res = await fetch("/api/auth/discord/session", { cache: "no-store" });
-            const data = await res.json().catch(() => ({}));
+            const data = (await res.json().catch(() => ({}))) as Partial<SessionResponse>;
             if (!mounted) return;
 
             if (!res.ok || !data.authenticated) {
@@ -36,7 +36,7 @@ export default function UserProfilePage() {
                 return;
             }
 
-            setSession(data.user);
+            setSession(data.user ?? null);
             if (data.member) {
                 setMember(data.member);
                 setForm({
@@ -91,14 +91,8 @@ export default function UserProfilePage() {
         }
     };
 
-    const uploadAvatar = async (fileOrEvent) => {
-        let file;
-        if (fileOrEvent instanceof File) {
-            file = fileOrEvent;
-        } else {
-            file = fileOrEvent?.target?.files?.[0];
-        }
-        if (!file || !member) return;
+    const uploadAvatar = async (file: File) => {
+        if (!member) return;
         setUploading(true);
         setError("");
 

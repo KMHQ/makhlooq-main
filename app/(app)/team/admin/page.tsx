@@ -1,32 +1,43 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { Fragment, useState, useEffect, type KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, Edit3, Save, X, Shield, Search, LogOut, RefreshCw, Award } from "lucide-react";
 
 // Modular Components
-import { ColorPicker, AddMemberModal, STATUS_COLORS, ROLES, CATS, SEC_LEVELS } from "../../../../src/components/team/AdminComponents";
+import { ColorPicker, AddMemberModal } from "@/src/components/team/AdminComponents";
+import {
+    AWARD_CATEGORIES,
+    AWARD_TIERS,
+    CATEGORIES as CATS,
+    SEC_LEVELS,
+    STATUS_COLORS,
+    getAwardImage,
+    getRoleConfig,
+    parseAwards,
+    type MemberAward,
+} from "@/src/components/team/teamConfig";
+import type { TeamMember } from "@/types/db";
+import type { SessionResponse, SessionUser } from "@/types/session";
 
-const getRoleConfig = (role) => {
-    const r = role?.toLowerCase() || "";
-    if (r.includes("founder") || r.includes("quaid") || r.includes("admiral")) return { accent: "#fbbf24" };
-    if (r.includes("council")) return { accent: "#f87171" };
-    if (r.includes("advisor")) return { accent: "#60a5fa" };
-    if (r.includes("kmhq")) return { accent: "#10b981" };
-    return { accent: "#00ff41" };
-};
+// Splits a comma-separated flair list
+const splitFlairs = (role: string | null | undefined) =>
+    (role || "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
 
 export default function AdminPage() {
-    const [members, setMembers] = useState([]);
+    const [members, setMembers] = useState<TeamMember[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("");
-    const [editId, setEditId] = useState(null);
-    const [editData, setEditData] = useState({});
+    const [editId, setEditId] = useState<number | null>(null);
+    const [editData, setEditData] = useState<Partial<TeamMember>>({});
     const [saving, setSaving] = useState(false);
     const [showAdd, setShowAdd] = useState(false);
-    const [selectedMemberForAwards, setSelectedMemberForAwards] = useState(null);
-    const [session, setSession] = useState(null);
+    const [selectedMemberForAwards, setSelectedMemberForAwards] = useState<TeamMember | null>(null);
+    const [session, setSession] = useState<SessionUser | { denied: true } | null>(null);
     const [authing, setAuthing] = useState(true);
     const [authed, setAuthed] = useState(false);
     const [syncing, setSyncing] = useState(false);
@@ -47,11 +58,11 @@ export default function AdminPage() {
             setAuthing(true);
             const deniedFromRedirect = window.location.search.includes("denied=1");
             const res = await window.fetch("/api/auth/discord/session?admin=1", { cache: "no-store" });
-            const data = await res.json().catch(() => ({}));
+            const data = (await res.json().catch(() => ({}))) as Partial<SessionResponse>;
             if (!mounted) return;
 
             if (res.ok && data?.admin) {
-                setSession(data.user);
+                setSession(data.user ?? null);
                 setAuthed(true);
                 await loadMembers();
             } else {
@@ -83,7 +94,7 @@ export default function AdminPage() {
         setMembers([]);
     };
 
-    const startEdit = (m) => {
+    const startEdit = (m: TeamMember) => {
         setEditId(m.id);
         setEditData({ ...m });
     };
@@ -133,18 +144,18 @@ export default function AdminPage() {
         setSaving(false);
     };
 
-    const remove = async (id) => {
+    const remove = async (id: number) => {
         if (!confirm("Remove this member from the roster?")) return;
         await window.fetch(`/api/team-members/${id}`, { method: "DELETE" });
         await loadMembers();
     };
 
-    const approveMember = async (id) => {
+    const approveMember = async (id: number) => {
         await window.fetch(`/api/team-members/approve?id=${id}`, { method: "PUT" });
         await loadMembers();
     };
 
-    const rejectMember = async (id) => {
+    const rejectMember = async (id: number) => {
         if (!confirm("Reject and remove this applicant from the system?")) return;
         await window.fetch(`/api/team-members/approve?id=${id}`, { method: "DELETE" });
         await loadMembers();
@@ -162,7 +173,7 @@ export default function AdminPage() {
                 alert(`Sync failed: ${data.error}`);
             }
         } catch (err) {
-            alert(`Error: ${err.message}`);
+            alert(`Error: ${err instanceof Error ? err.message : err}`);
         }
         setSyncing(false);
     };
@@ -381,7 +392,7 @@ export default function AdminPage() {
                                             {m.discord_tag}
                                         </div>
                                         <div className="mt-1 text-[10px] text-gray-500">
-                                            Joined {new Date(m.joined_at).toLocaleDateString()}
+                                            Joined {m.joined_at ? new Date(m.joined_at).toLocaleDateString() : "N/A"}
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-2">
@@ -441,7 +452,7 @@ export default function AdminPage() {
                                         const isEditing = editId === m.id;
                                         const d = isEditing ? editData : m;
                                         return (
-                                            <React.Fragment key={m.id}>
+                                            <Fragment key={m.id}>
                                                 <tr className="group hover:bg-white/2 transition-colors">
                                                     {/* Member */}
                                                     <td className="px-6 py-5">
@@ -489,7 +500,7 @@ export default function AdminPage() {
                                                                                 className="text-gray-400 text-[11px] line-clamp-2 mt-1 italic border-l border-emerald-500/30 pl-2 max-w-xs"
                                                                                 title={m.bio}
                                                                             >
-                                                                                "{m.bio}"
+                                                                                &ldquo;{m.bio}&rdquo;
                                                                             </div>
                                                                         ) : (
                                                                             <div className="text-gray-600 text-[10px] italic mt-0.5">
@@ -557,22 +568,19 @@ export default function AdminPage() {
                                                                         id={`edit-flair-input-${m.id}`}
                                                                         placeholder="New..."
                                                                         className="flex-1 rounded-lg border border-emerald-500/20 bg-white/5 px-2.5 py-1 text-white text-xs outline-none focus:border-emerald-500/40"
-                                                                        onKeyDown={(e) => {
+                                                                        onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
                                                                             if (e.key === "Enter") {
                                                                                 e.preventDefault();
-                                                                                const val = e.target.value.trim();
+                                                                                const val = e.currentTarget.value.trim();
                                                                                 if (val) {
-                                                                                    const current = (d.role || "")
-                                                                                        .split(",")
-                                                                                        .map((x) => x.trim())
-                                                                                        .filter(Boolean);
+                                                                                    const current = splitFlairs(d.role);
                                                                                     if (!current.includes(val)) {
                                                                                         setEditData((p) => ({
                                                                                             ...p,
                                                                                             role: [...current, val].join(", "),
                                                                                         }));
                                                                                     }
-                                                                                    e.target.value = "";
+                                                                                    e.currentTarget.value = "";
                                                                                 }
                                                                             }
                                                                         }}
@@ -582,13 +590,10 @@ export default function AdminPage() {
                                                                         onClick={() => {
                                                                             const input = document.getElementById(
                                                                                 `edit-flair-input-${m.id}`,
-                                                                            );
+                                                                            ) as HTMLInputElement | null;
                                                                             const val = input?.value.trim();
-                                                                            if (val) {
-                                                                                const current = (d.role || "")
-                                                                                    .split(",")
-                                                                                    .map((x) => x.trim())
-                                                                                    .filter(Boolean);
+                                                                            if (input && val) {
+                                                                                const current = splitFlairs(d.role);
                                                                                 if (!current.includes(val)) {
                                                                                     setEditData((p) => ({
                                                                                         ...p,
@@ -631,7 +636,7 @@ export default function AdminPage() {
                                                                     </select>
                                                                 </div>
                                                                 <select
-                                                                    value={d.category}
+                                                                    value={d.category ?? ""}
                                                                     onChange={(e) =>
                                                                         setEditData((p) => ({ ...p, category: e.target.value }))
                                                                     }
@@ -695,7 +700,7 @@ export default function AdminPage() {
                                                     <td className="px-6 py-5">
                                                         {isEditing ? (
                                                             <select
-                                                                value={d.status}
+                                                                value={d.status ?? ""}
                                                                 onChange={(e) => setEditData((p) => ({ ...p, status: e.target.value }))}
                                                                 className="rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
                                                             >
@@ -710,8 +715,8 @@ export default function AdminPage() {
                                                                 <span
                                                                     className="w-2 h-2 rounded-full"
                                                                     style={{
-                                                                        background: STATUS_COLORS[m.status] || STATUS_COLORS.inactive,
-                                                                        boxShadow: `0 0 10px ${STATUS_COLORS[m.status] || STATUS_COLORS.inactive}`,
+                                                                        background: STATUS_COLORS[m.status ?? ""] || STATUS_COLORS.inactive,
+                                                                        boxShadow: `0 0 10px ${STATUS_COLORS[m.status ?? ""] || STATUS_COLORS.inactive}`,
                                                                     }}
                                                                 />
                                                                 <span className="text-gray-400 text-xs font-medium capitalize">
@@ -726,7 +731,7 @@ export default function AdminPage() {
                                                         {isEditing ? (
                                                             <div className="flex items-center gap-3">
                                                                 <ColorPicker
-                                                                    value={d.node_color}
+                                                                    value={d.node_color || "#10b981"}
                                                                     onChange={(c) => setEditData((p) => ({ ...p, node_color: c }))}
                                                                 />
                                                                 <span className="text-white text-xs font-mono bg-white/5 px-2 py-1 rounded">
@@ -795,7 +800,7 @@ export default function AdminPage() {
                                                             <label className="relative inline-flex items-center cursor-pointer">
                                                                 <input
                                                                     type="checkbox"
-                                                                    checked={d.is_admin}
+                                                                    checked={Boolean(d.is_admin)}
                                                                     onChange={(e) =>
                                                                         setEditData((p) => ({ ...p, is_admin: e.target.checked }))
                                                                     }
@@ -882,7 +887,7 @@ export default function AdminPage() {
                                                         </td>
                                                     </tr>
                                                 )}
-                                            </React.Fragment>
+                                            </Fragment>
                                         );
                                     })
                                 )}
@@ -906,39 +911,14 @@ export default function AdminPage() {
     );
 }
 
-const AWARD_FILE_PREFIXES = {
-    Shaqafat: "Shaqafat",
-    Safir: "safir",
-    Ittehad: "ittehad",
-    Khidmat: "khidmat",
-    Alamgiri: "alamgiri",
-    Sultani: "sultani",
-    Khazana: "khazana",
-    Rehla: "rehla",
-    Naqsha: "naqsha",
-    Shaheen: "shaheen",
-    Sipar: "sipar",
-    Bandook: "bandook",
-    Nusrat: "nusrat",
-    Mistri: "mistri",
-};
+interface ManageAwardsModalProps {
+    member: TeamMember;
+    onClose: () => void;
+    onUpdated: () => void;
+}
 
-const AWARD_TIER_SUFFIXES = {
-    Ustad: "_1",
-    Uncle: "_2",
-    Launda: "_3",
-    Charsi: "_4",
-};
-
-const getAwardImage = (category, tier) => {
-    const prefix = AWARD_FILE_PREFIXES[category];
-    const suffix = AWARD_TIER_SUFFIXES[tier];
-    if (!prefix || !suffix) return null;
-    return `/KMHQ Awards/${prefix}${suffix}.png`;
-};
-
-function ManageAwardsModal({ member, onClose, onUpdated }) {
-    const [awards, setAwards] = useState(member.awards || []);
+function ManageAwardsModal({ member, onClose, onUpdated }: ManageAwardsModalProps) {
+    const [awards, setAwards] = useState<MemberAward[]>(() => parseAwards(member.awards));
     const [category, setCategory] = useState("Shaqafat");
     const [tier, setTier] = useState("Ustad");
     const [saving, setSaving] = useState(false);
@@ -954,7 +934,7 @@ function ManageAwardsModal({ member, onClose, onUpdated }) {
         setAwards((prev) => [...prev, { category, tier }]);
     };
 
-    const removeAward = (index) => {
+    const removeAward = (index: number) => {
         setAwards((prev) => prev.filter((_, i) => i !== index));
     };
 
@@ -1051,7 +1031,7 @@ function ManageAwardsModal({ member, onClose, onUpdated }) {
                                 onChange={(e) => setCategory(e.target.value)}
                                 className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40"
                             >
-                                {Object.keys(AWARD_FILE_PREFIXES).map((cat) => (
+                                {Object.keys(AWARD_CATEGORIES).map((cat) => (
                                     <option key={cat} value={cat} className="bg-[#0a1a12]">
                                         {cat}
                                     </option>
@@ -1065,7 +1045,7 @@ function ManageAwardsModal({ member, onClose, onUpdated }) {
                                 onChange={(e) => setTier(e.target.value)}
                                 className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40"
                             >
-                                {Object.keys(AWARD_TIER_SUFFIXES).map((t) => (
+                                {Object.keys(AWARD_TIERS).map((t) => (
                                     <option key={t} value={t} className="bg-[#0a1a12]">
                                         {t}
                                     </option>

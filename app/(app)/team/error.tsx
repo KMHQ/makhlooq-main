@@ -2,7 +2,7 @@
 
 import { AlertTriangle, RotateCcw } from "lucide-react";
 
-export default function Error({ error, reset }) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     return (
         <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
             <div className="max-w-md text-center">

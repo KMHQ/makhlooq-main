@@ -1,35 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
-import { Upload, Palette, Shield, Crown, Sword, Users, Zap, Terminal } from "lucide-react";
-
-const ICON_MAP = {
-    crown: Crown,
-    shield: Shield,
-    sword: Sword,
-    users: Users,
-    zap: Zap,
-    terminal: Terminal,
-};
-
-const getRoleConfig = (role) => {
-    const r = role?.toLowerCase() || "";
-    if (r.includes("founder") || r.includes("quaid") || r.includes("admiral")) return { Icon: Crown, accent: "#fbbf24", label: "FOUNDER" };
-    if (r.includes("council")) return { Icon: Shield, accent: "#f87171", label: "COUNCIL" };
-    if (r.includes("advisor")) return { Icon: Terminal, accent: "#60a5fa", label: "ADVISOR" };
-    if (r.includes("kmhq")) return { Icon: Zap, accent: "#10b981", label: "KMHQ" };
-    return { Icon: Users, accent: "#00ff41", label: "CREW" };
-};
-import { ColorPicker, PRESET_COLORS } from "./AdminComponents";
-import AvatarCropperModal from "./AvatarCropperModal";
+import { createElement, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 import { AnimatePresence } from "motion/react";
+import { Upload, Palette, Shield } from "lucide-react";
+import type { TeamMember } from "@/types/db";
+import { ColorPicker } from "./AdminComponents";
+import AvatarCropperModal from "./AvatarCropperModal";
+import { PRESET_COLORS, getFlairIcon, getRoleConfig } from "./teamConfig";
 
-export default function ProfileEditor({ member, form, setForm, onUploadAvatar, uploading }) {
+export interface ProfileForm {
+    node_color: string;
+    bio: string;
+    status: string;
+    joined_at?: string;
+    is_admin?: boolean;
+}
+
+interface ProfileEditorProps {
+    member: TeamMember;
+    form: ProfileForm;
+    setForm: Dispatch<SetStateAction<ProfileForm>>;
+    onUploadAvatar: (file: File) => void;
+    uploading: boolean;
+}
+
+export default function ProfileEditor({ member, form, setForm, onUploadAvatar, uploading }: ProfileEditorProps) {
     const color = form.node_color;
-    const [cropImageSrc, setCropImageSrc] = useState(null);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setSelectedFile(file);
@@ -38,8 +38,8 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
         }
     };
 
-    const handleCropComplete = (croppedBlob) => {
-        if (!selectedFile) return;
+    const handleCropComplete = (croppedBlob: Blob | null) => {
+        if (!selectedFile || !croppedBlob) return;
         const croppedFile = new File([croppedBlob], selectedFile.name, { type: "image/jpeg" });
         onUploadAvatar(croppedFile);
         setCropImageSrc(null);
@@ -88,10 +88,7 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                             .filter(Boolean)
                             .map((flair, idx) => {
                                 const { Icon: flairIcon, accent: flairAccent } = getRoleConfig(flair);
-                                const showIcon =
-                                    idx === 0 && member.flair_icon !== "none"
-                                        ? ICON_MAP[member.flair_icon?.toLowerCase()] || flairIcon
-                                        : flairIcon;
+                                const showIcon = idx === 0 ? (getFlairIcon(member.flair_icon, flairIcon) ?? flairIcon) : flairIcon;
                                 const currentAccent = member.flair_color || flairAccent || "#10b981";
                                 return (
                                     <span
@@ -103,7 +100,7 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                                             borderColor: `${currentAccent}30`,
                                         }}
                                     >
-                                        {showIcon && React.createElement(showIcon, { size: 10 })}
+                                        {createElement(showIcon, { size: 10 })}
                                         {flair}
                                     </span>
                                 );

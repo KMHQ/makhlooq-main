@@ -1,10 +1,6 @@
-/**
- * ▸ TEAM PAGE METADATA & LAYOUT
- * SEO: Provides page-specific metadata for team section
- * Improves: SEO (+5 points), Open Graph sharing
- */
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Team | KHALAI MAKHLOOQ — Elite Star Citizen Organization",
     description:
         "Meet the Khalai Makhlooq leadership. Admirals, commanders, and elite pilots organizing high-stakes operations across the Stanton and Pyro systems.",
@@ -28,6 +24,6 @@ export const metadata = {
     },
 };
 
-export default function TeamLayout({ children }) {
-    return <>{children}</>;
+export default function TeamLayout({ children }: { children: React.ReactNode }) {
+    return children;
 }

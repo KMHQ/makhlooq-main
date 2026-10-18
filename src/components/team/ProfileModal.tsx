@@ -1,167 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
+import { createElement, useState } from "react";
 import { motion } from "motion/react";
-import { X, Shield, Crown, Sword, Users, Zap, Terminal } from "lucide-react";
+import { X, Shield } from "lucide-react";
+import type { TeamMember } from "@/types/db";
+import {
+    AWARD_CATEGORIES,
+    AWARD_TIERS,
+    SEC_LEVELS,
+    STATUS_META,
+    formatDate,
+    getAwardImage,
+    getFlairIcon,
+    getRoleConfig,
+    parseAwards,
+} from "./teamConfig";
 
-const SEC_LEVELS = ["R0", "R1", "R2", "R3", "R4", "R5", "R6"];
+interface ProfileModalProps {
+    member: Partial<TeamMember> | null;
+    isAdmin?: boolean;
+    onMemberUpdated?: () => void;
+    onClose: () => void;
+}
 
-const STATUS_META = {
-    active: { color: "#00ff41", label: "ACTIVE", dot: "bg-[#00ff41] shadow-[0_0_8px_#00ff41] animate-pulse" },
-    inactive: { color: "#2a3a2a", label: "INACTIVE", dot: "bg-[#1a3020]" },
-};
-
-const ICON_MAP = {
-    crown: Crown,
-    shield: Shield,
-    sword: Sword,
-    users: Users,
-    zap: Zap,
-    terminal: Terminal,
-};
-
-const AWARD_TIERS = {
-    Ustad: { label: "Ustad (19 Merits)", suffix: "_1" },
-    Uncle: { label: "Uncle (13 Merits)", suffix: "_2" },
-    Launda: { label: "Launda (7 Merits)", suffix: "_3" },
-    Charsi: { label: "Charsi (3 Merits)", suffix: "_4" },
-};
-
-const AWARD_CATEGORIES = {
-    Shaqafat: { label: "Shaqafat (Valor & Combat)", filePrefix: "Shaqafat" },
-    Safir: { label: "Safir (Navigations)", filePrefix: "safir" },
-    Ittehad: { label: "Ittehad (Teamwork)", filePrefix: "ittehad" },
-    Khidmat: { label: "Khidmat (Service & Dedication)", filePrefix: "khidmat" },
-    Alamgiri: { label: "Alamgiri (Strategist)", filePrefix: "alamgiri" },
-    Sultani: { label: "Sultani (Diplomacy)", filePrefix: "sultani" },
-    Khazana: { label: "Khazana (Generosity)", filePrefix: "khazana" },
-    Rehla: { label: "Rehla (Discovery)", filePrefix: "rehla" },
-    Naqsha: { label: "Naqsha (Exploration & Mapping)", filePrefix: "naqsha" },
-    Shaheen: { label: "Shaheen (Ariel Dominance)", filePrefix: "shaheen" },
-    Sipar: { label: "Sipar (Defense)", filePrefix: "sipar" },
-    Bandook: { label: "Bandook (High Value Kills)", filePrefix: "bandook" },
-    Nusrat: { label: "Nusrat (Medical Support)", filePrefix: "nusrat" },
-    Mistri: { label: "Mistri (Engineering Support)", filePrefix: "mistri" },
-};
-
-const AWARD_DETAILS = {
-    Shaqafat: {
-        desc: "For unmatched bravery and domination in battle, defending the fleet and seizing victory.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Safir: {
-        desc: "For exceptional navigation and piloting, ensuring mission success and survival against the odds.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Ittehad: {
-        desc: "For outstanding teamwork and leadership in major operations, keeping the fleet united under fire.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Khidmat: {
-        desc: "For unwavering commitment and selfless contributions to the fleet's goals and welfare.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Alamgiri: {
-        desc: "For significant strides in developing the RoE and the fleet's strategic backbone and operation SOPs.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Sultani: {
-        desc: "For forging alliances, discovering uncharted systems, and expanding the influence of Khalai Makhlooq.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Khazana: {
-        desc: "For significant material or financial support that empowers the fleet’s strength and survival.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Rehla: {
-        desc: "For discovering new systems, planets, and starpaths.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Naqsha: {
-        desc: "For mapping valuable zones and hidden resources.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Shaheen: {
-        desc: "For aerial dominance and unmatched dogfighting.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Sipar: {
-        desc: "For defending vital assets and comrades against overwhelming odds.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Bandook: {
-        desc: "For elite marksmanship and critical kills in combat, clearing the field of threats.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Nusrat: {
-        desc: "For life-saving medical, logistical, and morale support.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-    Mistri: {
-        desc: "For engineering support under enemy fire.",
-        requirement: { Ustad: "19 Merits", Uncle: "13 Merits", Launda: "7 Merits", Charsi: "3 Merits" },
-    },
-};
-
-const getAwardImage = (category, tier) => {
-    const prefix = AWARD_CATEGORIES[category]?.filePrefix;
-    const suffix = AWARD_TIERS[tier]?.suffix;
-    if (!prefix || !suffix) return null;
-    return `/KMHQ Awards/${prefix}${suffix}.png`;
-};
-
-const formatDate = (date) => {
-    if (!date) return "N/A";
-    return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-};
-
-const getRoleConfig = (role) => {
-    const r = role?.toLowerCase() || "";
-    if (r.includes("founder") || r.includes("quaid") || r.includes("admiral")) return { Icon: Crown, accent: "#fbbf24", label: "FOUNDER" };
-    if (r.includes("council")) return { Icon: Shield, accent: "#f87171", label: "COUNCIL" };
-    if (r.includes("advisor")) return { Icon: Terminal, accent: "#60a5fa", label: "ADVISOR" };
-    if (r.includes("kmhq")) return { Icon: Zap, accent: "#10b981", label: "KMHQ" };
-    return { Icon: Users, accent: "#00ff41", label: "CREW" };
-};
-
-export default function ProfileModal({ member, isAdmin = false, onMemberUpdated, onClose }) {
-    if (!member) return null;
-    const { Icon: fallbackIcon, accent: fallbackAccent } = getRoleConfig(member.role);
-    const accent = member.flair_color || fallbackAccent || "#10b981";
-    const frameColor = member.node_color || accent;
-    const Icon = member.flair_icon === "none" ? null : ICON_MAP[member.flair_icon?.toLowerCase()] || fallbackIcon;
-    const initial = member.name?.[0]?.toUpperCase() || "?";
-
-    const [currentStatus, setCurrentStatus] = useState(member.status || "inactive");
-    const [currentIsAdmin, setCurrentIsAdmin] = useState(Boolean(member.is_admin));
+export default function ProfileModal({ member, isAdmin = false, onMemberUpdated, onClose }: ProfileModalProps) {
+    const [currentStatus, setCurrentStatus] = useState(member?.status || "inactive");
+    const [currentIsAdmin, setCurrentIsAdmin] = useState(Boolean(member?.is_admin));
     const [updating, setUpdating] = useState(false);
 
+    if (!member) return null;
+
+    const { accent: fallbackAccent } = getRoleConfig(member.role);
+    const accent = member.flair_color || fallbackAccent || "#10b981";
+    const frameColor = member.node_color || accent;
+    const initial = member.name?.[0]?.toUpperCase() || "?";
+    const awards = parseAwards(member.awards);
     const status = STATUS_META[currentStatus] || STATUS_META.inactive;
 
-    const handleToggleStatus = async () => {
-        const next = currentStatus === "active" ? "inactive" : "active";
-        setCurrentStatus(next);
+    const updateMember = async (changes: Partial<TeamMember>) => {
         setUpdating(true);
         await fetch(`/api/team-members/${member.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: next }),
+            body: JSON.stringify(changes),
         });
         setUpdating(false);
         onMemberUpdated?.();
     };
 
-    const handleToggleAdmin = async () => {
+    const handleToggleStatus = () => {
+        const next = currentStatus === "active" ? "inactive" : "active";
+        setCurrentStatus(next);
+        return updateMember({ status: next });
+    };
+
+    const handleToggleAdmin = () => {
         const next = !currentIsAdmin;
         setCurrentIsAdmin(next);
-        setUpdating(true);
-        await fetch(`/api/team-members/${member.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ is_admin: next }),
-        });
-        setUpdating(false);
-        onMemberUpdated?.();
+        return updateMember({ is_admin: next });
     };
 
     return (
@@ -272,10 +168,7 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                     .filter(Boolean)
                                     .map((flair, idx) => {
                                         const { Icon: flairIcon, accent: flairAccent } = getRoleConfig(flair);
-                                        const showIcon =
-                                            idx === 0 && member.flair_icon !== "none"
-                                                ? ICON_MAP[member.flair_icon?.toLowerCase()] || flairIcon
-                                                : flairIcon;
+                                        const showIcon = idx === 0 ? (getFlairIcon(member.flair_icon, flairIcon) ?? flairIcon) : flairIcon;
                                         const currentAccent = member.flair_color || flairAccent || "#10b981";
                                         return (
                                             <span
@@ -287,7 +180,7 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                                     borderColor: `${currentAccent}30`,
                                                 }}
                                             >
-                                                {showIcon && React.createElement(showIcon, { size: 11 })}
+                                                {createElement(showIcon, { size: 11 })}
                                                 {flair}
                                             </span>
                                         );
@@ -374,13 +267,13 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                     )}
 
                     {/* Awards */}
-                    {member.awards && member.awards.length > 0 && (
+                    {awards.length > 0 && (
                         <div className="border-t pt-5 pb-3" style={{ borderColor: `${frameColor}15` }}>
                             <div className="font-mono text-[10px] tracking-[0.2em] text-[#2a5c35] uppercase mb-4">SERVICE_AWARDS //</div>
                             <div className="flex flex-wrap gap-4">
-                                {member.awards.map((award, i) => {
+                                {awards.map((award, i) => {
                                     const imgUrl = getAwardImage(award.category, award.tier);
-                                    const details = AWARD_DETAILS[award.category];
+                                    const details = AWARD_CATEGORIES[award.category];
                                     const title = `${award.category} - ${award.tier}`;
                                     return (
                                         <div
@@ -407,9 +300,9 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                                         {details.desc}
                                                     </div>
                                                 )}
-                                                {details && details.requirement[award.tier] && (
+                                                {details && AWARD_TIERS[award.tier] && (
                                                     <div className="text-[10px] text-emerald-400 font-mono font-bold mt-2 pt-1.5 border-t border-white/10">
-                                                        Requirement: {details.requirement[award.tier]}
+                                                        Requirement: {AWARD_TIERS[award.tier].merits}
                                                     </div>
                                                 )}
                                             </div>

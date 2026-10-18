@@ -1,53 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { X } from "lucide-react";
+import { CATEGORIES, PRESET_COLORS, SEC_LEVELS, getRoleConfig } from "./teamConfig";
 
-export const PRESET_COLORS = [
-    "#10b981",
-    "#34d399",
-    "#6ee7b7",
-    "#a78bfa",
-    "#f59e0b",
-    "#ef4444",
-    "#3b82f6",
-    "#ec4899",
-    "#06b6d4",
-    "#84cc16",
-    "#f97316",
-    "#8b5cf6",
-];
+const blankMember = () => ({
+    discord_uid: "",
+    discord_tag: "",
+    name: "",
+    role: "KMHQ",
+    category: "Makhlooq",
+    sec_level: "R0",
+    node_color: "#10b981",
+    bio: "",
+    status: "inactive",
+    is_admin: false,
+    avatar_url: "",
+    flair_color: "#10b981",
+    flair_icon: "zap",
+    joined_at: new Date().toISOString().split("T")[0],
+});
 
-export const STATUS_COLORS = { active: "#22c55e", inactive: "#6b7280" };
-export const ROLES = ["High Council", "Advisor", "Quaid - Founder", "KMHQ"];
-export const CATS = [
-    "Field Marshal",
-    "General",
-    "Commander",
-    "Colonel",
-    "Major",
-    "Captain",
-    "Officer",
-    "Lieutenant",
-    "Sergeant",
-    "Corporal",
-    "Soldier",
-    "Citizen",
-    "Makhlooq",
-];
-export const SEC_LEVELS = ["R0", "R1", "R2", "R3", "R4", "R5", "R6"];
+type MemberForm = ReturnType<typeof blankMember>;
+type TextField = { [K in keyof MemberForm]: MemberForm[K] extends string ? K : never }[keyof MemberForm];
 
-const getRoleConfig = (role) => {
-    const r = role?.toLowerCase() || "";
-    if (r.includes("founder") || r.includes("quaid") || r.includes("admiral")) return { accent: "#fbbf24" };
-    if (r.includes("council")) return { accent: "#f87171" };
-    if (r.includes("advisor")) return { accent: "#60a5fa" };
-    if (r.includes("kmhq")) return { accent: "#10b981" };
-    return { accent: "#00ff41" };
-};
-
-export function ColorPicker({ value, onChange }) {
+export function ColorPicker({ value, onChange }: { value: string; onChange: (color: string) => void }) {
     const [open, setOpen] = useState(false);
     return (
         <div className="relative">
@@ -84,24 +62,8 @@ export function ColorPicker({ value, onChange }) {
     );
 }
 
-export function AddMemberModal({ onClose, onAdded }) {
-    const blank = {
-        discord_uid: "",
-        discord_tag: "",
-        name: "",
-        role: "KMHQ",
-        category: "Makhlooq",
-        sec_level: "R0",
-        node_color: "#10b981",
-        bio: "",
-        status: "inactive",
-        is_admin: false,
-        avatar_url: "",
-        flair_color: "#10b981",
-        flair_icon: "zap",
-        joined_at: new Date().toISOString().split("T")[0],
-    };
-    const [form, setForm] = useState(blank);
+export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
+    const [form, setForm] = useState(blankMember);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
@@ -126,7 +88,7 @@ export function AddMemberModal({ onClose, onAdded }) {
         onClose();
     };
 
-    const field = (key, label, type = "text", opts = null) => (
+    const field = (key: TextField, label: string, type = "text", opts: string[] | null = null) => (
         <div className="space-y-1">
             <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{label}</label>
             {key === "bio" ? (
@@ -239,7 +201,7 @@ export function AddMemberModal({ onClose, onAdded }) {
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
                                         e.preventDefault();
-                                        const val = e.target.value.trim();
+                                        const val = e.currentTarget.value.trim();
                                         if (val) {
                                             const current = (form.role || "")
                                                 .split(",")
@@ -248,7 +210,7 @@ export function AddMemberModal({ onClose, onAdded }) {
                                             if (!current.includes(val)) {
                                                 setForm((f) => ({ ...f, role: [...current, val].join(", ") }));
                                             }
-                                            e.target.value = "";
+                                            e.currentTarget.value = "";
                                         }
                                     }
                                 }}
@@ -256,9 +218,9 @@ export function AddMemberModal({ onClose, onAdded }) {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    const input = document.getElementById("new-flair-input");
+                                    const input = document.getElementById("new-flair-input") as HTMLInputElement | null;
                                     const val = input?.value.trim();
-                                    if (val) {
+                                    if (input && val) {
                                         const current = (form.role || "")
                                             .split(",")
                                             .map((x) => x.trim())
@@ -285,7 +247,7 @@ export function AddMemberModal({ onClose, onAdded }) {
                         </div>
                     </div>
 
-                    {field("category", "Rank", "text", CATS)}
+                    {field("category", "Rank", "text", CATEGORIES)}
                     {field("sec_level", "Clearance Level", "text", SEC_LEVELS)}
                     {field("status", "Status", "text", ["active", "inactive"])}
                     {field("joined_at", "Deployed Date", "date")}

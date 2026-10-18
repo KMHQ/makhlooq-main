@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ChangeEvent, type MouseEvent, type SyntheticEvent, type TouchEvent } from "react";
 import { motion } from "motion/react";
 import { X, ZoomIn, ZoomOut, Move } from "lucide-react";
 
-export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
+interface AvatarCropperModalProps {
+    imageUrl: string;
+    onCrop: (blob: Blob | null) => void;
+    onClose: () => void;
+}
+
+export default function AvatarCropperModal({ imageUrl, onCrop, onClose }: AvatarCropperModalProps) {
     const [zoom, setZoom] = useState(1);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
@@ -12,13 +18,13 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
     const [baseWidth, setBaseWidth] = useState(0);
     const [baseHeight, setBaseHeight] = useState(0);
 
-    const containerRef = useRef(null);
-    const imageRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
     const dragStartRef = useRef({ x: 0, y: 0 });
 
     const cropSize = 240;
 
-    const handleImageLoad = (e) => {
+    const handleImageLoad = (e: SyntheticEvent<HTMLImageElement>) => {
         const { naturalWidth, naturalHeight } = e.currentTarget;
         if (!naturalWidth || !naturalHeight) return;
 
@@ -38,7 +44,7 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
         setLoading(false);
     };
 
-    const clampOffset = (x, y, currentZoom) => {
+    const clampOffset = (x: number, y: number, currentZoom: number) => {
         const w = baseWidth * currentZoom;
         const h = baseHeight * currentZoom;
         const maxDragX = Math.max(0, (w - cropSize) / 2);
@@ -49,7 +55,7 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
         };
     };
 
-    const handleMouseDown = (e) => {
+    const handleMouseDown = (e: MouseEvent) => {
         e.preventDefault();
         setIsDragging(true);
         dragStartRef.current = {
@@ -58,7 +64,7 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
         };
     };
 
-    const handleTouchStart = (e) => {
+    const handleTouchStart = (e: TouchEvent) => {
         if (e.touches.length !== 1) return;
         setIsDragging(true);
         dragStartRef.current = {
@@ -69,13 +75,13 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
 
     useEffect(() => {
         if (isDragging) {
-            const handleGlobalMouseMove = (e) => {
+            const handleGlobalMouseMove = (e: globalThis.MouseEvent) => {
                 const newX = e.clientX - dragStartRef.current.x;
                 const newY = e.clientY - dragStartRef.current.y;
                 setOffset(clampOffset(newX, newY, zoom));
             };
 
-            const handleGlobalTouchMove = (e) => {
+            const handleGlobalTouchMove = (e: globalThis.TouchEvent) => {
                 if (e.touches.length !== 1) return;
                 const newX = e.touches[0].clientX - dragStartRef.current.x;
                 const newY = e.touches[0].clientY - dragStartRef.current.y;
@@ -100,7 +106,7 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
         }
     }, [isDragging, zoom, baseWidth, baseHeight]);
 
-    const handleZoomChange = (e) => {
+    const handleZoomChange = (e: ChangeEvent<HTMLInputElement>) => {
         const newZoom = parseFloat(e.target.value);
         setZoom(newZoom);
         setOffset((prev) => clampOffset(prev.x, prev.y, newZoom));
@@ -132,18 +138,13 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }) {
         canvas.height = targetSize;
 
         const ctx = canvas.getContext("2d");
+        if (!ctx) return;
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
 
         ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetSize, targetSize);
 
-        canvas.toBlob(
-            (blob) => {
-                onCrop(blob);
-            },
-            "image/jpeg",
-            0.9,
-        );
+        canvas.toBlob(onCrop, "image/jpeg", 0.9);
     };
 
     const width = baseWidth * zoom;

@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import Header from "../../../../src/components/Header";
-import ProfileModal from "../../../../src/components/team/ProfileModal";
+import Header from "@/src/components/Header";
+import ProfileModal from "@/src/components/team/ProfileModal";
+import type { TeamMember } from "@/types/db";
 
 export default function TeamMemberProfile() {
-    const params = useParams();
+    const params = useParams<{ username: string }>();
     const router = useRouter();
-    const [member, setMember] = useState(null);
+    const [member, setMember] = useState<TeamMember | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
