@@ -12,8 +12,5 @@ pnpm-lock.yaml
 app/(payload)/admin/importMap.js
 payload-types.ts
 
-# UTF-16 encoded; Prettier can't read it
-server.js
-
 # Reference scaffold, not part of the app
 payload-reference/
