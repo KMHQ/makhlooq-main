@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import Lenis from "@studio-freight/lenis";
+import Lenis from "lenis";
 import Header from "../../../src/components/Header";
 import Footer from "../../../src/components/Footer";
 import { PortableTextRenderer } from "../../../src/components/PortableTextRenderer";
@@ -446,7 +446,6 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
         const lenis = new Lenis({
             duration: 0.9,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smooth: true,
             wheelMultiplier: 0.9,
         });
 

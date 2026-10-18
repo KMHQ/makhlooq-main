@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import Lenis from "@studio-freight/lenis";
+import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // ▸ DYNAMIC IMPORTS WITH SUSPENSE (Performance: Reduces initial bundle)
@@ -77,7 +77,6 @@ export default function HomePageClient({ data: initialData }) {
         const lenis = new Lenis({
             duration: 0.9,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smooth: true,
             wheelMultiplier: 0.9, // Prevent excessive scroll events
         });
 
