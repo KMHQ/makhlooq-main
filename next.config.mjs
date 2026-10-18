@@ -115,22 +115,6 @@ const nextConfig = {
     productionBrowserSourceMaps: false, // Reduce bundle size in production
     poweredByHeader: false, // Remove X-Powered-By header
     compress: true, // Enable gzip compression
-
-    experimental: {
-        turbo: {
-            resolveAlias: {
-                "react/compiler-runtime": "react-compiler-runtime",
-            },
-        },
-    },
-
-    webpack: (config) => {
-        config.resolve.alias = {
-            ...config.resolve.alias,
-            "react/compiler-runtime": "react-compiler-runtime",
-        };
-        return config;
-    },
 };
 
 export default withPayload(nextConfig);
