@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import type { SiteSetting } from "@/payload-types";
 
 // ▸ NAVIGATION ITEMS (Accessibility: Semantic structure)
 const navItems = [
@@ -12,13 +13,21 @@ const navItems = [
     { href: "/news", label: "News" },
 ];
 
+interface HeaderProps {
+    isMuted?: boolean;
+    setIsMuted?: Dispatch<SetStateAction<boolean>>;
+    volume?: number;
+    setVolume?: Dispatch<SetStateAction<number>>;
+    siteSettings?: SiteSetting | null;
+}
+
 export default function Header({
     isMuted: controlledMuted,
     setIsMuted: setControlledMuted,
     volume: controlledVolume,
     setVolume: setControlledVolume,
     siteSettings,
-}) {
+}: HeaderProps) {
     const [showVolume, setShowVolume] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [localMuted, setLocalMuted] = useState(true);
@@ -81,7 +90,7 @@ export default function Header({
                         aria-label="Main navigation"
                     >
                         {(siteSettings?.navLinks || navItems).map((item, i) => (
-                            <Link href={item.href} key={item.href}>
+                            <Link href={item.href || "/"} key={item.href || i}>
                                 <motion.span
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}

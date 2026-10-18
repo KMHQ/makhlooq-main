@@ -1,25 +1,31 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
-export default function GridOverlay({ id, triggerSelector, isFooter = false }) {
-    const gridRef = useRef(null);
+interface GridOverlayProps {
+    id?: string;
+    triggerSelector: string;
+    isFooter?: boolean;
+}
+
+export default function GridOverlay({ id, triggerSelector, isFooter = false }: GridOverlayProps) {
+    const gridRef = useRef<HTMLDivElement>(null);
     const rows = 17;
     const cols = 30;
 
     useEffect(() => {
         if (!gridRef.current) return;
 
-        const squares = Array.from(gridRef.current.querySelectorAll(".square"));
+        const squares = Array.from(gridRef.current.querySelectorAll<HTMLElement>(".square"));
 
         const sd = squares.map((s) => {
-            const r = +s.dataset.row;
-            const c = +s.dataset.col;
+            const r = Number(s.dataset.row);
+            const c = Number(s.dataset.col);
             // Formula from original script to create wave reveal pattern
             return { el: s, p: (rows - 1 - r) * 50 + Math.random() * 300 + Math.sin(c * 0.3) * 30 };
         });

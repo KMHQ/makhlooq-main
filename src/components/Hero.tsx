@@ -1,19 +1,21 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import GridOverlay from "./GridOverlay";
+import { mediaUrl } from "@/lib/media";
+import type { HomePage } from "@/payload-types";
 
 // Text decode effect
-function useDecodedText(finalText, delay = 0, duration = 1500) {
+function useDecodedText(finalText: string, delay = 0, duration = 1500) {
     const [displayText, setDisplayText] = useState(finalText);
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
 
     useEffect(() => {
-        let startTime = null;
-        let animationFrame;
+        let startTime: number | null = null;
+        let animationFrame = 0;
 
-        const animate = (timestamp) => {
+        const animate = (timestamp: number) => {
             if (!startTime) startTime = timestamp;
             const progress = Math.min((timestamp - startTime) / duration, 1);
 
@@ -85,17 +87,21 @@ function GlitchOverlay() {
     );
 }
 
-export default function Hero({ isMuted, volume, data }) {
-    const videoRef = useRef(null);
+interface HeroProps {
+    isMuted: boolean;
+    volume: number;
+    data: Pick<HomePage, "hero"> | null;
+}
+
+export default function Hero({ isMuted, volume, data }: HeroProps) {
+    const videoRef = useRef<HTMLVideoElement>(null);
     const [heroHovered, setHeroHovered] = useState(false);
 
-    // Support both old Sanity format and new Payload format with fallbacks
     const hero = data?.hero || {};
-    const heading1 = hero.heading1 || data?.heroHeading?.split(" | ")?.[0] || "Join Khalai Makhlooq";
-    const heading2 = hero.heading2 || data?.heroHeading?.split(" | ")?.[1] || "Rule the Stars";
-    const description = hero.description || data?.heroDescription || "Elite Star Citizen Org, laid-back scene";
-    const ctaText = hero.ctaText || data?.ctaText || "Click Here to Join Discord";
-    const ctaLink = hero.ctaLink || data?.ctaLink || "https://discord.gg/kmhq";
+    const heading1 = hero.heading1 || "Join Khalai Makhlooq";
+    const heading2 = hero.heading2 || "Rule the Stars";
+    const description = hero.description || "Elite Star Citizen Org, laid-back scene";
+    const ctaLink = hero.ctaLink || "https://discord.gg/kmhq";
 
     const sub1Normal = hero.subheading1Normal || "And, Welcome PvP";
     const sub1Hover = hero.subheading1Hover || "We Enjoy PvE";
@@ -104,9 +110,9 @@ export default function Hero({ isMuted, volume, data }) {
     const sub3Normal = hero.subheading3Normal || "Hide or Die";
     const sub3Hover = hero.subheading3Hover || "Deep Space Chilling";
 
-    const backgroundVideoUrl = hero.backgroundVideo?.url || "/Fight space and ground  Star Citizen epic cinematic,   Lighthouse.mp4";
-    const posterImageUrl = hero.posterImage?.url || "/backgrounds/jp.jpg";
-    const logoImageUrl = hero.logoImage?.url || "/nobglogo.png";
+    const backgroundVideoUrl = mediaUrl(hero.backgroundVideo) || "/hero-cinematic.mp4";
+    const posterImageUrl = mediaUrl(hero.posterImage) || "/backgrounds/jp.jpg";
+    const logoImageUrl = mediaUrl(hero.logoImage) || "/nobglogo.png";
 
     const decodedHeading1 = useDecodedText(heading1, 500, 600);
     const decodedHeading2 = useDecodedText(heading2, 700, 600);

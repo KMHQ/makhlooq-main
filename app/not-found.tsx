@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function NotFound() {
     return (
         <html lang="en">
@@ -53,7 +55,7 @@ export default function NotFound() {
                 <div className="container">
                     <h2>Signal Lost // 404</h2>
                     <p>The requested coordinates do not contain any active KMHQ dispatches.</p>
-                    <a href="/">Return to Bridge</a>
+                    <Link href="/">Return to Bridge</Link>
                 </div>
             </body>
         </html>

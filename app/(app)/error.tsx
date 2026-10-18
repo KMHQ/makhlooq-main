@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 
 // ▸ ERROR BOUNDARY (Best Practices: Graceful error handling)
 // Catches errors in child components and displays user-friendly message
 // Prevents entire app from crashing due to single component error
 
-export default function Error({ error, reset }) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     useEffect(() => {
         // Log error to monitoring service (Sentry, LogRocket, etc.)
         console.error("Page error:", error);
@@ -49,9 +50,9 @@ export default function Error({ error, reset }) {
                         <RotateCcw size={18} />
                         Try again
                     </button>
-                    <a href="/" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors">
+                    <Link href="/" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors">
                         Go home
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

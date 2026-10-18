@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { HomePage } from "@/payload-types";
+
+type FaqEntry = { q?: string | null; a?: string | null };
 
 gsap.registerPlugin(ScrollTrigger);
 
-const faqs = [
+const faqs: FaqEntry[] = [
     {
         q: "How do I join KMHQ?",
         a: "Come to Discord, get your handle verified, then you get listed on the roster. Simple process. We will see your playstyle and slot you into the wing that fits best.",
@@ -30,7 +33,14 @@ const faqs = [
     },
 ];
 
-function FAQItem({ faq, index, isOpen, onClick }) {
+interface FAQItemProps {
+    faq: FaqEntry;
+    index: number;
+    isOpen: boolean;
+    onClick: () => void;
+}
+
+function FAQItem({ faq, index, isOpen, onClick }: FAQItemProps) {
     return (
         <motion.div
             data-faq-card
@@ -89,7 +99,7 @@ function FAQItem({ faq, index, isOpen, onClick }) {
     );
 }
 
-export default function FAQ({ data }) {
+export default function FAQ({ data }: { data?: HomePage["faq"] }) {
     const sectionLabel = data?.sectionLabel || "Quick Q&A";
     const headlineLines = data?.headlineLines?.map((l) => l.text) || ["Straight", "Answers"];
     const description =
@@ -97,10 +107,10 @@ export default function FAQ({ data }) {
         "Toss your confusion out the airlock. Ask the question, get the answer, then head back to the hangar for more fun.";
     const searchPlaceholder = data?.searchPlaceholder || "Search a question...";
     const noResultsText = data?.noResultsText || "No matching answers found — try checking the spelling";
-    const questionsList = data?.questions || faqs;
+    const questionsList: FaqEntry[] = data?.questions || faqs;
 
-    const sectionRef = useRef(null);
-    const [openIndex, setOpenIndex] = useState(0);
+    const sectionRef = useRef<HTMLElement>(null);
+    const [openIndex, setOpenIndex] = useState<number | null>(0);
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredFaqs = useMemo(() => {

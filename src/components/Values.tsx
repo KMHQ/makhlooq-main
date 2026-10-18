@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
+import type { HomePage } from "@/payload-types";
+
+interface Narrative {
+    id: string;
+    subtitle: string;
+    title: string[];
+    desc: string;
+}
 
 // ── CSS keyframes injected once ──
 const STYLES = `
@@ -37,7 +45,7 @@ const STYLES = `
 `;
 
 // Default narratives used as fallback when no CMS data is available
-const DEFAULT_NARRATIVES = [
+const DEFAULT_NARRATIVES: Narrative[] = [
     {
         id: "intro",
         subtitle: "◈ STANTON SYSTEM — GRID REF 4.7 — KM-FLEET ACTIVE ◈",
@@ -78,20 +86,20 @@ const DEFAULT_NARRATIVES = [
 
 const BACKGROUNDS = ["/backgrounds/SC-4.0_20250220_164548_Carrack-Through-Clouds-Pyro-IV_f.png"];
 
-function getBackgroundIndex(progress, total) {
+function getBackgroundIndex(progress: number, total: number) {
     const index = Math.min(Math.floor(progress * total), total - 1);
     const segmentProgress = (progress * total) % 1;
     return { index, segmentProgress };
 }
 
-function lerp(a, b, t) {
+function lerp(a: number, b: number, t: number) {
     return a + (b - a) * t;
 }
-function easeOut(t) {
+function easeOut(t: number) {
     return 1 - Math.pow(1 - t, 3);
 }
 
-function getNarrativeOpacity(progress, index, total) {
+function getNarrativeOpacity(progress: number, index: number, total: number) {
     const segmentSize = 1 / total;
     const start = index * segmentSize;
     const end = start + segmentSize;
@@ -103,20 +111,20 @@ function getNarrativeOpacity(progress, index, total) {
     return 1;
 }
 
-export default function Values({ data }) {
+export default function Values({ data }: { data?: HomePage["values"] }) {
     // Build narratives from CMS data or fall back to hardcoded defaults
-    const NARRATIVES = React.useMemo(() => {
-        if (data?.narratives && Array.isArray(data.narratives) && data.narratives.length > 0) {
+    const NARRATIVES = useMemo<Narrative[]>(() => {
+        if (data?.narratives?.length) {
             return data.narratives.map((n) => ({
                 id: n.id || "",
                 subtitle: n.subtitle || "",
-                title: [n.title1, n.title2].filter(Boolean),
+                title: [n.title1, n.title2].filter((t): t is string => Boolean(t)),
                 desc: n.desc || "",
             }));
         }
         return DEFAULT_NARRATIVES;
     }, [data]);
-    const wrapperRef = useRef(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {

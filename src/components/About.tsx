@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { mediaUrl } from "@/lib/media";
+import type { HomePage } from "@/payload-types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function About({ data }) {
+export default function About({ data }: { data?: HomePage["about"] }) {
     // CMS-backed data with fallbacks
     const sectionLabel = data?.sectionLabel || "Fleet Operations Scene";
     const introPara =
@@ -17,7 +19,7 @@ export default function About({ data }) {
     const manifestoLines = data?.manifestoLines?.map((m) => m.text) || ["Move", "Like A", "Full Squad"];
     const visualLabel = data?.visualLabel || "Hangar posture";
     const visualHeading = data?.visualHeading || "Calm mind. Dangerous aim.";
-    const fleetImageUrl = data?.fleetImage?.url || "/backgrounds/SC-3.19_20230524_130313_Fleet-selfie_ILW2953_f.png";
+    const fleetImageUrl = mediaUrl(data?.fleetImage) || "/backgrounds/SC-3.19_20230524_130313_Fleet-selfie_ILW2953_f.png";
     const PRINCIPLES = data?.principles || [
         {
             kicker: "01 / Scene",
@@ -37,7 +39,7 @@ export default function About({ data }) {
     ];
     const SIGNALS = data?.signals?.map((s) => s.signal) || ["STRIKE", "ESCORT", "HAUL", "SCAN", "RECOVER", "HOLD", "EXPAND"];
 
-    const sectionRef = useRef(null);
+    const sectionRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         const ctx = gsap.context(() => {

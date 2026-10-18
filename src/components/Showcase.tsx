@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { HomePage } from "@/payload-types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function Showcase({ data }) {
+export default function Showcase({ data }: { data?: HomePage["showcase"] }) {
     // CMS-backed data with fallbacks
     const sectionLabel = data?.sectionLabel || "Operations Breakdown";
-    const stackWords = data?.headlineWords?.map((w) => w.word) || data?.stackWords?.map((w) => w.text) || ["We", "Never", "Idle"];
+    const stackWords = data?.headlineWords?.map((w) => w.word) || ["We", "Never", "Idle"];
     const overviewText =
         data?.overviewText ||
         "Khalai Makhlooq covers every angle of the Stanton system. Whether it is moving high-value cargo through contested space, recovering downed ships in hostile territory, or locking down an orbital station with overwhelming firepower—KMHQ is equipped, trained, and ready to deploy.";
@@ -51,7 +52,7 @@ export default function Showcase({ data }) {
         { value: "24/7", label: "Hangar ready" },
     ];
 
-    const sectionRef = useRef(null);
+    const sectionRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         const ctx = gsap.context(() => {
