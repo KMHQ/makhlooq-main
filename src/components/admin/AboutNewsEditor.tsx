@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import type { FormattedPost } from "@/lib/newsPosts";
 import {
     Plus,
     ExternalLink,
     Search,
     RefreshCw,
     FolderKanban,
-    Calendar,
     FileText,
     Copy,
     Check,
@@ -33,15 +33,15 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function AboutNewsEditor() {
-    const [news, setNews] = useState([]);
+    const [news, setNews] = useState<FormattedPost[]>([]);
     const [loadingNews, setLoadingNews] = useState(true);
 
     // UI & Feedback State
-    const [deletingId, setDeletingId] = useState(null);
-    const [status, setStatus] = useState(null); // { type: 'error' | 'success', message: '' }
+    const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [status, setStatus] = useState<{ type: "error" | "success"; message: string } | null>(null);
     const [searchFilter, setSearchFilter] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
-    const [copiedId, setCopiedId] = useState(null);
+    const [copiedId, setCopiedId] = useState<number | null>(null);
 
     const fetchNews = async () => {
         setLoadingNews(true);
@@ -49,7 +49,7 @@ export default function AboutNewsEditor() {
             const res = await fetch("/api/about-news");
             const data = await res.json();
             setNews(Array.isArray(data) ? data : []);
-        } catch (err) {
+        } catch {
             setNews([]);
         } finally {
             setLoadingNews(false);
@@ -60,7 +60,7 @@ export default function AboutNewsEditor() {
         fetchNews();
     }, []);
 
-    const handleDelete = async (id, dispatchTitle) => {
+    const handleDelete = async (id: number, dispatchTitle: string) => {
         if (!confirm(`Are you sure you want to delete dispatch "${dispatchTitle}"?`)) return;
 
         setDeletingId(id);
@@ -73,14 +73,14 @@ export default function AboutNewsEditor() {
                 const data = await res.json();
                 setStatus({ type: "error", message: data.error || "Failed to delete news dispatch." });
             }
-        } catch (err) {
+        } catch {
             setStatus({ type: "error", message: "A network error occurred." });
         } finally {
             setDeletingId(null);
         }
     };
 
-    const copyLiveLink = (id) => {
+    const copyLiveLink = (id: number) => {
         const url = `${window.location.origin}/news#dispatch-${id}`;
         navigator.clipboard.writeText(url);
         setCopiedId(id);
@@ -117,7 +117,7 @@ export default function AboutNewsEditor() {
                             </span>
                         </h2>
                         <p className="text-xs text-gray-400 mt-0.5">
-                            Author and manage dispatches using Payload's native visual blocks editor.
+                            Author and manage dispatches using Payload&apos;s native visual blocks editor.
                         </p>
                     </div>
                 </div>
@@ -265,7 +265,7 @@ export default function AboutNewsEditor() {
                                                     {catObj.label}
                                                 </span>
                                                 <span className="text-[10px] font-mono text-gray-400 uppercase">
-                                                    {new Date(item.published_at || item.publishedAt).toLocaleDateString("en-US", {
+                                                    {new Date(item.published_at).toLocaleDateString("en-US", {
                                                         month: "short",
                                                         day: "numeric",
                                                         year: "numeric",

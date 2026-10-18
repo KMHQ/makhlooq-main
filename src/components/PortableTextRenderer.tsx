@@ -1,19 +1,37 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
+
+// The subset of serialized Lexical nodes this renderer understands
+interface LexicalNode {
+    type: string;
+    children?: LexicalNode[];
+    tag?: string;
+    listType?: string;
+    text?: string;
+    format?: number | string;
+    fields?: { url?: string };
+    value?: { url?: string | null; alt?: string | null } | number;
+}
+
+interface LexicalState {
+    root: { children: LexicalNode[] };
+}
+
+const isLexicalState = (value: unknown): value is LexicalState =>
+    typeof value === "object" && value !== null && Array.isArray((value as LexicalState).root?.children);
 
 // Renders Payload CMS Lexical rich text JSON (or plain strings) to React elements
-export function PortableTextRenderer({ content }: { content: any }) {
+export function PortableTextRenderer({ content }: { content: unknown }) {
     if (!content) return null;
 
     // Plain string (legacy or simple content)
     if (typeof content === "string") {
-        let parsedContent = null;
+        let parsedContent: LexicalState | null = null;
         if (content.trim().startsWith("{")) {
             try {
-                const parsed = JSON.parse(content);
-                if (parsed?.root?.children) {
-                    parsedContent = parsed;
-                }
-            } catch (e) {
+                const parsed: unknown = JSON.parse(content);
+                if (isLexicalState(parsed)) parsedContent = parsed;
+            } catch {
                 // Not a JSON structure, fall back to string parsing
             }
         }
@@ -34,19 +52,19 @@ export function PortableTextRenderer({ content }: { content: any }) {
     }
 
     // Payload Lexical JSON root node
-    if (content?.root?.children) {
+    if (isLexicalState(content)) {
         return <div className="prose-invert max-w-none">{renderLexicalNodes(content.root.children)}</div>;
     }
 
     return null;
 }
 
-function renderLexicalNodes(nodes: any[]): React.ReactNode {
+function renderLexicalNodes(nodes: LexicalNode[] | undefined): ReactNode {
     if (!nodes) return null;
     return nodes.map((node, i) => renderLexicalNode(node, i));
 }
 
-function renderLexicalNode(node: any, key: number): React.ReactNode {
+function renderLexicalNode(node: LexicalNode, key: number): ReactNode {
     if (!node) return null;
 
     switch (node.type) {
@@ -105,19 +123,21 @@ function renderLexicalNode(node: any, key: number): React.ReactNode {
                 </a>
             );
         case "upload": {
-            const url = node.value?.url;
+            const upload = typeof node.value === "object" ? node.value : null;
+            const url = upload?.url;
             if (!url) return null;
             return (
                 <div key={key} className="my-6 rounded-lg overflow-hidden border border-white/10">
-                    <Image src={url} alt={node.value?.alt || ""} width={900} height={500} className="w-full object-cover" />
+                    <Image src={url} alt={upload?.alt || ""} width={900} height={500} className="w-full object-cover" />
                 </div>
             );
         }
         case "text": {
-            let el: React.ReactNode = node.text;
-            if (node.format & 1) el = <strong className="text-white font-bold">{el}</strong>;
-            if (node.format & 2) el = <em className="text-lime-200">{el}</em>;
-            if (node.format & 16)
+            const format = Number(node.format) || 0;
+            let el: ReactNode = node.text;
+            if (format & 1) el = <strong className="text-white font-bold">{el}</strong>;
+            if (format & 2) el = <em className="text-lime-200">{el}</em>;
+            if (format & 16)
                 el = <code className="bg-white/10 text-lime-300 px-1.5 py-0.5 rounded text-sm font-mono border border-white/5">{el}</code>;
             return <span key={key}>{el}</span>;
         }

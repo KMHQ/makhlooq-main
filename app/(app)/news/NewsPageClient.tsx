@@ -1,34 +1,23 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
+import type { LucideIcon } from "lucide-react";
+import { getServerUrl } from "@/lib/serverUrl";
+import { mediaUrl } from "@/lib/media";
+import type { NewsPage, NewsPost, SiteSetting, TeamMember } from "@/payload-types";
 import { motion, AnimatePresence } from "motion/react";
 import Lenis from "lenis";
-import Header from "../../../src/components/Header";
-import Footer from "../../../src/components/Footer";
-import { PortableTextRenderer } from "../../../src/components/PortableTextRenderer";
-import {
-    Radio,
-    Search,
-    Tag,
-    Calendar,
-    User,
-    ExternalLink,
-    Newspaper,
-    Filter,
-    Flame,
-    ShieldAlert,
-    Sparkles,
-    ChevronDown,
-    Image as ImageIcon,
-    Video,
-    Code2,
-} from "lucide-react";
+import Header from "@/src/components/Header";
+import { PortableTextRenderer } from "@/src/components/PortableTextRenderer";
+
+type ContentBlock = NonNullable<NewsPost["contentBlocks"]>[number];
+import { Radio, Search, Calendar, User, Newspaper, Flame, ShieldAlert, Sparkles, Image as ImageIcon, Video } from "lucide-react";
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Convert a YouTube / Vimeo watch URL to an embeddable src */
-function toEmbedSrc(url) {
+function toEmbedSrc(url: string | null | undefined) {
     if (!url) return null;
     // YouTube: watch?v=ID or youtu.be/ID
     const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
@@ -41,13 +30,13 @@ function toEmbedSrc(url) {
 }
 
 /** Is a URL or MIME type pointing to a raw video file? */
-function isDirectVideoUrl(url) {
+function isDirectVideoUrl(url: string) {
     return /\.(mp4|webm|ogg|mov)([\?#].*)?$/i.test(url);
 }
 
 // ─── Block Renderer ──────────────────────────────────────────────────────────
 
-function ContentBlocks({ blocks, accentText }) {
+function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentText: string }) {
     if (!Array.isArray(blocks) || blocks.length === 0) return null;
 
     return (
@@ -71,7 +60,7 @@ function ContentBlocks({ blocks, accentText }) {
                         );
 
                     case "imageBlock": {
-                        const imgSrc = block.image?.url;
+                        const imgSrc = mediaUrl(block.image);
                         if (!imgSrc) return null;
                         return (
                             <figure
@@ -85,7 +74,7 @@ function ContentBlocks({ blocks, accentText }) {
                                 <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40 relative flex justify-center items-center">
                                     <img
                                         src={imgSrc}
-                                        alt={block.image?.alt || block.caption || ""}
+                                        alt={(typeof block.image === "object" && block.image?.alt) || block.caption || ""}
                                         className="max-w-full h-auto max-h-[70vh] object-contain transition-transform duration-700 group-hover:scale-[1.01]"
                                         loading="lazy"
                                     />
@@ -101,7 +90,7 @@ function ContentBlocks({ blocks, accentText }) {
 
                     case "videoBlock": {
                         const isUrl = block.videoSource === "url";
-                        const src = isUrl ? block.videoUrl : block.videoFile?.url;
+                        const src = isUrl ? block.videoUrl : mediaUrl(block.videoFile);
                         if (!src) return null;
 
                         const isDirect = isUrl ? isDirectVideoUrl(src) : true;
@@ -120,15 +109,15 @@ function ContentBlocks({ blocks, accentText }) {
                                         <video
                                             src={src}
                                             controls
-                                            autoPlay={block.autoplay}
-                                            muted={block.autoplay}
-                                            loop={block.autoplay}
+                                            autoPlay={block.autoplay ?? undefined}
+                                            muted={block.autoplay ?? undefined}
+                                            loop={block.autoplay ?? undefined}
                                             playsInline
                                             className="w-full h-full object-contain bg-black"
                                         />
                                     ) : (
                                         <iframe
-                                            src={toEmbedSrc(src)}
+                                            src={toEmbedSrc(src) ?? undefined}
                                             title={block.caption || "Video"}
                                             className="w-full h-full border-0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -164,7 +153,7 @@ function ContentBlocks({ blocks, accentText }) {
                                         <video src={block.url} controls className="w-full h-full object-contain bg-black" />
                                     ) : (
                                         <iframe
-                                            src={embedSrc}
+                                            src={embedSrc ?? undefined}
                                             title={block.caption || "Embed"}
                                             className="w-full h-full border-0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -191,10 +180,10 @@ function ContentBlocks({ blocks, accentText }) {
 
 // ─── Author Display ──────────────────────────────────────────────────────────
 
-function resolveAuthor(post) {
-    // New: member relationship
-    if (post.authorSource === "member" && post.authorMember) {
-        const m = post.authorMember;
+function resolveAuthor(post: NewsPost) {
+    // Member relationship (populated at depth >= 1)
+    if (post.authorSource === "member" && post.authorMember && typeof post.authorMember === "object") {
+        const m: TeamMember = post.authorMember;
         return {
             name: m.name || m.discord_tag || "Team Member",
             avatar: m.avatar_url || null,
@@ -212,7 +201,7 @@ function resolveAuthor(post) {
     return null;
 }
 
-function AuthorBadge({ post, accentText, className = "" }) {
+function AuthorBadge({ post, accentText, className = "" }: { post: NewsPost; accentText: string; className?: string }) {
     const author = resolveAuthor(post);
     if (!author) return null;
 
@@ -232,12 +221,12 @@ function AuthorBadge({ post, accentText, className = "" }) {
 
 // ─── Body Content (handles both new blocks and legacy richText) ───────────────
 
-function PostBody({ post, accentText }) {
+function PostBody({ post, accentText }: { post: NewsPost; accentText: string }) {
     const hasBlocks = Array.isArray(post.contentBlocks) && post.contentBlocks.length > 0;
     const hasLegacyBody = !!post.body;
 
     if (hasBlocks) {
-        return <ContentBlocks blocks={post.contentBlocks} accentText={accentText} />;
+        return <ContentBlocks blocks={post.contentBlocks ?? []} accentText={accentText} />;
     }
     if (hasLegacyBody) {
         return (
@@ -251,7 +240,23 @@ function PostBody({ post, accentText }) {
 
 // ─── Category Themes ─────────────────────────────────────────────────────────
 
-const CATEGORY_THEMES = {
+interface CategoryTheme {
+    id: string;
+    label: string;
+    kicker: string;
+    headingTitle: string;
+    headingAccent: string;
+    titleGradient: string;
+    accentText: string;
+    accentBorder: string;
+    bgGlow: string;
+    activePill: string;
+    backgroundImage: string;
+    tagline: string;
+    icon: LucideIcon;
+}
+
+const CATEGORY_THEMES: Record<string, CategoryTheme> = {
     all: {
         id: "all",
         label: "All Dispatches",
@@ -354,7 +359,7 @@ const CATEGORIES = [
     { id: "community", label: "Community" },
 ];
 
-const CATEGORY_COLORS = {
+const CATEGORY_COLORS: Record<string, string> = {
     announcement: "border-amber-500/40 bg-amber-500/10 text-amber-300",
     ops: "border-red-500/40 bg-red-500/10 text-red-300",
     fleet: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300",
@@ -364,18 +369,22 @@ const CATEGORY_COLORS = {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, newsPage }) {
-    const { data: livePosts } = useLivePreview({
+interface NewsPageClientProps {
+    newsPosts: NewsPost[];
+    siteSettings: SiteSetting | null;
+    newsPage: NewsPage | null;
+}
+
+export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, newsPage }: NewsPageClientProps) {
+    const { data: livePosts } = useLivePreview<NewsPost[]>({
         initialData: initialPosts,
-        serverURL: (typeof window !== "undefined" && window.__SERVER_URL__) || process.env.NEXT_PUBLIC_SERVER_URL || "https://kmhq.org",
+        serverURL: getServerUrl(),
         depth: 3,
     });
 
     const posts = Array.isArray(livePosts) ? livePosts : initialPosts || [];
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
-    const [clientNews, setClientNews] = useState([]);
-    const [loading, setLoading] = useState(false);
 
     const activeTheme = useMemo(() => {
         const base = CATEGORY_THEMES[selectedCategory] || CATEGORY_THEMES.all;
@@ -415,32 +424,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
 
     const ActiveIcon = activeTheme.icon;
 
-    useEffect(() => {
-        if (posts.length > 0) return;
-        let mounted = true;
-        setLoading(true);
-
-        fetch("/api/about-news")
-            .then((res) => res.json())
-            .then((data) => {
-                if (!mounted) return;
-                setClientNews(Array.isArray(data) ? data : []);
-            })
-            .catch(() => {
-                if (!mounted) return;
-                setClientNews([]);
-            })
-            .finally(() => {
-                if (!mounted) return;
-                setLoading(false);
-            });
-
-        return () => {
-            mounted = false;
-        };
-    }, [posts.length]);
-
-    const displayPosts = posts.length > 0 ? posts : clientNews;
+    const displayPosts = posts;
 
     useEffect(() => {
         const lenis = new Lenis({
@@ -449,8 +433,8 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
             wheelMultiplier: 0.9,
         });
 
-        let rafId;
-        function raf(time) {
+        let rafId = 0;
+        function raf(time: number) {
             if (!document.hidden) lenis.raf(time);
             rafId = requestAnimationFrame(raf);
         }
@@ -464,8 +448,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
 
     const filteredPosts = useMemo(() => {
         return displayPosts.filter((item) => {
-            const categoryMatch =
-                selectedCategory === "all" || (item.category || item.media_type || "").toLowerCase() === selectedCategory.toLowerCase();
+            const categoryMatch = selectedCategory === "all" || (item.category || "").toLowerCase() === selectedCategory.toLowerCase();
 
             const bodyText = typeof item.body === "string" ? item.body : JSON.stringify(item.body || "");
             const blockText = JSON.stringify(item.contentBlocks || "");
@@ -489,8 +472,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
         filteredPosts.length > 1 ? filteredPosts.slice(1) : filteredPosts.length === 1 && selectedCategory !== "all" ? filteredPosts : [];
 
     // Helper: get cover image src
-    const getCoverSrc = (item) =>
-        item.coverImage?.url || item.coverImage?.asset?.url || (item.media_type === "image" ? item.media_url : null);
+    const getCoverSrc = (item: NewsPost) => mediaUrl(item.coverImage);
 
     return (
         <div className="min-h-[100dvh] w-full bg-[#010301] relative text-white selection:bg-lime-400/30 flex flex-col font-sans transition-colors duration-700 tracking-wide">
@@ -611,14 +593,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                 {/* MAIN CONTENT */}
                 <section className="relative w-full py-12 md:py-20 px-4 md:px-12 lg:px-16 bg-transparent flex-1">
                     <div className="w-full">
-                        {loading ? (
-                            <div className="py-20 flex flex-col items-center justify-center text-center">
-                                <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin mb-4" />
-                                <span className="font-mono text-xs uppercase tracking-[0.35em] text-gray-200">
-                                    Decrypting Dispatches...
-                                </span>
-                            </div>
-                        ) : filteredPosts.length === 0 ? (
+                        {filteredPosts.length === 0 ? (
                             <div className="py-20 text-center border border-white/10 rounded-[2.5rem] bg-black/50 p-12 backdrop-blur-md w-full">
                                 <ShieldAlert size={48} className={`mx-auto ${activeTheme.accentText} opacity-90 mb-4`} />
                                 <h3
@@ -668,20 +643,11 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                             {/* Cover Image */}
                                             {getCoverSrc(featuredPost) && (
                                                 <div className="lg:col-span-5 rounded-3xl overflow-hidden border border-white/10 aspect-video relative group-hover:border-white/30 transition-colors w-full">
-                                                    {featuredPost.media_type === "video" ||
-                                                    (featuredPost.media_url && featuredPost.media_url.match(/\.(mp4|webm|ogg)(\?.*)?$/)) ? (
-                                                        <video
-                                                            controls
-                                                            src={featuredPost.media_url}
-                                                            className="w-full h-full object-cover bg-black"
-                                                        />
-                                                    ) : (
-                                                        <img
-                                                            src={getCoverSrc(featuredPost)}
-                                                            alt={featuredPost.title}
-                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                                        />
-                                                    )}
+                                                    <img
+                                                        src={getCoverSrc(featuredPost) ?? undefined}
+                                                        alt={featuredPost.title}
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                    />
                                                 </div>
                                             )}
 
@@ -696,7 +662,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                         className={`font-mono text-xs font-black uppercase tracking-[0.4em] ${activeTheme.accentText} flex items-center gap-1.5`}
                                                     >
                                                         <Calendar size={13} />
-                                                        {new Date(featuredPost.publishedAt || featuredPost.published_at).toLocaleDateString(
+                                                        {new Date(featuredPost.publishedAt || featuredPost.createdAt).toLocaleDateString(
                                                             "en-US",
                                                             {
                                                                 month: "short",
@@ -705,11 +671,11 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                             },
                                                         )}
                                                     </span>
-                                                    {(featuredPost.category || featuredPost.media_type) && (
+                                                    {featuredPost.category && (
                                                         <span
                                                             className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-[0.25em] border ${CATEGORY_COLORS[(featuredPost.category || "").toLowerCase()] || "border-white/10 bg-white/10 text-gray-300"}`}
                                                         >
-                                                            {featuredPost.category || featuredPost.media_type}
+                                                            {featuredPost.category}
                                                         </span>
                                                     )}
                                                 </div>
@@ -759,7 +725,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
 
                                             return (
                                                 <motion.article
-                                                    key={item._id || item.id || idx}
+                                                    key={item.id}
                                                     initial={{ opacity: 0, y: 24 }}
                                                     whileInView={{ opacity: 1, y: 0 }}
                                                     viewport={{ once: true }}
@@ -785,29 +751,26 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                                 className={`font-mono text-[11px] font-bold uppercase tracking-[0.35em] ${itemTheme.accentText} flex items-center gap-1`}
                                                             >
                                                                 <Calendar size={12} />
-                                                                {new Date(item.publishedAt || item.published_at).toLocaleDateString(
-                                                                    "en-US",
-                                                                    {
-                                                                        month: "short",
-                                                                        day: "numeric",
-                                                                        year: "numeric",
-                                                                    },
-                                                                )}
+                                                                {new Date(item.publishedAt || item.createdAt).toLocaleDateString("en-US", {
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                    year: "numeric",
+                                                                })}
                                                             </span>
-                                                            {(item.category || item.media_type) && (
+                                                            {item.category && (
                                                                 <span
                                                                     className={`px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-[0.25em] border ${catBadgeClass}`}
                                                                 >
-                                                                    {item.category || item.media_type}
+                                                                    {item.category}
                                                                 </span>
                                                             )}
                                                             {/* Block type indicators */}
                                                             {hasBlocks && (
                                                                 <div className="ml-auto flex items-center gap-1 opacity-50">
-                                                                    {item.contentBlocks.some((b) => b.blockType === "imageBlock") && (
+                                                                    {item.contentBlocks?.some((b) => b.blockType === "imageBlock") && (
                                                                         <ImageIcon size={10} className="text-gray-400" />
                                                                     )}
-                                                                    {item.contentBlocks.some(
+                                                                    {item.contentBlocks?.some(
                                                                         (b) => b.blockType === "videoBlock" || b.blockType === "embedBlock",
                                                                     ) && <Video size={10} className="text-gray-400" />}
                                                                 </div>
@@ -844,8 +807,6 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                     </div>
                 </section>
             </main>
-
-            <Footer siteSettings={siteSettings} />
         </div>
     );
 }

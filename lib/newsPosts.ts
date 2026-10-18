@@ -81,7 +81,7 @@ export async function parseNewsInput(request: NextRequest): Promise<NewsInput> {
     };
 }
 
-export function stringToLexical(text: unknown): LexicalState | null {
+function stringToLexical(text: unknown): LexicalState | null {
     if (!text) return null;
     if (typeof text === "object") return text as LexicalState;
 
@@ -141,7 +141,7 @@ export async function uploadMedia(payload: BasePayload, source: File | string, a
     }
 }
 
-export async function processContentBlocks(
+async function processContentBlocks(
     raw: string | null,
     formData: FormData | null,
     payload: BasePayload,
@@ -275,3 +275,5 @@ export function formatPost(post: NewsPost, { stringifyBody = false } = {}) {
         coverImage: cover,
     };
 }
+
+export type FormattedPost = ReturnType<typeof formatPost>;
