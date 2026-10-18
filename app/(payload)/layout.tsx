@@ -1,13 +1,19 @@
-import { RootLayout, handleServerFunctions } from "@payloadcms/next/layouts";
-import config from "../../payload.config";
-import { importMap } from "./admin/importMap";
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import config from "@payload-config";
 import "@payloadcms/next/css";
+import type { ServerFunctionClient } from "payload";
+import { handleServerFunctions, RootLayout } from "@payloadcms/next/layouts";
+import React from "react";
+
+import { importMap } from "./admin/importMap.js";
+import "./custom.scss";
 
 type Args = {
     children: React.ReactNode;
 };
 
-const serverFunction = async function (args: any) {
+const serverFunction: ServerFunctionClient = async function (args) {
     "use server";
     return handleServerFunctions({
         ...args,
@@ -16,39 +22,10 @@ const serverFunction = async function (args: any) {
     });
 };
 
-export default function Layout({ children }: Args) {
-    return (
-        <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
-            <script
-                dangerouslySetInnerHTML={{
-                    __html: `
-            (function() {
-              if (typeof window === 'undefined') return;
-              
-              function cleanLoomStyles() {
-                const styles = document.querySelectorAll('head style');
-                styles.forEach(s => {
-                  if (s.textContent && s.textContent.includes('body[unresolved]')) {
-                    s.remove();
-                  }
-                });
-              }
+const Layout = ({ children }: Args) => (
+    <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
+        {children}
+    </RootLayout>
+);
 
-              // Watch for dynamic Loom style injections
-              const observer = new MutationObserver(cleanLoomStyles);
-              observer.observe(document.head, { childList: true, subtree: true });
-              
-              // Run once immediately
-              if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', cleanLoomStyles);
-              } else {
-                cleanLoomStyles();
-              }
-            })();
-          `,
-                }}
-            />
-            {children}
-        </RootLayout>
-    );
-}
+export default Layout;

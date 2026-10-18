@@ -3,6 +3,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import path from "path";
 import { fileURLToPath } from "url";
+import sharp from "sharp";
 
 // Collections
 import { Users } from "./src/payload/collections/Users";
@@ -23,6 +24,9 @@ const dirname = path.dirname(filename);
 export default buildConfig({
     admin: {
         user: Users.slug,
+        importMap: {
+            baseDir: path.resolve(dirname),
+        },
         suppressHydrationWarning: true,
         meta: {
             titleSuffix: "— KMHQ CMS",
@@ -50,18 +54,19 @@ export default buildConfig({
     },
     collections: [Users, Media, NewsPosts, Announcements, FleetConfigs, TeamMembers],
     globals: [HomePage, SiteSettings, NewsPage, FleetPage, TeamPage],
-    editor: lexicalEditor({}),
-    secret: process.env.PAYLOAD_SECRET || "KMHQ_DEFAULT_SECRET_CHANGE_ME",
+    editor: lexicalEditor(),
+    secret: process.env.PAYLOAD_SECRET || "",
     typescript: {
         outputFile: path.resolve(dirname, "payload-types.ts"),
     },
     db: postgresAdapter({
         pool: {
-            connectionString: process.env.DATABASE_URL,
+            connectionString: process.env.DATABASE_URL || "",
             max: 5,
         },
         push: false,
     }),
+    sharp,
     upload: {
         limits: {
             fileSize: 20000000, // 20MB
