@@ -1,67 +1,53 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { requireFleetAdmin } from "../../../../lib/adminAuth";
+import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
+import { requireFleetAdmin } from "@/lib/adminAuth";
+import { supabase } from "@/lib/supabase";
+import { errorMessage } from "@/lib/errors";
+import { toFleetType } from "@/lib/fleetTypes";
+import type { Update } from "@/types/db";
 
-// Use service role key for admin operations to bypass RLS, fallback to anon key for local dev
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
+type Context = { params: Promise<{ id: string }> };
+
+const EDITABLE_FIELDS = ["slug", "display_name", "sort_order", "enabled", "ceo_name", "ceo_discord_uid", "quantity"] as const;
 
 // PUT — update a fleet config
-export async function PUT(request, { params }) {
+export async function PUT(request: NextRequest, { params }: Context) {
     try {
         const auth = await requireFleetAdmin();
-        if (!auth.ok) {
-            return NextResponse.json({ error: auth.error }, { status: auth.status });
-        }
+        if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
         const { id } = await params;
-        const updates = await request.json();
+        const updates = (await request.json()) as Update<"fleet_configs">;
 
-        const allowedFields = ["slug", "display_name", "sort_order", "enabled", "fleet_type", "ceo_name", "ceo_discord_uid", "quantity"];
-        const validFleetTypes = ["small", "medium", "large", "sub_capital", "capital"];
-        const updateData = {};
-        for (const field of allowedFields) {
-            if (updates[field] !== undefined) {
-                if (field === "fleet_type") {
-                    // Validate and sanitize fleet_type to prevent enum errors
-                    updateData[field] = validFleetTypes.includes(updates[field]) ? updates[field] : "small";
-                } else {
-                    updateData[field] = updates[field];
-                }
-            }
+        const updateData: Update<"fleet_configs"> = {};
+        for (const field of EDITABLE_FIELDS) {
+            if (updates[field] !== undefined) Object.assign(updateData, { [field]: updates[field] });
         }
+        if (updates.fleet_type !== undefined) updateData.fleet_type = toFleetType(updates.fleet_type);
 
-        const { data, error } = await supabase.from("fleet_configs").update(updateData).eq("id", id).select().single();
-
+        const { data, error } = await supabase.from("fleet_configs").update(updateData).eq("id", Number(id)).select().single();
         if (error) throw error;
 
         revalidateTag("fleet-configs", { expire: 0 });
-
         return NextResponse.json(data);
-    } catch (err) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
     }
 }
 
 // DELETE — remove a fleet config
-export async function DELETE(request, { params }) {
+export async function DELETE(_request: NextRequest, { params }: Context) {
     try {
         const auth = await requireFleetAdmin();
-        if (!auth.ok) {
-            return NextResponse.json({ error: auth.error }, { status: auth.status });
-        }
+        if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
         const { id } = await params;
-        const { error } = await supabase.from("fleet_configs").delete().eq("id", id);
-
+        const { error } = await supabase.from("fleet_configs").delete().eq("id", Number(id));
         if (error) throw error;
 
         revalidateTag("fleet-configs", { expire: 0 });
-
         return NextResponse.json({ success: true });
-    } catch (err) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
     }
 }

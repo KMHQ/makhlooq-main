@@ -1,13 +1,12 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { requireFleetAdmin } from "../../../lib/adminAuth";
+import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag, revalidateTag } from "next/cache";
+import { requireFleetAdmin } from "@/lib/adminAuth";
+import { supabase } from "@/lib/supabase";
+import { errorMessage } from "@/lib/errors";
+import { toFleetType } from "@/lib/fleetTypes";
+import type { FleetConfig } from "@/types/db";
 
-// Use service role key for admin operations to bypass RLS, fallback to anon key for local dev
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
+// Fleets listed in FLEETYARDS_FLEET_SLUGS show up even before they have a DB row.
 function getEnvFleetConfigs() {
     const raw = process.env.FLEETYARDS_FLEET_SLUGS || process.env.NEXT_PUBLIC_FLEETYARDS_FLEET_SLUGS || "";
     return raw
@@ -24,7 +23,7 @@ function getEnvFleetConfigs() {
         }));
 }
 
-async function getFleetConfigs() {
+async function getFleetConfigs(): Promise<(FleetConfig & { ceo_avatar_url: string | null })[]> {
     "use cache";
     cacheLife("hours");
     cacheTag("fleet-configs", "team-members");
@@ -36,88 +35,81 @@ async function getFleetConfigs() {
         .order("created_at", { ascending: true });
 
     if (error) throw error;
+    if (!data?.length) return [];
 
-    if (data && data.length > 0) {
-        // Fetch team members to map avatars by discord_uid, id, and name
-        const { data: members } = await supabase.from("team_members").select("id, discord_uid, name, avatar_url");
+    // Map CEO avatars by discord_uid or lowercased name
+    const { data: members } = await supabase.from("team_members").select("discord_uid, name, avatar_url");
 
-        const avatarsMap = {};
-        if (members && members.length > 0) {
-            members.forEach((m) => {
-                if (!m.avatar_url) return;
-                if (m.discord_uid) avatarsMap[m.discord_uid] = m.avatar_url;
-                if (m.id) avatarsMap[m.id] = m.avatar_url;
-                if (m.name) avatarsMap[m.name.trim().toLowerCase()] = m.avatar_url;
-            });
-        }
-
-        return data.map((d) => {
-            const avatar =
-                (d.ceo_discord_uid && avatarsMap[d.ceo_discord_uid]) || (d.ceo_name && avatarsMap[d.ceo_name.trim().toLowerCase()]) || null;
-            return {
-                ...d,
-                ceo_avatar_url: avatar,
-            };
-        });
+    const avatars = new Map<string, string>();
+    for (const m of members ?? []) {
+        if (!m.avatar_url) continue;
+        if (m.discord_uid) avatars.set(m.discord_uid, m.avatar_url);
+        if (m.name) avatars.set(m.name.trim().toLowerCase(), m.avatar_url);
     }
-    return [];
+
+    return data.map((d) => ({
+        ...d,
+        ceo_avatar_url:
+            (d.ceo_discord_uid && avatars.get(d.ceo_discord_uid)) || (d.ceo_name && avatars.get(d.ceo_name.trim().toLowerCase())) || null,
+    }));
 }
 
 // GET — list all fleet configs (ordered by sort_order)
-export async function GET(request) {
-    try {
-        const envConfigs = getEnvFleetConfigs();
-        const enrichedData = await getFleetConfigs();
+export async function GET() {
+    const envConfigs = getEnvFleetConfigs();
 
-        if (enrichedData && enrichedData.length > 0) {
-            // Combine env configs with DB configs; since slugs are no longer unique,
-            // we show all DB configs as-is, and prepend any env slugs not yet in DB.
-            const dbSlugs = new Set(enrichedData.map((d) => d.slug));
-            const filteredEnv = envConfigs.filter((env) => !dbSlugs.has(env.slug));
-            return NextResponse.json([...filteredEnv, ...enrichedData]);
+    try {
+        const dbConfigs = await getFleetConfigs();
+
+        // Slugs aren't unique, so show every DB config and prepend env slugs not yet in the DB.
+        const dbSlugs = new Set(dbConfigs.map((d) => d.slug));
+        return NextResponse.json([...envConfigs.filter((env) => !dbSlugs.has(env.slug)), ...dbConfigs]);
+    } catch (error) {
+        // PGRST205: table missing (fresh database); fall back to env configs quietly
+        if ((error as { code?: string })?.code !== "PGRST205") {
+            console.error("fleet_configs lookup failed:", error);
         }
         return NextResponse.json(envConfigs);
-    } catch (err) {
-        if (err?.code !== "PGRST205") {
-            console.error("fleet_configs lookup failed:", err);
-        }
-        return NextResponse.json(getEnvFleetConfigs());
     }
+}
+
+interface FleetConfigInput {
+    slug?: string;
+    display_name?: string;
+    sort_order?: number;
+    enabled?: boolean;
+    fleet_type?: string;
+    ceo_name?: string;
+    ceo_discord_uid?: string;
+    quantity?: number | string;
 }
 
 // POST — create new fleet config
 // Note: slug is NOT unique — multiple ships of the same type (e.g. two Polaris) are allowed.
-export async function POST(request) {
+export async function POST(request: NextRequest) {
     try {
         const auth = await requireFleetAdmin();
-        if (!auth.ok) {
-            return NextResponse.json({ error: auth.error }, { status: auth.status });
-        }
+        if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-        const { slug, display_name, sort_order, enabled, fleet_type, ceo_name, ceo_discord_uid, quantity } = await request.json();
+        const { slug, display_name, sort_order, enabled, fleet_type, ceo_name, ceo_discord_uid, quantity } =
+            (await request.json()) as FleetConfigInput;
 
         if (!slug) {
             return NextResponse.json({ error: "slug is required" }, { status: 400 });
         }
 
-        // Validate fleet_type against allowed values
-        const validFleetTypes = ["small", "medium", "large", "sub_capital", "capital"];
-        const safeFleetType = validFleetTypes.includes(fleet_type) ? fleet_type : "small";
-
         const { data, error } = await supabase
             .from("fleet_configs")
-            .insert([
-                {
-                    slug: slug.trim(),
-                    display_name: display_name?.trim() || slug.trim(),
-                    sort_order: sort_order || 0,
-                    enabled: enabled ?? true,
-                    fleet_type: safeFleetType,
-                    ceo_name: ceo_name?.trim() || null,
-                    ceo_discord_uid: ceo_discord_uid?.trim() || null,
-                    quantity: Math.max(1, parseInt(quantity) || 1),
-                },
-            ])
+            .insert({
+                slug: slug.trim(),
+                display_name: display_name?.trim() || slug.trim(),
+                sort_order: sort_order || 0,
+                enabled: enabled ?? true,
+                fleet_type: toFleetType(fleet_type),
+                ceo_name: ceo_name?.trim() || null,
+                ceo_discord_uid: ceo_discord_uid?.trim() || null,
+                quantity: Math.max(1, parseInt(String(quantity)) || 1),
+            })
             .select()
             .single();
 
@@ -125,8 +117,8 @@ export async function POST(request) {
         revalidateTag("fleet-configs", { expire: 0 });
 
         return NextResponse.json(data, { status: 201 });
-    } catch (err) {
-        console.error("fleet_configs insert failed:", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (error) {
+        console.error("fleet_configs insert failed:", error);
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
     }
 }

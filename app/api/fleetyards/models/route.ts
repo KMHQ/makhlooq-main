@@ -1,20 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
+import { errorMessage } from "@/lib/errors";
+import { FLEETYARDS_API, getNextLink, type FleetYardsError } from "@/lib/fleetyards";
 
-const API_BASE = "https://api.fleetyards.net/v1";
-
-function getNextLink(linkHeader) {
-    if (!linkHeader) return null;
-
-    const links = linkHeader.split(",").map((part) => part.trim());
-    const next = links.find((part) => /rel="?next"?/.test(part));
-    if (!next) return null;
-
-    const match = next.match(/<([^>]+)>/);
-    return match?.[1] || null;
-}
-
-async function readJson(response) {
+async function readJson(response: Response): Promise<(FleetYardsError & { items?: unknown[] }) | null> {
     const text = await response.text();
     if (!text) return null;
 
@@ -25,15 +14,15 @@ async function readJson(response) {
     }
 }
 
-async function fetchAllModels(perPage, page) {
-    const collected = [];
+async function fetchAllModels(perPage: string, page: string) {
+    const collected: unknown[] = [];
     let currentPageOrUrl = page;
     let pagesFetched = 0;
 
     while (true) {
         const targetUrl = String(currentPageOrUrl).startsWith("http")
             ? currentPageOrUrl
-            : `${API_BASE}/models?perPage=${encodeURIComponent(perPage)}&page=${encodeURIComponent(currentPageOrUrl)}`;
+            : `${FLEETYARDS_API}/models?perPage=${encodeURIComponent(perPage)}&page=${encodeURIComponent(currentPageOrUrl)}`;
         const response = await fetch(targetUrl, { headers: { Accept: "application/json" } });
         const data = await readJson(response);
 
@@ -60,8 +49,8 @@ async function fetchAllModels(perPage, page) {
     return { items: collected, pagesFetched };
 }
 
-async function fetchModel(slug) {
-    const response = await fetch(`${API_BASE}/models/${encodeURIComponent(slug)}`, { headers: { Accept: "application/json" } });
+async function fetchModel(slug: string) {
+    const response = await fetch(`${FLEETYARDS_API}/models/${encodeURIComponent(slug)}`, { headers: { Accept: "application/json" } });
     const data = await readJson(response);
 
     if (!response.ok) {
@@ -71,14 +60,14 @@ async function fetchModel(slug) {
     return data;
 }
 
-async function getAllModels(perPage, page) {
+async function getAllModels(perPage: string, page: string) {
     "use cache";
     cacheLife("hours");
     cacheTag("fleetyards");
     return fetchAllModels(perPage, page);
 }
 
-async function getModel(slug) {
+async function getModel(slug: string) {
     "use cache";
     cacheLife("hours");
     cacheTag("fleetyards");
@@ -86,9 +75,9 @@ async function getModel(slug) {
 }
 
 // `fresh=1` bypasses the cache (used by the admin page to pull new FleetYards data).
-export async function GET(request) {
+export async function GET(request: NextRequest) {
     try {
-        const url = new URL(request.url);
+        const url = request.nextUrl;
         const all = url.searchParams.get("all") === "1" || url.searchParams.get("all") === "true";
         const fresh = url.searchParams.get("fresh") === "1" || url.searchParams.get("fresh") === "true";
         const perPage = url.searchParams.get("perPage") || (all ? "50" : "30");
@@ -110,6 +99,6 @@ export async function GET(request) {
 
         return NextResponse.json({ items: models });
     } catch (error) {
-        return NextResponse.json({ error: error?.message || "Unexpected FleetYards model fetch error" }, { status: 500 });
+        return NextResponse.json({ error: errorMessage(error, "Unexpected FleetYards model fetch error") }, { status: 500 });
     }
 }

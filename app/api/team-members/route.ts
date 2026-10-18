@@ -1,14 +1,12 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { requireFleetAdmin, getAdminSession } from "../../../lib/adminAuth";
-import { fetchDiscordMembers } from "../../../lib/discord";
+import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag, revalidateTag } from "next/cache";
+import { requireFleetAdmin } from "@/lib/adminAuth";
+import { fetchDiscordMembers } from "@/lib/discord";
+import { supabase } from "@/lib/supabase";
+import { errorMessage } from "@/lib/errors";
+import type { Insert, TeamMember } from "@/types/db";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-async function getMember(discordUid) {
+async function getMember(discordUid: string): Promise<TeamMember | null> {
     "use cache";
     cacheLife("hours");
     cacheTag("team-members");
@@ -24,7 +22,7 @@ async function getMember(discordUid) {
     return member || null;
 }
 
-async function getMembers(approvedOnly) {
+async function getMembers(approvedOnly: boolean): Promise<TeamMember[]> {
     "use cache";
     cacheLife("hours");
     cacheTag("team-members");
@@ -37,9 +35,8 @@ async function getMembers(approvedOnly) {
     return members || [];
 }
 
-export async function GET(request) {
-    const url = new URL(request.url);
-    const discordUid = url.searchParams.get("discord_uid");
+export async function GET(request: NextRequest) {
+    const discordUid = request.nextUrl.searchParams.get("discord_uid");
 
     if (discordUid) {
         try {
@@ -50,12 +47,12 @@ export async function GET(request) {
             }
             return NextResponse.json(data);
         } catch (error) {
-            console.error(`Supabase error fetching member by discord_uid ${discordUid}:`, error.message);
+            console.error(`Supabase error fetching member by discord_uid ${discordUid}:`, errorMessage(error));
             return NextResponse.json({ error: "Database connection failed" }, { status: 500 });
         }
     }
 
-    const showAll = url.searchParams.get("all") === "1";
+    const showAll = request.nextUrl.searchParams.get("all") === "1";
 
     // Only admins can request all members (including unapproved)
     if (showAll) {
@@ -66,36 +63,31 @@ export async function GET(request) {
     try {
         return NextResponse.json(await getMembers(!showAll));
     } catch (error) {
-        console.error("Supabase error fetching members:", error.message);
+        console.error("Supabase error fetching members:", errorMessage(error));
         return NextResponse.json({ error: "Database connection failed. Please check your Supabase credentials." }, { status: 500 });
     }
 }
 
-export async function POST(request) {
+export async function POST(request: NextRequest) {
     const auth = await requireFleetAdmin();
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const body = await request.json();
+    const body = (await request.json()) as Insert<"team_members">;
+    body.name = body.discord_tag || "Unknown";
 
-    // Automatically fetch Discord name for the member using their discord_uid
+    // Use the member's Discord display name (and avatar) when they're in the guild
     if (body.discord_uid) {
         try {
-            const discordMembers = await fetchDiscordMembers();
-            const dm = discordMembers.find((m) => m.user?.id === body.discord_uid);
+            const dm = (await fetchDiscordMembers()).find((m) => m.user?.id === body.discord_uid);
             if (dm) {
                 body.name = dm.nick || dm.user.global_name || dm.user.username;
                 if (dm.user.avatar && !body.avatar_url) {
                     body.avatar_url = `https://cdn.discordapp.com/avatars/${body.discord_uid}/${dm.user.avatar}.png`;
                 }
-            } else {
-                body.name = body.discord_tag || "Unknown";
             }
-        } catch (err) {
-            console.error("Failed to fetch Discord members for name lookup:", err);
-            body.name = body.discord_tag || "Unknown";
+        } catch (error) {
+            console.error("Failed to fetch Discord members for name lookup:", error);
         }
-    } else {
-        body.name = body.discord_tag || "Unknown";
     }
 
     const { data, error } = await supabase.from("team_members").insert(body).select().single();

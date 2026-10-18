@@ -1,14 +1,10 @@
-import { NextResponse } from "next/server";
-import { getAdminSession, getAdminFromDiscordId } from "../../../../../lib/adminAuth";
-import { createClient } from "@supabase/supabase-js";
+import { NextResponse, type NextRequest } from "next/server";
+import { getAdminSession, getAdminFromDiscordId } from "@/lib/adminAuth";
+import { supabase } from "@/lib/supabase";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export async function GET(request) {
-    const url = new URL(request.url);
-    const requireAdmin = url.searchParams.get("admin") === "1" || url.searchParams.get("admin") === "true";
+export async function GET(request: NextRequest) {
+    const adminParam = request.nextUrl.searchParams.get("admin");
+    const requireAdmin = adminParam === "1" || adminParam === "true";
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ authenticated: false, admin: false }, { status: 401 });
 

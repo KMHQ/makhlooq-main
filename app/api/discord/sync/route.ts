@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { createClient } from "@supabase/supabase-js";
-import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, mapDiscordStatus, KMHQ_ROLE_ID } from "../../../../lib/discord";
-import { requireFleetAdmin } from "../../../../lib/adminAuth";
+import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, KMHQ_ROLE_ID } from "@/lib/discord";
+import { requireFleetAdmin } from "@/lib/adminAuth";
+import { supabase } from "@/lib/supabase";
+import { errorMessage } from "@/lib/errors";
+import type { Insert, TeamMember, Update } from "@/types/db";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export async function POST(request) {
+export async function POST() {
     try {
         const auth = await requireFleetAdmin();
         if (!auth.ok) {
@@ -22,23 +20,23 @@ export async function POST(request) {
             return NextResponse.json({ error: "No Discord members found or API error" }, { status: 500 });
         }
 
-        const rolesMap = new Map((rawRoles || []).map((r) => [r.id, r]));
+        const rolesMap = new Map(rawRoles.map((r) => [r.id, r]));
 
         // 2. Fetch existing roster from Supabase
         const { data: existingMembers, error: fetchError } = await supabase.from("team_members").select("*");
 
         if (fetchError) throw fetchError;
 
-        const existingMap = new Map((existingMembers || []).map((m) => [m.discord_uid, m]));
+        const existingMap = new Map<string, TeamMember>((existingMembers ?? []).map((m) => [m.discord_uid, m]));
 
         let createdCount = 0;
         let updatedCount = 0;
-        const operations = [];
-        const activeKmhqUids = new Set();
+        const operations: PromiseLike<unknown>[] = [];
+        const activeKmhqUids = new Set<string>();
 
         // 3. Process each Discord member
         for (const dm of discordMembers) {
-            const { user, nick, roles = [], presence } = dm;
+            const { user, nick, roles = [] } = dm;
             if (!user || user.bot) continue; // Skip bot accounts
 
             // Only pull members who have the KMHQ role (1409930627704164493)
@@ -57,13 +55,12 @@ export async function POST(request) {
 
             // Auto-derive security level, rank (category), role/flair, admin status, and awards from Discord roles
             const parsed = parseMemberRoles(roles, rolesMap, uid);
-            const status = mapDiscordStatus(presence?.status);
 
             const existing = existingMap.get(uid);
 
             if (existing) {
                 // Prepare update
-                const payload = {
+                const payload: Update<"team_members"> = {
                     discord_tag: tag,
                     avatar_url: avatarUrl,
                     sec_level: parsed.sec_level,
@@ -93,7 +90,7 @@ export async function POST(request) {
                 updatedCount++;
             } else {
                 // Prepare insert for new member from Discord server
-                const newPayload = {
+                const newPayload: Insert<"team_members"> = {
                     discord_uid: uid,
                     discord_tag: tag,
                     name: displayName,
@@ -143,6 +140,6 @@ export async function POST(request) {
         });
     } catch (error) {
         console.error("Sync Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
     }
 }

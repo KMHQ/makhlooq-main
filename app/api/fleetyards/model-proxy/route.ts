@@ -1,36 +1,29 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-export async function GET(request) {
+const ALLOWED_HOSTS = new Set(["api.fleetyards.net", "fleetyards.net"]);
+
+export async function GET(request: NextRequest) {
     try {
-        const urlStr = new URL(request.url).searchParams.get("url");
+        const urlStr = request.nextUrl.searchParams.get("url");
         if (!urlStr) {
             return new NextResponse("Missing URL", { status: 400 });
         }
 
-        const parsed = new URL(urlStr);
-        if (parsed.hostname !== "api.fleetyards.net" && parsed.hostname !== "fleetyards.net") {
+        if (!ALLOWED_HOSTS.has(new URL(urlStr).hostname)) {
             return new NextResponse("Forbidden hostname", { status: 403 });
         }
 
         const response = await fetch(urlStr, {
-            headers: {
-                Accept: "*/*",
-                "User-Agent": "Makhlooq-App/1.0",
-            },
+            headers: { Accept: "*/*", "User-Agent": "Makhlooq-App/1.0" },
         });
 
         if (!response.ok) {
             return new NextResponse(`Failed to fetch model: ${response.status}`, { status: response.status });
         }
 
-        const contentType = response.headers.get("content-type") || "application/octet-stream";
-
-        // We get the body as an ArrayBuffer and return it directly.
-        const body = await response.arrayBuffer();
-
-        return new NextResponse(body, {
+        return new NextResponse(await response.arrayBuffer(), {
             headers: {
-                "Content-Type": contentType,
+                "Content-Type": response.headers.get("content-type") || "application/octet-stream",
                 "Cache-Control": "public, max-age=31536000, immutable",
                 "Access-Control-Allow-Origin": "*",
             },

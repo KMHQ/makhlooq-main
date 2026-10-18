@@ -1,36 +1,29 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
-import { createClient } from "@supabase/supabase-js";
-import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from "../../../../../lib/adminAuth";
-import { KMHQ_ROLE_ID } from "../../../../../lib/discord";
+import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from "@/lib/adminAuth";
+import { KMHQ_ROLE_ID, type DiscordUser } from "@/lib/discord";
+import { supabase } from "@/lib/supabase";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-function sanitizeReturnTo(value) {
+function sanitizeReturnTo(value: string | undefined) {
     return value && value.startsWith("/") && !value.startsWith("//") ? value : "/team";
 }
 
-function redirectTo(request, returnTo, params = {}) {
+function redirectTo(request: NextRequest, returnTo: string, params: Record<string, string> = {}) {
     const baseUrl = getBaseUrl(request);
     const url = new URL(sanitizeReturnTo(returnTo), baseUrl);
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
     return NextResponse.redirect(url);
 }
 
-function requiresAdmin(returnTo) {
+function requiresAdmin(returnTo: string) {
     return ["/fleet/admin", "/team/admin"].some((path) => sanitizeReturnTo(returnTo).startsWith(path));
 }
 
-function getBaseUrl(request) {
-    if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-    let url = new URL(request.url).origin;
-    if (url.endsWith("/")) url = url.slice(0, -1);
-    return url;
+function getBaseUrl(request: NextRequest) {
+    return (process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin).replace(/\/$/, "");
 }
 
-async function exchangeCode(request, code) {
+async function exchangeCode(request: NextRequest, code: string): Promise<{ access_token: string }> {
     const clientId = process.env.DISCORD_CLIENT_ID || process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID;
     const clientSecret = process.env.DISCORD_CLIENT_SECRET;
     const redirectUri = `${getBaseUrl(request)}/api/auth/discord/callback`;
@@ -55,7 +48,7 @@ async function exchangeCode(request, code) {
     return tokenRes.json();
 }
 
-async function fetchDiscordUser(accessToken) {
+async function fetchDiscordUser(accessToken: string): Promise<DiscordUser> {
     const userRes = await fetch("https://discord.com/api/users/@me", {
         headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -64,7 +57,7 @@ async function fetchDiscordUser(accessToken) {
     return userRes.json();
 }
 
-async function isGuildMember(discordId) {
+async function isGuildMember(discordId: string) {
     const botToken = process.env.DISCORD_BOT_TOKEN;
     const guildId = process.env.DISCORD_GUILD_ID;
 
@@ -79,7 +72,7 @@ async function isGuildMember(discordId) {
         });
 
         if (res.ok) {
-            const memberData = await res.json().catch(() => ({}));
+            const memberData = (await res.json().catch(() => ({}))) as { roles?: string[] };
             if (Array.isArray(memberData.roles) && !memberData.roles.includes(KMHQ_ROLE_ID)) {
                 console.log(`User ${discordId} is in Discord guild but missing KMHQ role (${KMHQ_ROLE_ID}).`);
                 return false;
@@ -87,7 +80,7 @@ async function isGuildMember(discordId) {
             return true;
         }
 
-        const data = await res.json().catch(() => ({}));
+        const data = (await res.json().catch(() => ({}))) as { code?: number; message?: string };
 
         // Code 10007 means the member is not in the guild
         if (res.status === 404 && data.code === 10007) {
@@ -107,7 +100,7 @@ async function isGuildMember(discordId) {
     }
 }
 
-async function isAdmin(discordId) {
+async function isAdmin(discordId: string) {
     if (isEnvAdminDiscordId(discordId)) return true;
 
     const { data } = await supabase.from("team_members").select("is_admin").eq("discord_uid", discordId).maybeSingle();
@@ -120,7 +113,7 @@ async function isAdmin(discordId) {
  * New users start with is_approved = false so they're hidden from public roster.
  * Existing members are left untouched (no overwrite of their data).
  */
-async function autoRegisterMember(user, isEnvAdmin = false) {
+async function autoRegisterMember(user: DiscordUser, isEnvAdmin = false) {
     try {
         const avatarUrl = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null;
         const name = user.global_name || user.username;
@@ -157,10 +150,9 @@ async function autoRegisterMember(user, isEnvAdmin = false) {
     }
 }
 
-export async function GET(request) {
-    const url = new URL(request.url);
-    const code = url.searchParams.get("code");
-    const state = url.searchParams.get("state");
+export async function GET(request: NextRequest) {
+    const code = request.nextUrl.searchParams.get("code");
+    const state = request.nextUrl.searchParams.get("state");
     const expectedState = request.cookies.get("kmhq_discord_oauth_state")?.value;
     const returnTo = sanitizeReturnTo(request.cookies.get("kmhq_discord_oauth_return_to")?.value);
 

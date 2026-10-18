@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
+import { errorMessage } from "@/lib/errors";
+import { FLEETYARDS_API } from "@/lib/fleetyards";
 
 // Proxy to look up a FleetYards fleet or ship model by slug for admin validation
-export async function GET(request) {
+export async function GET(request: NextRequest) {
     try {
-        const url = new URL(request.url);
-        const slug = url.searchParams.get("slug");
+        const slug = request.nextUrl.searchParams.get("slug");
 
         if (!slug) {
             return NextResponse.json({ error: "slug is required" }, { status: 400 });
@@ -20,11 +21,11 @@ export async function GET(request) {
         }
         return NextResponse.json(data);
     } catch (err) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json({ error: errorMessage(err) }, { status: 500 });
     }
 }
 
-async function lookupSlug(cleanSlug) {
+async function lookupSlug(cleanSlug: string): Promise<{ found: boolean; error?: string; [key: string]: unknown }> {
     "use cache";
     cacheLife({ revalidate: 300 });
     cacheTag("fleetyards");
@@ -32,7 +33,7 @@ async function lookupSlug(cleanSlug) {
     const headers = { Accept: "application/json" };
 
     // 1. Check ship model first (most common for fleet asset entries)
-    const modelRes = await fetch(`https://api.fleetyards.net/v1/models/${encodeURIComponent(cleanSlug)}`, {
+    const modelRes = await fetch(`${FLEETYARDS_API}/models/${encodeURIComponent(cleanSlug)}`, {
         headers,
     });
 
@@ -53,8 +54,8 @@ async function lookupSlug(cleanSlug) {
     }
 
     // 2. Fallback to public fleet lookup
-    const fleetUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(cleanSlug)}`;
-    const statsUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(cleanSlug)}/stats/members`;
+    const fleetUrl = `${FLEETYARDS_API}/public/fleets/${encodeURIComponent(cleanSlug)}`;
+    const statsUrl = `${FLEETYARDS_API}/public/fleets/${encodeURIComponent(cleanSlug)}/stats/members`;
     const res = await fetch(fleetUrl, { headers });
 
     if (res.ok) {

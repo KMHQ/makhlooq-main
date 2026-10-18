@@ -1,23 +1,21 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { requireFleetAdmin } from "../../../../lib/adminAuth";
+import { NextResponse, type NextRequest } from "next/server";
+import { requireFleetAdmin } from "@/lib/adminAuth";
+import { supabase } from "@/lib/supabase";
+import { errorMessage } from "@/lib/errors";
+import type { Update } from "@/types/db";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
+type Context = { params: Promise<{ id: string }> };
 
 // PUT — update member name/role (admin only)
-export async function PUT(request, { params }) {
+export async function PUT(request: NextRequest, { params }: Context) {
     try {
         const auth = await requireFleetAdmin();
-        if (!auth.ok) {
-            return NextResponse.json({ error: auth.error }, { status: auth.status });
-        }
+        if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
         const { id } = await params;
-        const { name, role } = await request.json();
+        const { name, role } = (await request.json()) as { name?: string; role?: string };
 
-        const updateData = {};
+        const updateData: Update<"fleet_members"> = {};
         if (name !== undefined) updateData.name = name.trim();
         if (role !== undefined) updateData.role = role.trim() || "Member";
 
@@ -25,25 +23,23 @@ export async function PUT(request, { params }) {
 
         if (error) throw error;
         return NextResponse.json(data);
-    } catch (err) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
     }
 }
 
 // DELETE — remove member (admin only)
-export async function DELETE(request, { params }) {
+export async function DELETE(_request: NextRequest, { params }: Context) {
     try {
         const auth = await requireFleetAdmin();
-        if (!auth.ok) {
-            return NextResponse.json({ error: auth.error }, { status: auth.status });
-        }
+        if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
         const { id } = await params;
         const { error } = await supabase.from("fleet_members").delete().eq("id", id);
 
         if (error) throw error;
         return NextResponse.json({ ok: true });
-    } catch (err) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
     }
 }

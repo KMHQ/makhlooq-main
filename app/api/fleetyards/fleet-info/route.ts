@@ -1,12 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
+import { errorMessage } from "@/lib/errors";
+import { FLEETYARDS_API } from "@/lib/fleetyards";
 
-async function getFleetInfo(slug) {
+async function getFleetInfo(slug: string) {
     "use cache";
     cacheLife({ revalidate: 300 });
     cacheTag("fleetyards");
 
-    const response = await fetch(`https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}`, {
+    const response = await fetch(`${FLEETYARDS_API}/public/fleets/${encodeURIComponent(slug)}`, {
         headers: { Accept: "application/json" },
     });
     const data = await response.json();
@@ -18,10 +20,9 @@ async function getFleetInfo(slug) {
     return data;
 }
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
     try {
-        const url = new URL(request.url);
-        const slug = url.searchParams.get("slug");
+        const slug = request.nextUrl.searchParams.get("slug");
 
         if (!slug) {
             return NextResponse.json({ error: "Missing fleet slug parameter" }, { status: 400 });
@@ -29,6 +30,6 @@ export async function GET(request) {
 
         return NextResponse.json(await getFleetInfo(slug));
     } catch (error) {
-        return NextResponse.json({ error: error?.message || "Unexpected fetch error" }, { status: 500 });
+        return NextResponse.json({ error: errorMessage(error, "Unexpected fetch error") }, { status: 500 });
     }
 }

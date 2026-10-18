@@ -1,23 +1,20 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { requireFleetAdmin } from "../../../../lib/adminAuth";
+import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
+import { requireFleetAdmin } from "@/lib/adminAuth";
+import { supabase } from "@/lib/supabase";
+import type { Update } from "@/types/db";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
-const supabase = createClient(supabaseUrl, supabaseKey);
+type Context = { params: Promise<{ id: string }> };
 
-export async function PUT(request, props) {
-    const params = await props.params;
+export async function PUT(request: NextRequest, { params }: Context) {
+    const { id } = await params;
     const auth = await requireFleetAdmin();
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const body = await request.json();
+    // Display names are only synced from Discord.
+    const { name: _name, ...body } = (await request.json()) as Update<"team_members">;
 
-    // Enforce that display names are only synced via Discord
-    delete body.name;
-
-    const { data, error } = await supabase.from("team_members").update(body).eq("id", params.id).select().single();
+    const { data, error } = await supabase.from("team_members").update(body).eq("id", Number(id)).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     revalidateTag("team-members", { expire: 0 });
@@ -25,12 +22,12 @@ export async function PUT(request, props) {
     return NextResponse.json(data);
 }
 
-export async function DELETE(_request, props) {
-    const params = await props.params;
+export async function DELETE(_request: NextRequest, { params }: Context) {
+    const { id } = await params;
     const auth = await requireFleetAdmin();
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const { data, error } = await supabase.from("team_members").delete().eq("id", params.id).select().maybeSingle();
+    const { error } = await supabase.from("team_members").delete().eq("id", Number(id));
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     revalidateTag("team-members", { expire: 0 });
