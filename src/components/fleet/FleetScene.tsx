@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { DRACOLoader, GLTFLoader } from "three-stdlib";
 import * as THREE from "three";
+import type { FleetShip } from "./ships";
 
-const toModelProxyUrl = (url) => {
-    if (!url || typeof url !== "string") return "";
+// FleetYards assets go through our proxy (CORS + caching).
+const toModelProxyUrl = (url: string) => {
+    if (!url) return "";
 
     try {
         const parsed = new URL(url);
@@ -21,8 +23,16 @@ const toModelProxyUrl = (url) => {
     return url;
 };
 
-function FleetHoloModel({ url, accentColor, shipKey, onError, onLoaded }) {
-    const [scene, setScene] = useState(null);
+interface FleetHoloModelProps {
+    url: string;
+    accentColor: string;
+    shipKey: string;
+    onError?: (error: unknown) => void;
+    onLoaded?: () => void;
+}
+
+function FleetHoloModel({ url, accentColor, shipKey, onError, onLoaded }: FleetHoloModelProps) {
+    const [scene, setScene] = useState<THREE.Group | null>(null);
     const model = useMemo(() => {
         if (!scene) return null;
 
@@ -39,19 +49,20 @@ function FleetHoloModel({ url, accentColor, shipKey, onError, onLoaded }) {
         preparedModel.position.set(0, 0.25, 0);
 
         preparedModel.traverse((child) => {
-            if (!child.isMesh) return;
+            if (!(child instanceof THREE.Mesh)) return;
             child.castShadow = true;
             child.receiveShadow = true;
 
-            if (child.material) {
-                child.material = child.material.clone();
-                child.material.transparent = true;
-                child.material.opacity = 0.92;
-                child.material.side = THREE.DoubleSide;
-                child.material.emissive = new THREE.Color(accentColor);
-                child.material.emissiveIntensity = 0.08;
-                child.material.metalness = Math.max(child.material.metalness || 0, 0.35);
-                child.material.roughness = Math.min(child.material.roughness ?? 0.55, 0.45);
+            if (child.material instanceof THREE.MeshStandardMaterial) {
+                const material = child.material.clone();
+                material.transparent = true;
+                material.opacity = 0.92;
+                material.side = THREE.DoubleSide;
+                material.emissive = new THREE.Color(accentColor);
+                material.emissiveIntensity = 0.08;
+                material.metalness = Math.max(material.metalness || 0, 0.35);
+                material.roughness = Math.min(material.roughness ?? 0.55, 0.45);
+                child.material = material;
             }
         });
 
@@ -109,7 +120,7 @@ function FleetHoloModel({ url, accentColor, shipKey, onError, onLoaded }) {
     return <primitive key={shipKey} object={model} rotation={[0, -0.55, 0]} />;
 }
 
-function ScanRing({ color }) {
+function ScanRing({ color }: { color: string }) {
     return (
         <mesh position={[0, -2.55, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[3.25, 3.25, 1]}>
             <ringGeometry args={[0.95, 1, 96]} />
@@ -152,21 +163,13 @@ function LoadingModel() {
     );
 }
 
-export default function FleetScene({ selectedShip }) {
+export default function FleetScene({ selectedShip }: { selectedShip: FleetShip | null }) {
+    const modelUrl = selectedShip?.holoUrl || "";
     const [modelFailed, setModelFailed] = useState(false);
-    const [modelLoading, setModelLoading] = useState(Boolean(selectedShip?.modelPath || selectedShip?.holoUrl));
+    const [modelLoading, setModelLoading] = useState(Boolean(modelUrl));
     const accentColor = selectedShip?.accentColor || "#d4d4d8";
-    const modelUrl = selectedShip?.modelPath || selectedShip?.holoUrl || "";
     const loaderUrl = useMemo(() => toModelProxyUrl(modelUrl), [modelUrl]);
     const modelKey = selectedShip?.id || modelUrl;
-    const cellColorObj = useMemo(() => {
-        const c = new THREE.Color("#27272a");
-        return [c.r, c.g, c.b];
-    }, []);
-    const sectionColorObj = useMemo(() => {
-        const c = new THREE.Color(accentColor);
-        return [c.r, c.g, c.b];
-    }, [accentColor]);
     const handleModelError = useCallback(() => {
         setModelFailed(true);
         setModelLoading(false);
@@ -186,7 +189,7 @@ export default function FleetScene({ selectedShip }) {
                 <div>
                     <div className="text-sm font-semibold uppercase tracking-[0.28em] text-white/35">3D Scene Not Ready</div>
                     <p className="mt-4 max-w-md text-sm leading-6 text-white/50">
-                        This ship's 3D model is not currently in the hangar. The picture mode still looks pretty clean though.
+                        This ship&apos;s 3D model is not currently in the hangar. The picture mode still looks pretty clean though.
                     </p>
                 </div>
             </div>
@@ -219,7 +222,7 @@ export default function FleetScene({ selectedShip }) {
 
             {modelFailed ? (
                 <div className="pointer-events-none absolute inset-x-6 top-24 z-20 rounded-2xl border border-lime-300/10 bg-black/55 p-4 text-sm leading-6 text-white/55 backdrop-blur md:left-8 md:right-auto md:max-w-sm">
-                    3D file failed to load. No tension, the ship's photo mode is still running clean.
+                    3D file failed to load. No tension, the ship&apos;s photo mode is still running clean.
                 </div>
             ) : null}
 

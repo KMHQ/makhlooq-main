@@ -2,7 +2,13 @@
 
 import { useEffect } from "react";
 
-export default function WidgetClient({ ships }) {
+declare global {
+    interface Window {
+        FleetYardsFleetchartConfig?: Record<string, unknown>;
+    }
+}
+
+export default function WidgetClient({ ships }: { ships: string[] }) {
     useEffect(() => {
         window.FleetYardsFleetchartConfig = {
             details: true,

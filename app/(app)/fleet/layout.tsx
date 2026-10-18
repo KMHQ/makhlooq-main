@@ -1,10 +1,6 @@
-/**
- * ▸ FLEET PAGE METADATA & LAYOUT
- * SEO: Provides page-specific metadata for fleet section
- * Improves: SEO (+5 points), Open Graph sharing (+5 points)
- */
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Fleet | KHALAI MAKHLOOQ — Elite Star Citizen Organization",
     description:
         "Explore the Khalai Makhlooq fleet. Advanced warships, explorers, and industrial vessels optimized for high-stakes operations across Stanton and Pyro systems.",
@@ -28,6 +24,6 @@ export const metadata = {
     },
 };
 
-export default function FleetLayout({ children }) {
-    return <>{children}</>;
+export default function FleetLayout({ children }: { children: React.ReactNode }) {
+    return children;
 }

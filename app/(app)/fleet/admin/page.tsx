@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type DragEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import {
-    ArrowLeft,
     Plus,
     Search,
     Trash2,
@@ -26,18 +25,32 @@ import {
     ArrowDown,
     ArrowUpDown,
 } from "lucide-react";
-import { AuthScreen, LoginScreen, DeniedScreen } from "../../../../src/components/fleet/admin/FleetAdminAuth";
-import AboutNewsEditor from "../../../../src/components/admin/AboutNewsEditor";
-import COSelector from "../../../../src/components/fleet/admin/COSelector";
+import { AuthScreen, LoginScreen, DeniedScreen } from "@/src/components/fleet/admin/FleetAdminAuth";
+import AboutNewsEditor from "@/src/components/admin/AboutNewsEditor";
+import COSelector from "@/src/components/fleet/admin/COSelector";
+import type { FleetConfigEntry } from "@/src/components/fleet/ships";
+import type { FleetMember, TeamMember } from "@/types/db";
+import type { SessionResponse, SessionUser } from "@/types/session";
+
+type ConfigId = FleetConfigEntry["id"];
+type SortField = "slug" | "enabled" | "fleet_type" | "ceo_name";
+type NewFleetConfig = Omit<FleetConfigEntry, "id">;
+
+interface SlugValidation {
+    found: boolean;
+    type?: string;
+    fleet?: { name?: string };
+    error?: string;
+}
 
 /* ───────── Helper: validate a slug via FleetYards ───────── */
-async function validateFleetyardsSlug(slug) {
+async function validateFleetyardsSlug(slug: string): Promise<SlugValidation> {
     const res = await fetch(`/api/fleetyards/search?slug=${encodeURIComponent(slug)}`);
     return res.json();
 }
 
 /* ───────── Status badge ───────── */
-function StatusBadge({ enabled }) {
+function StatusBadge({ enabled }: { enabled: boolean }) {
     return (
         <span
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
@@ -51,13 +64,9 @@ function StatusBadge({ enabled }) {
 }
 
 /* ───────── Helper: generate valid Fleetyards URL ───────── */
-function getFleetyardsUrl(cfg) {
-    if (!cfg?.slug) return "https://fleetyards.net";
-    const cleanSlug = encodeURIComponent(String(cfg.slug).trim());
-    if (cfg.source_type === "fleet" || cfg.type === "fleet") {
-        return `https://fleetyards.net/fleets/${cleanSlug}`;
-    }
-    return `https://fleetyards.net/ships/${cleanSlug}`;
+function getFleetyardsUrl(cfg: FleetConfigEntry) {
+    if (!cfg.slug) return "https://fleetyards.net";
+    return `https://fleetyards.net/ships/${encodeURIComponent(cfg.slug.trim())}`;
 }
 
 /* ───────── Single fleet row ───────── */
@@ -74,6 +83,19 @@ function FleetRow({
     onDrop,
     onDragEnd,
     isDragOver,
+}: {
+    cfg: FleetConfigEntry;
+    memberCount: number;
+    onEdit: (cfg: FleetConfigEntry) => void;
+    onDelete: (id: ConfigId, name: string) => void;
+    onToggle: (cfg: FleetConfigEntry) => void;
+    toggling: ConfigId | null;
+    onManageMembers: (cfg: FleetConfigEntry) => void;
+    onDragStart: (id: ConfigId) => void;
+    onDragOver: (id: ConfigId) => void;
+    onDrop: (id: ConfigId) => void;
+    onDragEnd: () => void;
+    isDragOver: boolean;
 }) {
     return (
         <tr
@@ -82,7 +104,7 @@ function FleetRow({
             }`}
             draggable
             onDragStart={() => onDragStart(cfg.id)}
-            onDragOver={(e) => {
+            onDragOver={(e: DragEvent) => {
                 e.preventDefault();
                 onDragOver(cfg.id);
             }}
@@ -112,11 +134,11 @@ function FleetRow({
                 </div>
             </td>
             <td className="px-5 py-5">
-                <StatusBadge enabled={cfg.enabled} />
+                <StatusBadge enabled={cfg.enabled !== false} />
             </td>
             <td className="px-5 py-5">
                 <span
-                    className={`text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-md ${["sub_capital", "capital"].includes(cfg.fleet_type) ? "bg-lime-400/10 text-lime-400 border border-lime-400/20 shadow-[0_0_10px_rgba(163,230,53,0.1)]" : "bg-white/5 text-gray-400 border border-white/10"}`}
+                    className={`text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-md ${["sub_capital", "capital"].includes(cfg.fleet_type ?? "") ? "bg-lime-400/10 text-lime-400 border border-lime-400/20 shadow-[0_0_10px_rgba(163,230,53,0.1)]" : "bg-white/5 text-gray-400 border border-white/10"}`}
                 >
                     {(cfg.fleet_type || "small").replace("_", "-")}
                 </span>
@@ -168,7 +190,16 @@ function FleetRow({
 }
 
 /* ───────── Edit row ───────── */
-function EditRow({ data, onChange, onSave, onCancel, saving, teamMembers = [] }) {
+interface EditRowProps {
+    data: Partial<FleetConfigEntry>;
+    onChange: <K extends keyof FleetConfigEntry>(key: K, value: FleetConfigEntry[K]) => void;
+    onSave: () => void;
+    onCancel: () => void;
+    saving: boolean;
+    teamMembers?: TeamMember[];
+}
+
+function EditRow({ data, onChange, onSave, onCancel, saving, teamMembers = [] }: EditRowProps) {
     return (
         <tr className="bg-emerald-500/[0.03] border-y border-emerald-500/20 shadow-[inset_4px_0_0_rgba(16,185,129,1)] relative z-10">
             <td className="pl-3 pr-0 py-3 w-8" /> {/* drag handle placeholder */}
@@ -246,7 +277,13 @@ function EditRow({ data, onChange, onSave, onCancel, saving, teamMembers = [] })
 }
 
 /* ───────── Add Fleet Modal ───────── */
-function AddFleetModal({ onClose, onAdd, teamMembers = [] }) {
+interface AddFleetModalProps {
+    onClose: () => void;
+    onAdd: (config: NewFleetConfig) => Promise<string | null>;
+    teamMembers?: TeamMember[];
+}
+
+function AddFleetModal({ onClose, onAdd, teamMembers = [] }: AddFleetModalProps) {
     const [slug, setSlug] = useState("");
     const [displayName, setDisplayName] = useState("");
     const [fleetType, setFleetType] = useState("small");
@@ -256,7 +293,7 @@ function AddFleetModal({ onClose, onAdd, teamMembers = [] }) {
     const [quantity, setQuantity] = useState(1);
     const [sortOrder, setSortOrder] = useState(0);
     const [validating, setValidating] = useState(false);
-    const [validation, setValidation] = useState(null); // { found, fleet } | null
+    const [validation, setValidation] = useState<SlugValidation | null>(null);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
@@ -495,8 +532,8 @@ function AddFleetModal({ onClose, onAdd, teamMembers = [] }) {
 }
 
 /* ───────── Manage Members Modal ───────── */
-function ManageMembersModal({ fleet, onClose }) {
-    const [members, setMembers] = useState([]);
+function ManageMembersModal({ fleet, onClose }: { fleet: FleetConfigEntry; onClose: () => void }) {
+    const [members, setMembers] = useState<FleetMember[]>([]);
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState("");
     const [role, setRole] = useState("");
@@ -504,7 +541,7 @@ function ManageMembersModal({ fleet, onClose }) {
     const [error, setError] = useState("");
 
     // Inline editing states
-    const [editingMemberId, setEditingMemberId] = useState(null);
+    const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
     const [editName, setEditName] = useState("");
     const [editRole, setEditRole] = useState("");
     const [updating, setUpdating] = useState(false);
@@ -554,12 +591,12 @@ function ManageMembersModal({ fleet, onClose }) {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id: string) => {
         await fetch(`/api/fleet-members/${id}`, { method: "DELETE" });
         await fetchMembers();
     };
 
-    const startEdit = (m) => {
+    const startEdit = (m: FleetMember) => {
         setEditingMemberId(m.id);
         setEditName(m.name);
         setEditRole(m.role || "Member");
@@ -572,7 +609,7 @@ function ManageMembersModal({ fleet, onClose }) {
         setEditRole("");
     };
 
-    const handleUpdate = async (id) => {
+    const handleUpdate = async (id: string) => {
         if (!editName.trim()) {
             setError("Name is required.");
             return;
@@ -765,31 +802,31 @@ function ManageMembersModal({ fleet, onClose }) {
 
 /* ───────── Main Admin Page ───────── */
 export default function FleetAdminPage() {
-    const [configs, setConfigs] = useState([]);
+    const [configs, setConfigs] = useState<FleetConfigEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [authing, setAuthing] = useState(true);
     const [authed, setAuthed] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
-    const [adminUser, setAdminUser] = useState(null);
+    const [adminUser, setAdminUser] = useState<SessionUser | null>(null);
     const [searchQ, setSearchQ] = useState("");
     const [showAddModal, setShowAddModal] = useState(false);
-    const [editId, setEditId] = useState(null);
-    const [editData, setEditData] = useState({});
+    const [editId, setEditId] = useState<ConfigId | null>(null);
+    const [editData, setEditData] = useState<Partial<FleetConfigEntry>>({});
     const [editSaving, setEditSaving] = useState(false);
-    const [toggling, setToggling] = useState(null);
+    const [toggling, setToggling] = useState<ConfigId | null>(null);
     const [error, setError] = useState("");
-    const [activeTab, setActiveTab] = useState("registry");
+    const [activeTab, setActiveTab] = useState<"registry" | "about">("registry");
 
     // Drag-to-sort states
-    const [dragId, setDragId] = useState(null);
-    const [dragOverId, setDragOverId] = useState(null);
+    const [dragId, setDragId] = useState<ConfigId | null>(null);
+    const [dragOverId, setDragOverId] = useState<ConfigId | null>(null);
     const [sortSaving, setSortSaving] = useState(false);
 
     // Column sort states (Status, Class, CO Name, Asset ID / Fleet)
-    const [sortField, setSortField] = useState(null); // 'slug' | 'enabled' | 'fleet_type' | 'ceo_name'
-    const [sortDir, setSortDir] = useState("asc"); // 'asc' | 'desc'
+    const [sortField, setSortField] = useState<SortField | null>(null);
+    const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
-    const handleHeaderSort = (key) => {
+    const handleHeaderSort = (key: SortField) => {
         if (sortField === key) {
             if (sortDir === "asc") {
                 setSortDir("desc");
@@ -804,9 +841,9 @@ export default function FleetAdminPage() {
     };
 
     // Member management states
-    const [selectedFleetForMembers, setSelectedFleetForMembers] = useState(null);
-    const [memberCounts, setMemberCounts] = useState({});
-    const [teamMembers, setTeamMembers] = useState([]);
+    const [selectedFleetForMembers, setSelectedFleetForMembers] = useState<FleetConfigEntry | null>(null);
+    const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
+    const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
 
     useEffect(() => {
         fetch("/api/team-members")
@@ -826,10 +863,10 @@ export default function FleetAdminPage() {
 
             // Fetch member counts
             const mRes = await fetch("/api/fleet-members");
-            const mData = await mRes.json();
+            const mData: unknown = await mRes.json();
             if (Array.isArray(mData)) {
-                const counts = {};
-                mData.forEach((m) => {
+                const counts: Record<string, number> = {};
+                (mData as FleetMember[]).forEach((m) => {
                     counts[m.fleet_config_id] = (counts[m.fleet_config_id] || 0) + 1;
                 });
                 setMemberCounts(counts);
@@ -848,7 +885,7 @@ export default function FleetAdminPage() {
             setAuthing(true);
             const deniedFromRedirect = window.location.search.includes("denied=1");
             const res = await fetch("/api/auth/discord/session?admin=1", { cache: "no-store" });
-            const data = await res.json().catch(() => ({}));
+            const data = (await res.json().catch(() => ({}))) as Partial<SessionResponse>;
             if (!mounted) return;
 
             if (res.ok && data?.admin) {
@@ -882,7 +919,7 @@ export default function FleetAdminPage() {
         setConfigs([]);
     };
 
-    const handleAdd = async (form) => {
+    const handleAdd = async (form: NewFleetConfig) => {
         const res = await fetch("/api/fleet-configs", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -894,7 +931,7 @@ export default function FleetAdminPage() {
         return null;
     };
 
-    const handleToggle = async (cfg) => {
+    const handleToggle = async (cfg: FleetConfigEntry) => {
         setToggling(cfg.id);
         await fetch(`/api/fleet-configs/${cfg.id}`, {
             method: "PUT",
@@ -905,13 +942,13 @@ export default function FleetAdminPage() {
         setToggling(null);
     };
 
-    const handleDelete = async (id, name) => {
+    const handleDelete = async (id: ConfigId, name: string) => {
         if (!confirm(`Remove "${name}" from the fleet registry?`)) return;
         await fetch(`/api/fleet-configs/${id}`, { method: "DELETE" });
         await fetchConfigs();
     };
 
-    const startEdit = (cfg) => {
+    const startEdit = (cfg: FleetConfigEntry) => {
         setEditId(cfg.id);
         setEditData({ ...cfg });
     };
@@ -919,7 +956,8 @@ export default function FleetAdminPage() {
         setEditId(null);
         setEditData({});
     };
-    const handleEditChange = (key, val) => setEditData((p) => ({ ...p, [key]: val }));
+    const handleEditChange = <K extends keyof FleetConfigEntry>(key: K, val: FleetConfigEntry[K]) =>
+        setEditData((p) => ({ ...p, [key]: val }));
 
     const handleEditSave = async () => {
         setEditSaving(true);
@@ -934,8 +972,8 @@ export default function FleetAdminPage() {
     };
 
     /* ── Drag-to-sort handlers ── */
-    const handleDragStart = (id) => setDragId(id);
-    const handleDragOver = (id) => {
+    const handleDragStart = (id: ConfigId) => setDragId(id);
+    const handleDragOver = (id: ConfigId) => {
         if (id !== dragId) setDragOverId(id);
     };
     const handleDragEnd = () => {
@@ -943,7 +981,7 @@ export default function FleetAdminPage() {
         setDragOverId(null);
     };
 
-    const handleDrop = async (targetId) => {
+    const handleDrop = async (targetId: ConfigId) => {
         if (!dragId || dragId === targetId) {
             handleDragEnd();
             return;
@@ -989,7 +1027,8 @@ export default function FleetAdminPage() {
 
     const sortedFiltered = [...filtered].sort((a, b) => {
         if (!sortField) return 0;
-        let valA, valB;
+        let valA: string | number = 0;
+        let valB: string | number = 0;
         if (sortField === "slug") {
             valA = (a.display_name || a.slug || "").toLowerCase();
             valB = (b.display_name || b.slug || "").toLowerCase();
@@ -997,9 +1036,9 @@ export default function FleetAdminPage() {
             valA = a.enabled ? 1 : 0;
             valB = b.enabled ? 1 : 0;
         } else if (sortField === "fleet_type") {
-            const typeRank = { small: 1, medium: 2, large: 3, sub_capital: 4, capital: 5 };
-            valA = typeRank[a.fleet_type] || 0;
-            valB = typeRank[b.fleet_type] || 0;
+            const typeRank: Record<string, number> = { small: 1, medium: 2, large: 3, sub_capital: 4, capital: 5 };
+            valA = typeRank[a.fleet_type ?? ""] || 0;
+            valB = typeRank[b.fleet_type ?? ""] || 0;
         } else if (sortField === "ceo_name") {
             valA = (a.ceo_name || "").toLowerCase();
             valB = (b.ceo_name || "").toLowerCase();
@@ -1153,7 +1192,7 @@ export default function FleetAdminPage() {
                                                 ].map((col) => (
                                                     <th
                                                         key={col.key}
-                                                        onClick={() => handleHeaderSort(col.key)}
+                                                        onClick={() => handleHeaderSort(col.key as SortField)}
                                                         className="px-5 py-4 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold whitespace-nowrap cursor-pointer hover:text-emerald-400 transition-colors select-none"
                                                     >
                                                         <div className="flex items-center gap-1.5">
@@ -1199,7 +1238,7 @@ export default function FleetAdminPage() {
                                                     <FleetRow
                                                         key={cfg.id}
                                                         cfg={cfg}
-                                                        memberCount={memberCounts[cfg.id] || 0}
+                                                        memberCount={memberCounts[String(cfg.id)] || 0}
                                                         onEdit={startEdit}
                                                         onDelete={handleDelete}
                                                         onToggle={handleToggle}

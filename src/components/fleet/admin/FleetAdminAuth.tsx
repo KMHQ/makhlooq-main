@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { Rocket, Shield, LogOut, ArrowLeft } from "lucide-react";
 
-export function AuthScreen({ text = "Initializing Secure Link..." }) {
+export function AuthScreen({ text = "Initializing Secure Link..." }: { text?: string }) {
     return (
         <div className="min-h-screen bg-[#020402] text-white flex flex-col items-center justify-center gap-4 relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.1),transparent)]" />
@@ -13,7 +13,7 @@ export function AuthScreen({ text = "Initializing Secure Link..." }) {
     );
 }
 
-export function LoginScreen({ onLogin }) {
+export function LoginScreen({ onLogin }: { onLogin: () => void }) {
     return (
         <div className="min-h-screen bg-[#020402] text-white flex items-center justify-center p-6 relative overflow-hidden">
             <div className="pointer-events-none absolute inset-0 z-0">
@@ -57,7 +57,7 @@ export function LoginScreen({ onLogin }) {
     );
 }
 
-export function DeniedScreen({ onLogout }) {
+export function DeniedScreen({ onLogout }: { onLogout: () => void }) {
     return (
         <div className="min-h-screen bg-[#020402] text-white flex items-center justify-center p-6 relative overflow-hidden">
             <div className="pointer-events-none absolute inset-0 z-0">

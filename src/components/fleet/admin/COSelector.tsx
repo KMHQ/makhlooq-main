@@ -1,19 +1,33 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type FormEvent, type MouseEvent } from "react";
 import { Search, User, Check, X, ChevronDown, Shield } from "lucide-react";
+import type { TeamMember } from "@/types/db";
+
+interface CoChange {
+    ceo_name: string;
+    ceo_discord_uid: string;
+}
+
+interface COSelectorProps {
+    valueName?: string;
+    valueDiscordUid?: string;
+    onChange: (value: CoChange) => void;
+    teamMembers?: TeamMember[];
+    placeholder?: string;
+}
 
 export default function COSelector({
     valueName = "",
     valueDiscordUid = "",
-    onChange, // ({ ceo_name, ceo_discord_uid }) => void
+    onChange,
     teamMembers = [],
     placeholder = "Select or type CO...",
-}) {
+}: COSelectorProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [customName, setCustomName] = useState(valueName);
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Sync internal customName when valueName changes externally
     useEffect(() => {
@@ -22,8 +36,8 @@ export default function COSelector({
 
     // Click outside listener
     useEffect(() => {
-        function handleClickOutside(event) {
-            if (containerRef.current && !containerRef.current.contains(event.target)) {
+        function handleClickOutside(event: globalThis.MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         }
@@ -46,22 +60,22 @@ export default function COSelector({
 
     const selectedMember = teamMembers.find(
         (m) =>
-            (valueDiscordUid && (m.discord_uid === valueDiscordUid || m.id === valueDiscordUid)) ||
+            (valueDiscordUid && (m.discord_uid === valueDiscordUid || String(m.id) === valueDiscordUid)) ||
             (valueName && m.name?.toLowerCase() === valueName.toLowerCase()),
     );
 
-    const handleSelectMember = (m) => {
+    const handleSelectMember = (m: TeamMember) => {
         onChange({
             ceo_name: m.name,
-            ceo_discord_uid: m.discord_uid || m.id || "",
+            ceo_discord_uid: m.discord_uid || String(m.id),
         });
         setCustomName(m.name);
         setIsOpen(false);
         setSearchQuery("");
     };
 
-    const handleCustomSubmit = (e) => {
-        if (e) e.preventDefault();
+    const handleCustomSubmit = (e?: FormEvent) => {
+        e?.preventDefault();
         onChange({
             ceo_name: customName.trim(),
             ceo_discord_uid: "",
@@ -69,7 +83,7 @@ export default function COSelector({
         setIsOpen(false);
     };
 
-    const handleClear = (e) => {
+    const handleClear = (e: MouseEvent) => {
         e.stopPropagation();
         onChange({
             ceo_name: "",
@@ -179,7 +193,7 @@ export default function COSelector({
 
                         {filteredMembers.map((m) => {
                             const isSelected =
-                                (valueDiscordUid && (m.discord_uid === valueDiscordUid || m.id === valueDiscordUid)) ||
+                                (valueDiscordUid && (m.discord_uid === valueDiscordUid || String(m.id) === valueDiscordUid)) ||
                                 (valueName && m.name?.toLowerCase() === valueName.toLowerCase());
 
                             return (

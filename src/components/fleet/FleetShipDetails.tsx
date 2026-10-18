@@ -1,10 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import type { FleetShip } from "./ships";
 
-export default function FleetShipDetails({ ship, onOpenMemberModal }) {
+interface FleetShipDetailsProps {
+    ship: FleetShip | null;
+    onOpenMemberModal?: (target: string | null, owner: string) => void;
+}
+
+export default function FleetShipDetails({ ship, onOpenMemberModal }: FleetShipDetailsProps) {
     const [avatarUrl, setAvatarUrl] = useState(ship?.ceoAvatarUrl || "");
 
     useEffect(() => {
@@ -68,7 +73,7 @@ export default function FleetShipDetails({ ship, onOpenMemberModal }) {
                     {owner ? (
                         <button
                             type="button"
-                            onClick={() => onOpenMemberModal && onOpenMemberModal(profileTarget, owner)}
+                            onClick={() => onOpenMemberModal?.(profileTarget, owner)}
                             title={`View ${owner}'s Profile`}
                             className="inline-flex items-center gap-2.5 self-start rounded-full border border-lime-400/30 bg-lime-400/5 pr-4 pl-1.5 py-1.5 hover:border-lime-400/70 hover:bg-lime-400/15 hover:shadow-[0_0_15px_rgba(163,230,53,0.25)] transition-all cursor-pointer group/co"
                         >

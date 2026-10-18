@@ -1,452 +1,84 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { CalendarDays, Loader2, X } from "lucide-react";
-
-import Header from "../../../src/components/Header";
-import FleetScene from "../../../src/components/fleet/FleetScene";
-import FleetShipDetails from "../../../src/components/fleet/FleetShipDetails";
-import ProfileModal from "../../../src/components/team/ProfileModal";
-
-const getShipType = (model = {}) => {
-    const c = (model.classification || model.classificationLabel || "").toLowerCase();
-    if (c.includes("capital") || c.includes("battleship") || c.includes("carrier") || c.includes("corvette")) return "capital";
-    if (c.includes("fighter") || c.includes("interceptor") || c.includes("gunship")) return "fighter";
-    if (c.includes("explorer") || c.includes("scout")) return "explorer";
-    if (c.includes("freighter") || c.includes("industrial") || c.includes("hauler") || c.includes("transport")) return "industrial";
-    if (c.includes("luxury") || c.includes("yacht")) return "luxury";
-    return "medium";
-};
-
-const getAccentColor = (classification = "") => {
-    const n = classification.toLowerCase();
-    if (n.includes("fighter") || n.includes("interceptor")) return "#a3e635";
-    if (n.includes("explore") || n.includes("scout")) return "#22c55e";
-    if (n.includes("industrial") || n.includes("freighter") || n.includes("transport")) return "#65a30d";
-    if (n.includes("luxury") || n.includes("yacht")) return "#84cc16";
-    if (n.includes("capital") || n.includes("command") || n.includes("corvette")) return "#d9f99d";
-    return "#4ade80";
-};
-
-const mapVehicleToShip = (vehicle) => {
-    const model = vehicle.model || vehicle || {};
-    const media = model.media || {};
-    const metrics = model.metrics || {};
-    const name = vehicle.name || model.name || "Unknown Vessel";
-    const classification = model.classificationLabel || model.classification || "Unknown";
-
-    const normalizeAssetUrl = (value) => {
-        if (!value || typeof value !== "string") return "";
-        return value.replace(/(\.(?:gltf|glb))\/?$/i, "$1").trim();
-    };
-
-    return {
-        id: vehicle.id || vehicle.slug || `${name}-${vehicle.serial || "unknown"}`,
-        slug: model.slug || vehicle.modelSlug || vehicle.model_slug || vehicle.slug || "",
-        name,
-        manufacturer: model.manufacturer?.name || "Unknown Manufacturer",
-        class: classification,
-        role: model.focus || classification,
-        crew: model.crew?.maxLabel || (model.crew?.max ? String(model.crew.max) : "N/A"),
-        length: metrics.lengthLabel || (metrics.length ? `${metrics.length}m` : "N/A"),
-        mass: metrics.massLabel || (metrics.mass ? `${metrics.mass} kg` : "N/A"),
-        cargo: metrics.cargoLabel || (metrics.cargo ? `${metrics.cargo} SCU` : "N/A"),
-        topSpeed: model.speeds?.maxSpeed ? `${model.speeds.maxSpeed} m/s` : "N/A",
-        price: model.price,
-        pledgePrice: model.pledgePrice,
-        priceLabel: model.priceLabel,
-        pledgePriceLabel: model.pledgePriceLabel,
-        description: model.description || "No description available.",
-        modelPath: normalizeAssetUrl(media.holo?.url || ""),
-        holoUrl: normalizeAssetUrl(media.holo?.url || ""),
-        thumbnail:
-            media.storeImage?.mediumUrl ||
-            media.storeImage?.url ||
-            media.angledViewColored?.mediumUrl ||
-            media.angledView?.mediumUrl ||
-            media.frontViewColored?.mediumUrl ||
-            media.frontView?.mediumUrl ||
-            media.fleetchartImage ||
-            "",
-        meshType: getShipType(model),
-        accentColor: getAccentColor(classification),
-        weapons: vehicle.activeLoadout ? "Configured Loadout" : "Standard Loadout",
-        features: [model.productionStatus || "Production status unknown", model.hasPaints ? "Custom Paint Available" : null].filter(
-            Boolean,
-        ),
-        specs: {
-            shields: { label: "Shield Status", value: model.hasModules ? "Equipped" : "Unknown", pct: model.hasModules ? 72 : 18 },
-            armor: { label: "Armor Status", value: model.hasPaints ? "Painted" : "Unpainted", pct: model.hasPaints ? 60 : 35 },
-            firepower: { label: "Weapons", value: vehicle.activeLoadout ? "Configured" : "Unknown", pct: vehicle.activeLoadout ? 55 : 20 },
-            speed: {
-                label: "Top Speed",
-                value: model.speeds?.maxSpeed ? `${model.speeds.maxSpeed} m/s` : "N/A",
-                pct: model.speeds?.maxSpeed ? Math.min(100, model.speeds.maxSpeed / 6) : 10,
-            },
-            stealth: { label: "Stealth", value: "Standard", pct: 35 },
-        },
-    };
-};
-
-const getModelSlug = (item = {}) => {
-    const model = item.model && typeof item.model === "object" ? item.model : item;
-    return model?.slug || item?.slug || item?.model_slug || item?.modelSlug || "";
-};
-
-const getModelName = (item = {}) => {
-    const model = item.model && typeof item.model === "object" ? item.model : item;
-    return model?.name || item?.name || "Unknown Vessel";
-};
-
-// No dedup — each fleet config entry is its own ship (even if same slug).
-// Unique IDs are assigned per config in fetchData below.
-
-const formatCurrency = (value) => {
-    if (!Number.isFinite(value)) return "$0.00";
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 2,
-    }).format(value);
-};
-
-const formatNumber = (value) => {
-    if (!Number.isFinite(value)) return "0";
-    return new Intl.NumberFormat("en-US").format(value);
-};
-
-const getShipPrice = (ship) => {
-    const raw = ship?.pledgePrice ?? ship?.price ?? ship?.pledgePriceLabel ?? ship?.priceLabel ?? 0;
-    const number = Number(String(raw).replace(/[^0-9.]/g, ""));
-    return Number.isFinite(number) ? number : 0;
-};
-
-const getShipValue = (ship) => getShipPrice(ship.model || ship);
-
-const getStackKey = (ship = {}, index = 0) => ship.slug || ship.modelSlug || ship.id || `${ship.name || "ship"}-${index}`;
-
-function StackGhosts({ count = 1, compact = false }) {
-    const layers = Math.min(Math.max(Number(count) || 0, 0), compact ? 3 : 4);
-    if (layers <= 1) return null;
-
-    return (
-        <>
-            {Array.from({ length: layers - 1 }).map((_, index) => {
-                const offset = index + 1;
-                return (
-                    <span
-                        key={offset}
-                        aria-hidden="true"
-                        className={`pointer-events-none absolute inset-0 rounded-xl border border-lime-300/15 bg-black/70 transition-all duration-300 ${
-                            compact
-                                ? "translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2"
-                                : "translate-x-1.5 translate-y-1.5 group-hover:translate-x-3 group-hover:translate-y-2"
-                        }`}
-                        style={{
-                            zIndex: -offset,
-                            opacity: 0.7 - index * 0.16,
-                            transform: compact
-                                ? `translate(${offset * 3}px, ${offset * 3}px) rotate(${offset * 1.4}deg)`
-                                : `translate(${offset * 5}px, ${offset * 4}px) rotate(${offset * 1.8}deg)`,
-                        }}
-                    />
-                );
-            })}
-        </>
-    );
-}
-
-function MiniBlocks({ count = 0, color = "#9AD84A", max = 40 }) {
-    const blocks = Array.from({ length: Math.max(0, Math.min(max, Number(count) || 0)) });
-
-    return (
-        <div className="flex max-w-[92px] flex-wrap gap-[3px]">
-            {blocks.map((_, index) => (
-                <span key={index} className="h-2 w-2 rounded-[1px]" style={{ background: color }} />
-            ))}
-        </div>
-    );
-}
-
-function DonutChart({ segments }) {
-    const total = segments.reduce((sum, segment) => sum + segment.value, 0) || 1;
-    let cursor = 0;
-    const gradientStops = segments
-        .map((segment) => {
-            const start = cursor;
-            const end = cursor + (segment.value / total) * 360;
-            cursor = end;
-            return `${segment.color} ${start}deg ${end}deg`;
-        })
-        .join(", ");
-
-    return (
-        <div className="relative mx-auto flex h-52 w-52 items-center justify-center">
-            <div
-                className="absolute inset-0 rounded-full shadow-[inset_0_0_30px_rgba(255,255,255,0.05)]"
-                style={{ background: `conic-gradient(${gradientStops}, rgba(255,255,255,0.04) ${cursor}deg 360deg)` }}
-            />
-            <div className="absolute inset-[34px] rounded-full bg-[#202020] shadow-[0_0_0_1px_rgba(255,255,255,0.06)]" />
-            <div className="absolute inset-0 rounded-full bg-[linear-gradient(90deg,transparent_49.5%,rgba(255,255,255,0.07)_50%,transparent_50.5%),linear-gradient(30deg,transparent_49.5%,rgba(255,255,255,0.05)_50%,transparent_50.5%),linear-gradient(150deg,transparent_49.5%,rgba(255,255,255,0.05)_50%,transparent_50.5%)]" />
-            <div className="relative text-center">
-                <div className="text-3xl font-semibold text-white">{formatNumber(total)}</div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-white/35">Fleet Size</div>
-            </div>
-        </div>
-    );
-}
-
-function FleetValueChart({ ships, totalValue }) {
-    const shipValues = ships
-        .map(getShipValue)
-        .filter((value) => value > 0)
-        .sort((a, b) => b - a);
-    const cumulativeValues = shipValues.reduce((values, value) => {
-        values.push((values.at(-1) || 0) + value);
-        return values;
-    }, []);
-    const rawValues = cumulativeValues.length > 1 ? cumulativeValues : [0, totalValue || 0];
-    const maximum = Math.max(...rawValues, 1);
-    const values = rawValues.map((value) => value / maximum);
-    const width = 360;
-    const height = 210;
-    const points = values
-        .map((value, index) => {
-            const x = (index / (values.length - 1)) * width;
-            const y = height - value * height;
-            return `${x},${y}`;
-        })
-        .join(" ");
-    const area = `0,${height} ${points} ${width},${height}`;
-    const markerIndex = Math.max(0, Math.floor((values.length - 1) * 0.6));
-    const markerX = values.length > 1 ? (markerIndex / (values.length - 1)) * 100 : 0;
-    const markerY = 100 - values[markerIndex] * 100;
-    const tooltipValue = rawValues[markerIndex] || totalValue;
-
-    return (
-        <div className="relative h-[250px] overflow-hidden">
-            <svg viewBox={`0 0 ${width} ${height}`} className="absolute inset-x-0 bottom-0 h-full w-full" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id="fleet-value-fill" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="rgba(255,255,255,0.28)" />
-                        <stop offset="100%" stopColor="rgba(255,255,255,0.02)" />
-                    </linearGradient>
-                </defs>
-                {values.map((_, index) => (
-                    <line
-                        key={index}
-                        x1={(index / (values.length - 1)) * width}
-                        x2={(index / (values.length - 1)) * width}
-                        y1="0"
-                        y2={height}
-                        stroke="rgba(255,255,255,0.10)"
-                        strokeDasharray="4 4"
-                    />
-                ))}
-                <polygon points={area} fill="url(#fleet-value-fill)" />
-                <polyline points={points} fill="none" stroke="#ffffff" strokeWidth="2" />
-            </svg>
-            <div
-                className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-white/60 shadow-[0_0_20px_rgba(255,255,255,0.7)]"
-                style={{ left: `${markerX}%`, top: `${markerY}%` }}
-            />
-            <div className="absolute right-3 top-5 rounded-md bg-[#9AD84A] px-3 py-2 text-[9px] font-semibold text-[#1b1b1b] shadow-xl">
-                <div>{formatNumber(markerIndex + 1)} ships loaded</div>
-                <div className="mt-1">Cumulative value:</div>
-                <div>{formatCurrency(tooltipValue)}</div>
-            </div>
-        </div>
-    );
-}
-
-function FleetDashboard({ ships, selectedShip, totalShips, totalMembers, totalMaxCrew, totalValue, segments }) {
-    const crew = Number(totalMaxCrew) || 0;
-    const members = Number(totalMembers) || 0;
-    const topSegments = segments.slice(0, 3);
-    const segmentTotal = topSegments.reduce((sum, segment) => sum + segment.value, 0) || 1;
-
-    return (
-        <section className="fleet-dashboard-grid">
-            <div className="fleet-dashboard-card overflow-hidden">
-                <div className="p-5">
-                    <h2 className="text-sm font-semibold text-white">Fleet stats</h2>
-                    <div className="relative mt-4 h-44 overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
-                        <div className="absolute inset-x-8 bottom-0 h-16 rounded-full bg-white/10 blur-2xl" />
-                        {selectedShip?.thumbnail ? (
-                            <img
-                                src={selectedShip.thumbnail}
-                                alt={selectedShip?.name || "Selected fleet ship"}
-                                className="relative z-10 h-full w-full object-cover drop-shadow-[0_25px_25px_rgba(0,0,0,0.45)]"
-                            />
-                        ) : (
-                            <div className="relative z-10 flex h-full w-full items-center justify-center text-center text-xs uppercase tracking-[0.3em] text-white/35">
-                                No public image
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div className="grid grid-cols-3 border-t border-white/10">
-                    {[
-                        { label: "Fleet value", value: formatCurrency(totalValue) },
-                        { label: "Crew cap", value: formatNumber(crew) },
-                        { label: "Fleets", value: formatNumber(members) },
-                    ].map((item, index) => (
-                        <div key={item.label} className={`p-4 ${index > 0 ? "border-l border-white/10" : ""}`}>
-                            <div className="text-[10px] text-white/60">{item.label}</div>
-                            <div className="mt-3 text-2xl font-medium tracking-tight text-white">{item.value}</div>
-                        </div>
-                    ))}
-                </div>
-                <div className="rounded-b-[18px] border-t border-white/10 bg-[#111111] p-5 text-white">
-                    <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-sm font-medium">Status Overview</h3>
-                        <button className="rounded-full border border-white/10 px-3 py-1 text-[10px] text-white/45">Live</button>
-                    </div>
-                    <div className="flex h-5 overflow-hidden rounded-md bg-white/5">
-                        {topSegments.map((segment) => (
-                            <div
-                                key={segment.label}
-                                style={{
-                                    background: segment.color,
-                                    width: `${(segment.value / segmentTotal) * 100}%`,
-                                }}
-                            />
-                        ))}
-                    </div>
-                    <div className="mt-5 flex flex-wrap gap-5 text-[10px] text-white/45">
-                        {topSegments.map((segment) => (
-                            <span key={segment.label} className="inline-flex items-center gap-2">
-                                <i className="h-2 w-2 rounded-sm" style={{ background: segment.color }} />
-                                {segment.label}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <div className="fleet-dashboard-card overflow-hidden">
-                <div className="p-5">
-                    <h2 className="text-sm font-semibold text-white">Fleet Size</h2>
-                    <DonutChart segments={segments} />
-                </div>
-                <div className="rounded-b-[18px] border-t border-white/10 bg-[#111111] p-5 text-white">
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                        {topSegments.map((segment) => (
-                            <div key={segment.label} className="flex items-start gap-3">
-                                <MiniBlocks count={segment.value} color={segment.color} />
-                                <div>
-                                    <div className="text-sm font-semibold">{formatNumber(segment.value)}</div>
-                                    <div className="text-[10px] text-white/45">{segment.label}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <div className="fleet-dashboard-card p-5">
-                <div className="flex items-start justify-between">
-                    <h2 className="text-sm font-semibold text-white">Fleet Valuation</h2>
-                    <button className="rounded-xl border border-white/10 bg-white/5 p-3 text-white/70">
-                        <CalendarDays size={14} />
-                    </button>
-                </div>
-                <div className="mt-5 text-4xl font-light tracking-tight text-white">{formatCurrency(totalValue)}</div>
-                <div className="mt-3 text-xs text-white/55">Based on current public ship prices</div>
-                <FleetValueChart ships={ships} totalValue={totalValue} />
-            </div>
-        </section>
-    );
-}
-
-function FleetCommandBriefing({ ships, selectedShip, totalValue, totalMaxCrew }) {
-    const rows = [
-        {
-            label: "Hangar",
-            metric: ships.length,
-            title: "Full Fleet Lineup",
-            body: "All KMHQ heavy metal is lined up here with style. Click on any ship you like to switch the scene.",
-        },
-        {
-            label: "Vibe",
-            metric: selectedShip?.holoUrl ? "3D Ready" : "Chill View",
-            title: "Showroom mood",
-            body: "Sometimes a full 3D flex, sometimes a clean cinematic card. Either way, the ship scene stays tight.",
-        },
-        {
-            label: "Pick",
-            metric: selectedShip?.name || "Standby",
-            title: "Choose your ride",
-            body: selectedShip?.name
-                ? `${selectedShip.name} is now in the spotlight. Click another ride to give it the stage.`
-                : "Select a ship and the hangar focus will instantly shift to it.",
-        },
-    ];
-
-    return (
-        <section className="relative mt-8 overflow-hidden rounded-[2.5rem] border border-lime-300/10 bg-white/[0.025] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.38)] backdrop-blur-xl md:p-10">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(163,230,53,0.14),transparent_32%),radial-gradient(circle_at_90%_0%,rgba(34,197,94,0.10),transparent_28%),linear-gradient(120deg,rgba(255,255,255,0.04),transparent_48%)]" />
-            <div className="relative grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
-                <div>
-                    <p className="font-mono text-sm font-black uppercase tracking-[0.36em] text-lime-300/60">Hangar Mood</p>
-                    <h2 className="mt-5 text-[18vw] font-black uppercase leading-[0.78] tracking-[-0.1em] text-transparent [-webkit-text-stroke:1px_rgba(217,249,157,0.28)] md:text-[9rem] lg:text-[10rem]">
-                        Big
-                        <span className="block text-white [-webkit-text-stroke:0]">Toys</span>
-                    </h2>
-                    <p className="mt-7 max-w-xl text-xl leading-relaxed text-white/52">
-                        A little flex, a little command, a little cinematic showroom. The KMHQ fleet scene is simple: pick a ship, enjoy the
-                        view.
-                    </p>
-                    <div className="mt-7 grid grid-cols-2 gap-3">
-                        <div className="rounded-3xl border border-lime-300/10 bg-black/35 p-5">
-                            <div className="font-mono text-xs uppercase tracking-[0.28em] text-lime-300/45">Value</div>
-                            <div className="mt-2 text-3xl font-black tracking-[-0.06em] text-white">{formatCurrency(totalValue)}</div>
-                        </div>
-                        <div className="rounded-3xl border border-lime-300/10 bg-black/35 p-5">
-                            <div className="font-mono text-xs uppercase tracking-[0.28em] text-lime-300/45">Crew Cap</div>
-                            <div className="mt-2 text-3xl font-black tracking-[-0.06em] text-white">{formatNumber(totalMaxCrew)}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid gap-4">
-                    {rows.map((item, index) => (
-                        <motion.div
-                            key={item.label}
-                            className="group overflow-hidden rounded-[1.6rem] border border-lime-300/10 bg-black/35 p-5 text-left transition-colors hover:border-lime-300/35 hover:bg-lime-300/[0.04]"
-                            initial={{ opacity: 0, y: 18 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-80px" }}
-                            transition={{ delay: index * 0.08 }}
-                            whileHover={{ x: 6 }}
-                        >
-                            <div className="flex items-start justify-between gap-5">
-                                <div>
-                                    <div className="font-mono text-xs font-black uppercase tracking-[0.3em] text-lime-300/45">
-                                        {item.label}
-                                    </div>
-                                    <div className="mt-3 text-2xl font-black tracking-[-0.05em] text-white md:text-3xl">{item.title}</div>
-                                </div>
-                                <div className="max-w-[180px] truncate rounded-2xl border border-lime-300/15 bg-lime-300/10 px-4 py-3 text-right font-mono text-sm font-black uppercase tracking-[0.16em] text-lime-200">
-                                    {item.metric}
-                                </div>
-                            </div>
-                            <p className="mt-5 text-lg leading-relaxed text-white/52">{item.body}</p>
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-}
-
+import { useState, useEffect, useCallback, useRef, type UIEvent, type WheelEvent } from "react";
+import { AnimatePresence } from "motion/react";
 import { useLivePreview } from "@payloadcms/live-preview-react";
+import { getServerUrl } from "@/lib/serverUrl";
+import type { PageData } from "@/lib/payload/queries";
+import type { FleetYardsModel, FleetYardsVehicle } from "@/types/fleetyards";
+import type { TeamMember } from "@/types/db";
+import Header from "@/src/components/Header";
+import FleetScene from "@/src/components/fleet/FleetScene";
+import FleetShipDetails from "@/src/components/fleet/FleetShipDetails";
+import ProfileModal from "@/src/components/team/ProfileModal";
+import {
+    formatCurrency,
+    formatNumber,
+    getShipPrice,
+    mapVehicleToShip,
+    type FleetConfigEntry,
+    type FleetShip,
+} from "@/src/components/fleet/ships";
 
-export default function FleetPageClient({ data: initialData }) {
-    const { data } = useLivePreview({
-        initialData,
-        serverURL: (typeof window !== "undefined" && window.__SERVER_URL__) || process.env.NEXT_PUBLIC_SERVER_URL || "https://kmhq.org",
+const CAPITAL_TYPES = ["sub_capital", "capital"];
+const CARDS_PER_SLIDE = 4;
+
+function toFleetShip(item: FleetYardsVehicle, id: string, cfg: FleetConfigEntry, name: string): FleetShip {
+    return {
+        ...mapVehicleToShip(item),
+        id,
+        name,
+        sourceFleet: name,
+        fleetSlug: cfg.slug,
+        fleetType: cfg.fleet_type || "small",
+        ceoName: cfg.ceo_name || "",
+        ceoDiscordUid: cfg.ceo_discord_uid || "",
+        ceoAvatarUrl: cfg.ceo_avatar_url || "",
+        fleetQuantity: cfg.quantity || 1,
+    };
+}
+
+// Each config is either a single FleetYards ship model or a whole FleetYards fleet.
+async function loadConfigShips(cfg: FleetConfigEntry, cfgIndex: number): Promise<FleetShip[]> {
+    const modelRes = await fetch(`/api/fleetyards/models?slugs=${encodeURIComponent(cfg.slug)}&fresh=1`, { cache: "no-store" });
+    const modelData = (await modelRes.json().catch(() => ({}))) as { items?: FleetYardsModel[] };
+    const model = modelData.items?.find((item) => item && !item.error);
+
+    if (modelRes.ok && model) {
+        // Unique ID per config entry so same-slug ships aren't deduped
+        const id = cfg.id ? `cfg-${cfg.id}` : `cfg-${cfgIndex}-${cfg.slug}`;
+        return [toFleetShip(model, id, cfg, cfg.display_name || model.name || cfg.slug)];
+    }
+
+    const fleetRes = await fetch(`/api/fleetyards/vehicles?slug=${encodeURIComponent(cfg.slug)}&all=1&perPage=50`);
+    const fleetData = (await fleetRes.json().catch(() => ({}))) as { items?: FleetYardsVehicle[]; error?: string };
+
+    if (fleetRes.ok && !fleetData.error) {
+        return (fleetData.items ?? []).map((item, itemIdx) => {
+            const id = item.id ? `${item.id}-cfg${cfg.id || cfgIndex}` : `cfg-${cfgIndex}-item${itemIdx}`;
+            return toFleetShip(item, id, cfg, cfg.display_name || cfg.slug);
+        });
+    }
+
+    console.warn(`FleetYards slug "${cfg.slug}" failed as model and fleet`, {
+        model: modelData.items?.[0]?.error,
+        fleet: fleetData.error,
+    });
+    return [];
+}
+
+const fallbackOfficer = (name: string): Partial<TeamMember> => ({
+    name,
+    role: "Commanding Officer",
+    category: "Makhlooq",
+    status: "active",
+    bio: "Commanding Officer assigned to this fleet asset.",
+});
+
+export default function FleetPageClient({ data: initialData }: { data: PageData<"fleet-page"> | null }) {
+    const { data } = useLivePreview<PageData<"fleet-page">>({
+        initialData: initialData ?? ({} as PageData<"fleet-page">),
+        serverURL: getServerUrl(),
         depth: 2,
     });
 
@@ -461,45 +93,26 @@ export default function FleetPageClient({ data: initialData }) {
     const standardHeading = data?.standardHeading || "Standard Fleets";
     const searchPlaceholder = data?.searchPlaceholder || "Search fleets...";
 
-    const [ships, setShips] = useState([]);
+    const [ships, setShips] = useState<FleetShip[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [selectedShipDetails, setSelectedShipDetails] = useState(null);
+    const [selectedShipDetails, setSelectedShipDetails] = useState<FleetShip | null>(null);
     const [loadingSelectedShip, setLoadingSelectedShip] = useState(false);
     const [loadingShips, setLoadingShips] = useState(false);
-    const [apiError, setApiError] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
-    const [expandedSlug, setExpandedSlug] = useState(null);
     const [capitalPage, setCapitalPage] = useState(0);
-    const carouselRef = useRef(null);
+    const carouselRef = useRef<HTMLDivElement>(null);
     const lastScrollTime = useRef(0);
+    const [selectedMemberForModal, setSelectedMemberForModal] = useState<Partial<TeamMember> | null>(null);
 
-    const [selectedMemberForModal, setSelectedMemberForModal] = useState(null);
-
-    const handleOpenCoModal = async (target, fallbackName) => {
-        if (!target && !fallbackName) return;
+    const handleOpenCoModal = async (target: string | null, fallbackName: string) => {
+        const query = target || fallbackName;
+        if (!query) return;
         try {
-            const query = target || fallbackName;
             const res = await fetch(`/api/team-members?discord_uid=${encodeURIComponent(query)}`);
-            const data = await res.json().catch(() => null);
-            if (res.ok && data && !data.error && data.id) {
-                setSelectedMemberForModal(data);
-            } else {
-                setSelectedMemberForModal({
-                    name: fallbackName || target,
-                    role: "Commanding Officer",
-                    category: "Makhlooq",
-                    status: "active",
-                    bio: "Commanding Officer assigned to this fleet asset.",
-                });
-            }
+            const member = (await res.json().catch(() => null)) as (TeamMember & { error?: string }) | null;
+            setSelectedMemberForModal(res.ok && member?.id && !member.error ? member : fallbackOfficer(fallbackName || query));
         } catch {
-            setSelectedMemberForModal({
-                name: fallbackName || target,
-                role: "Commanding Officer",
-                category: "Makhlooq",
-                status: "active",
-                bio: "Commanding Officer assigned to this fleet asset.",
-            });
+            setSelectedMemberForModal(fallbackOfficer(fallbackName || query));
         }
     };
 
@@ -508,106 +121,22 @@ export default function FleetPageClient({ data: initialData }) {
 
         const fetchData = async () => {
             setLoadingShips(true);
-            setApiError("");
 
             try {
                 const configsRes = await fetch("/api/fleet-configs");
                 const configsData = await configsRes.json();
                 if (!configsRes.ok) throw new Error(configsData?.error || `Fleet config error (${configsRes.status})`);
 
-                const configs = Array.isArray(configsData) ? configsData : [];
+                const configs: FleetConfigEntry[] = Array.isArray(configsData) ? configsData : [];
                 const activeConfigs = configs.filter((cfg) => cfg.enabled !== false);
                 const sourceConfigs = activeConfigs.length > 0 ? activeConfigs : configs;
 
-                if (sourceConfigs.length === 0) {
-                    if (!cancelled) {
-                        setShips([]);
-                    }
-                    return;
-                }
-
-                const fleetResults = await Promise.all(
-                    sourceConfigs.map(async (cfg, cfgIndex) => {
-                        // 1) First attempt to fetch as a specific ship MODEL
-                        const modelRes = await fetch(`/api/fleetyards/models?slugs=${encodeURIComponent(cfg.slug)}&fresh=1`, {
-                            cache: "no-store",
-                        });
-                        const modelData = await modelRes.json().catch(() => ({}));
-                        const model = Array.isArray(modelData?.items) ? modelData.items.find((item) => item && !item.error) : null;
-
-                        if (modelRes.ok && model) {
-                            // Assign a unique ID per config entry so same-slug ships are not deduped
-                            const uniqueId = cfg.id ? `cfg-${cfg.id}` : `cfg-${cfgIndex}-${cfg.slug}`;
-                            return [
-                                {
-                                    ...model,
-                                    id: uniqueId,
-                                    __fleetSlug: cfg.slug,
-                                    __fleetName: cfg.display_name || model.name || cfg.slug,
-                                    __fleetType: cfg.fleet_type,
-                                    __ceoName: cfg.ceo_name,
-                                    __ceoDiscordUid: cfg.ceo_discord_uid,
-                                    __ceoAvatarUrl: cfg.ceo_avatar_url,
-                                    __fleetQuantity: cfg.quantity || 1,
-                                    __sourceType: "model",
-                                },
-                            ];
-                        }
-
-                        // 2) If it wasn't a valid model, fallback to treating it as a FLEET
-                        const fleetRes = await fetch(`/api/fleetyards/vehicles?slug=${encodeURIComponent(cfg.slug)}&all=1&perPage=50`);
-                        const fleetData = await fleetRes.json().catch(() => ({}));
-
-                        if (fleetRes.ok && !fleetData?.error) {
-                            const items = Array.isArray(fleetData?.items) ? fleetData.items : [];
-                            return items.map((item, itemIdx) => ({
-                                ...item,
-                                id: item.id ? `${item.id}-cfg${cfg.id || cfgIndex}` : `cfg-${cfgIndex}-item${itemIdx}`,
-                                __fleetSlug: cfg.slug,
-                                __fleetName: cfg.display_name || cfg.slug,
-                                __fleetType: cfg.fleet_type,
-                                __ceoName: cfg.ceo_name,
-                                __ceoDiscordUid: cfg.ceo_discord_uid,
-                                __ceoAvatarUrl: cfg.ceo_avatar_url,
-                                __fleetQuantity: cfg.quantity || 1,
-                                __sourceType: "fleet",
-                            }));
-                        }
-
-                        console.warn(`FleetYards slug "${cfg.slug}" failed as model and fleet`, {
-                            model: modelData?.error || modelData?.items?.[0]?.error,
-                            fleet: fleetData?.error,
-                        });
-                        return [];
-                    }),
-                );
-
-                // No global dedup — each config entry is intentionally its own ship card.
-                const combinedItems = fleetResults.flat();
-                const enrichedShips = combinedItems.map((item) => {
-                    const ship = mapVehicleToShip(item);
-                    return {
-                        ...ship,
-                        id: item.id || ship.id,
-                        name: item.__fleetName || ship.name,
-                        sourceFleet: item.__fleetName || "",
-                        fleetSlug: item.__fleetSlug || ship.slug || "",
-                        fleetType: item.__fleetType || "small",
-                        ceoName: item.__ceoName || "",
-                        ceoDiscordUid: item.__ceoDiscordUid || "",
-                        ceoAvatarUrl: item.__ceoAvatarUrl || "",
-                        fleetQuantity: item.__fleetQuantity || 1,
-                    };
-                });
-
-                if (!cancelled) {
-                    setShips(enrichedShips);
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setApiError(err?.message || "Failed to fetch public ship data from FleetYards.");
-                    setShips([]);
-                }
+                // Each config entry is intentionally its own ship card; no dedup.
+                const fleetShips = (await Promise.all(sourceConfigs.map(loadConfigShips))).flat();
+                if (!cancelled) setShips(fleetShips);
+            } catch (error) {
+                console.error("Failed to fetch public ship data from FleetYards:", error);
+                if (!cancelled) setShips([]);
             } finally {
                 if (!cancelled) setLoadingShips(false);
             }
@@ -630,7 +159,7 @@ export default function FleetPageClient({ data: initialData }) {
     }, [ships.length]);
 
     useEffect(() => {
-        const handleKey = (e) => {
+        const handleKey = (e: KeyboardEvent) => {
             if (e.key === "ArrowRight" || e.key === "ArrowDown") goNext();
             else if (e.key === "ArrowLeft" || e.key === "ArrowUp") goPrev();
         };
@@ -645,6 +174,7 @@ export default function FleetPageClient({ data: initialData }) {
     const selectedShip = ships[selectedIndex] || null;
     const activeShip = selectedShipDetails || selectedShip;
 
+    // Refresh the selected ship's model details from FleetYards
     useEffect(() => {
         let cancelled = false;
 
@@ -662,128 +192,54 @@ export default function FleetPageClient({ data: initialData }) {
                 const res = await fetch(`/api/fleetyards/models?slugs=${encodeURIComponent(selectedShip.slug)}&fresh=1`, {
                     cache: "no-store",
                 });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data?.error || `FleetYards model error (${res.status})`);
+                const modelData = (await res.json()) as { items?: FleetYardsModel[]; error?: string };
+                if (!res.ok) throw new Error(modelData.error || `FleetYards model error (${res.status})`);
 
-                const model = Array.isArray(data?.items) ? data.items.find((item) => !item?.error) : null;
+                const model = modelData.items?.find((item) => !item?.error);
                 if (!model || cancelled) return;
 
-                setSelectedShipDetails({
-                    ...mapVehicleToShip(model),
-                    ...selectedShip,
-                    name: selectedShip.name || model.name,
-                    ceoName: selectedShip.ceoName,
-                    ceoDiscordUid: selectedShip.ceoDiscordUid,
-                    id: selectedShip.id,
-                    fleetSlug: selectedShip.fleetSlug,
-                    sourceFleet: selectedShip.sourceFleet,
-                    fleetType: selectedShip.fleetType,
-                    fleetQuantity: selectedShip.fleetQuantity,
-                });
-            } catch (err) {
-                if (!cancelled) {
-                    console.warn("Selected FleetYards model refresh failed:", err);
-                }
+                setSelectedShipDetails({ ...mapVehicleToShip(model), ...selectedShip, name: selectedShip.name || model.name || "" });
+            } catch (error) {
+                if (!cancelled) console.warn("Selected FleetYards model refresh failed:", error);
             } finally {
                 if (!cancelled) setLoadingSelectedShip(false);
             }
         };
 
         fetchSelectedShip();
-
         return () => {
             cancelled = true;
         };
     }, [selectedShip]);
 
-    const totalMembers = new Set(ships.map((ship) => ship.fleetSlug).filter(Boolean)).size;
-    const totalValue = ships.reduce((sum, ship) => sum + getShipValue(ship), 0);
-    const classificationSegments = [
-        {
-            label: "Combat",
-            value: ships.filter((ship) => /fighter|interceptor|gunship|combat|capital corvette/i.test(`${ship.class} ${ship.role}`)).length,
-            color: "#a3e635",
-        },
-        {
-            label: "Industry",
-            value: ships.filter((ship) => /industrial|freighter|transport|hauler|salvage/i.test(`${ship.class} ${ship.role}`)).length,
-            color: "#16a34a",
-        },
-        {
-            label: "Exploration",
-            value: ships.filter((ship) => /explorer|scout|exploration/i.test(`${ship.class} ${ship.role}`)).length,
-            color: "#4ade80",
-        },
-        {
-            label: "Other",
-            value: ships.filter(
-                (ship) =>
-                    !/fighter|interceptor|gunship|combat|capital corvette|industrial|freighter|transport|hauler|salvage|explorer|scout|exploration/i.test(
-                        `${ship.class} ${ship.role}`,
-                    ),
-            ).length,
-            color: "#365314",
-        },
-    ].filter((item) => item.value > 0);
-    const activeFleetName = "Khalai Makhlooq Fleet";
-
-    // Each config entry is its own card — group only by unique ship ID (not slug),
-    // so two Polaris configs show as two separate cards.
-    // Slug grouping is kept only for crew/value totals and the details panel lookup.
-    const slugGroups = {};
-    let computedTotalShips = 0;
-    let computedTotalMaxCrew = 0;
-
-    ships.forEach((ship, idx) => {
-        // For slug lookup (details panel), still track by slug
-        if (!slugGroups[ship.slug]) {
-            slugGroups[ship.slug] = { stackedCeos: [] };
-        }
-        const qty = ship.fleetQuantity || 1;
-        computedTotalShips += qty;
+    const totalValue = ships.reduce((sum, ship) => sum + getShipPrice(ship), 0);
+    const totalShips = ships.reduce((sum, ship) => sum + (ship.fleetQuantity || 1), 0);
+    const totalMaxCrew = ships.reduce((sum, ship) => {
         const crewMax = Number(
-            String(ship.crew || "")
+            ship.crew
                 .split("-")
                 .pop()
                 ?.replace(/[^0-9]/g, ""),
         );
-        computedTotalMaxCrew += (Number.isFinite(crewMax) ? crewMax : 0) * qty;
-        const ceo = ship.ceoName && ship.ceoName.trim() !== "" ? ship.ceoName.trim() : null;
-        if (ceo && !slugGroups[ship.slug].stackedCeos.includes(ceo)) {
-            slugGroups[ship.slug].stackedCeos.push(ceo);
-        }
-    });
+        return sum + (Number.isFinite(crewMax) ? crewMax : 0) * (ship.fleetQuantity || 1);
+    }, 0);
 
-    // Each ship entry is now its own card with count = its fleetQuantity
-    const stackedShips = ships.map((ship, idx) => ({
-        ...ship,
-        count: ship.fleetQuantity || 1,
-        originalIndex: idx,
-        instances: [{ ceo: ship.ceoName || null, qty: ship.fleetQuantity || 1, originalIndex: idx, id: ship.id }],
-    }));
-    const totalShips = computedTotalShips;
-    const totalMaxCrew = computedTotalMaxCrew;
+    // Each ship entry is its own card with count = its fleetQuantity
+    const stackedShips = ships.map((ship, idx) => ({ ...ship, count: ship.fleetQuantity || 1, originalIndex: idx }));
 
-    const filterBySearch = (shipList) => {
-        if (!searchQuery.trim()) return shipList;
+    const filterBySearch = (shipList: typeof stackedShips) => {
         const q = searchQuery.toLowerCase().trim();
-        return shipList.filter(
-            (s) =>
-                (s.name && s.name.toLowerCase().includes(q)) ||
-                (s.manufacturer && s.manufacturer.toLowerCase().includes(q)) ||
-                (s.ceoName && s.ceoName.toLowerCase().includes(q)) ||
-                (s.class && s.class.toLowerCase().includes(q)) ||
-                (s.role && s.role.toLowerCase().includes(q)) ||
-                (s.fleetSlug && s.fleetSlug.toLowerCase().includes(q)) ||
-                (s.slug && s.slug.toLowerCase().includes(q)),
+        if (!q) return shipList;
+        return shipList.filter((s) =>
+            [s.name, s.manufacturer, s.ceoName, s.class, s.role, s.fleetSlug, s.slug].some((field) => field?.toLowerCase().includes(q)),
         );
     };
 
-    const capitalFleets = filterBySearch(stackedShips.filter((s) => ["sub_capital", "capital"].includes(s.fleetType)));
-    const standardFleets = filterBySearch(stackedShips.filter((s) => !["sub_capital", "capital"].includes(s.fleetType)));
+    const capitalFleets = filterBySearch(stackedShips.filter((s) => CAPITAL_TYPES.includes(s.fleetType)));
+    const standardFleets = filterBySearch(stackedShips.filter((s) => !CAPITAL_TYPES.includes(s.fleetType)));
 
-    const getCapitalTag = (idx) => `F${idx + 1}`;
-    const getSfTag = (idx) => `SF${idx + 1}`;
+    const getCapitalTag = (idx: number) => `F${idx + 1}`;
+    const getSfTag = (idx: number) => `SF${idx + 1}`;
 
     return (
         <div className="fleet-page h-[100dvh] w-full overflow-hidden flex flex-col bg-[#020402] relative text-white">
@@ -840,16 +296,15 @@ export default function FleetPageClient({ data: initialData }) {
 
                                 {/* Capital Fleets — Horizontal Scroll-Snap Carousel */}
                                 {(() => {
-                                    const CARDS_PER_SLIDE = 4;
                                     const totalPages = Math.max(1, Math.ceil(capitalFleets.length / CARDS_PER_SLIDE));
 
-                                    const handleScroll = (e) => {
+                                    const handleScroll = (e: UIEvent<HTMLDivElement>) => {
                                         const container = e.currentTarget;
                                         const page = Math.round(container.scrollLeft / container.clientWidth);
                                         setCapitalPage(page);
                                     };
 
-                                    const scrollToPage = (pageIdx) => {
+                                    const scrollToPage = (pageIdx: number) => {
                                         const container = carouselRef.current;
                                         if (container) {
                                             container.scrollTo({
@@ -860,7 +315,7 @@ export default function FleetPageClient({ data: initialData }) {
                                         }
                                     };
 
-                                    const handleWheel = (e) => {
+                                    const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
                                         if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
                                             const now = Date.now();
                                             if (now - lastScrollTime.current > 400) {
@@ -902,7 +357,6 @@ export default function FleetPageClient({ data: initialData }) {
                                                         >
                                                             {slideShips.map((ship, i) => {
                                                                 const globalIdx = globalOffset + i;
-                                                                const isExpanded = expandedSlug === ship.id;
                                                                 return (
                                                                     <div key={ship.id} className="relative aspect-[16/8]">
                                                                         <button
