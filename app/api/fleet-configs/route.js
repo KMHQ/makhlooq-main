@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireFleetAdmin } from "../../../lib/adminAuth";
-import { getOrSetCache, invalidateCache } from "../../../lib/redis";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 // Use service role key for admin operations to bypass RLS, fallback to anon key for local dev
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
@@ -28,8 +28,7 @@ function getEnvFleetConfigs() {
 export async function GET(request) {
     try {
         const envConfigs = getEnvFleetConfigs();
-        const enrichedData = await getOrSetCache(
-            "fleet-configs:all",
+        const enrichedData = await unstable_cache(
             async () => {
                 const { data, error } = await supabase
                     .from("fleet_configs")
@@ -66,8 +65,9 @@ export async function GET(request) {
                 }
                 return [];
             },
-            3600,
-        ); // Cache for 1 hour
+            ["fleet-configs:all"],
+            { tags: ["fleet-configs"], revalidate: 3600 },
+        )();
 
         if (enrichedData && enrichedData.length > 0) {
             // Combine env configs with DB configs; since slugs are no longer unique,
@@ -122,9 +122,7 @@ export async function POST(request) {
             .single();
 
         if (error) throw error;
-
-        // Invalidate the list cache
-        await invalidateCache("fleet-configs:all");
+        revalidateTag("fleet-configs", { expire: 0 });
 
         return NextResponse.json(data, { status: 201 });
     } catch (err) {

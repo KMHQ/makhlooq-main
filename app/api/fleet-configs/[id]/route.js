@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireFleetAdmin } from "../../../../lib/adminAuth";
-import { invalidateCache } from "../../../../lib/redis";
+import { revalidateTag } from "next/cache";
 
 // Use service role key for admin operations to bypass RLS, fallback to anon key for local dev
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
@@ -37,7 +37,7 @@ export async function PUT(request, { params }) {
 
         if (error) throw error;
 
-        await invalidateCache("fleet-configs:all");
+        revalidateTag("fleet-configs", { expire: 0 });
 
         return NextResponse.json(data);
     } catch (err) {
@@ -58,7 +58,7 @@ export async function DELETE(request, { params }) {
 
         if (error) throw error;
 
-        await invalidateCache("fleet-configs:all");
+        revalidateTag("fleet-configs", { expire: 0 });
 
         return NextResponse.json({ success: true });
     } catch (err) {

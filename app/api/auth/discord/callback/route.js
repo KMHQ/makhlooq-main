@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from "../../../../../lib/adminAuth";
 import { KMHQ_ROLE_ID } from "../../../../../lib/discord";
@@ -149,6 +150,7 @@ async function autoRegisterMember(user, isEnvAdmin = false) {
                 })
                 .eq("discord_uid", user.id);
         }
+        revalidateTag("team-members", { expire: 0 });
     } catch (err) {
         // Non-fatal — log but don't block login
         console.warn("autoRegisterMember failed:", err);

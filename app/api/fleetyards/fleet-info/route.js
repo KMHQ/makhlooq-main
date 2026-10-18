@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { getOrSetCache } from "../../../../lib/redis";
 
 export async function GET(request) {
     try {
@@ -10,24 +9,16 @@ export async function GET(request) {
             return NextResponse.json({ error: "Missing fleet slug parameter" }, { status: 400 });
         }
 
-        const data = await getOrSetCache(
-            `fleetyards:fleet-info:${slug}`,
-            async () => {
-                const targetUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}`;
-                const response = await fetch(targetUrl, {
-                    headers: { Accept: "application/json" },
-                    next: { revalidate: 60 },
-                });
-                const resData = await response.json();
+        const targetUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}`;
+        const response = await fetch(targetUrl, {
+            headers: { Accept: "application/json" },
+            next: { revalidate: 300 },
+        });
+        const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(resData?.message || resData?.error || `FleetYards API error (${response.status})`);
-                }
-
-                return resData;
-            },
-            300,
-        ); // 5-minute cache
+        if (!response.ok) {
+            throw new Error(data?.message || data?.error || `FleetYards API error (${response.status})`);
+        }
 
         return NextResponse.json(data);
     } catch (error) {

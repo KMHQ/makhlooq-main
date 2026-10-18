@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, mapDiscordStatus, KMHQ_ROLE_ID } from "../../../../lib/discord";
 import { requireFleetAdmin } from "../../../../lib/adminAuth";
@@ -128,6 +129,8 @@ export async function POST(request) {
             const { count } = await supabase.from("team_members").delete({ count: "exact" }).in("discord_uid", nonKmhqUids);
             removedCount = count || nonKmhqUids.length;
         }
+
+        revalidateTag("team-members", { expire: 0 });
 
         return NextResponse.json({
             success: true,

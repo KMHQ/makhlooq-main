@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { getAdminSession } from "../../../../lib/adminAuth";
 
@@ -21,6 +22,7 @@ export async function PUT(request) {
     const { data, error } = await supabase.from("team_members").update(allowed).eq("discord_uid", session.discordId).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidateTag("team-members", { expire: 0 });
     return NextResponse.json(data);
 }
 
@@ -75,5 +77,6 @@ export async function POST(request) {
         .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidateTag("team-members", { expire: 0 });
     return NextResponse.json(data);
 }

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { getOrSetCache } from "../../../../lib/redis";
 
 const API_BASE = "https://api.fleetyards.net/v1";
 
@@ -80,61 +79,25 @@ export async function GET(request) {
                 return { items: collected, pagesFetched };
             };
 
-            if (fresh) {
-                const result = await fetchAllModels();
-                return NextResponse.json(result);
-            }
-
-            const cacheKey = `fleetyards:models:all:perPage:${perPage}:page:${page}`;
-            const cachedResult = await getOrSetCache(cacheKey, fetchAllModels, 3600); // Cache for 1 hour
-            return NextResponse.json(cachedResult);
+            return NextResponse.json(await fetchAllModels());
         }
 
         const models = await Promise.all(
             slugs.map(async (slug) => {
-                if (fresh) {
-                    const targetUrl = `${API_BASE}/models/${encodeURIComponent(slug)}`;
-                    const response = await fetch(targetUrl, {
-                        headers: { Accept: "application/json" },
-                        cache: "no-store",
-                    });
-                    const data = await readJson(response);
+                const response = await fetch(`${API_BASE}/models/${encodeURIComponent(slug)}`, {
+                    headers: { Accept: "application/json" },
+                    ...(fresh ? { cache: "no-store" } : { next: { revalidate: 3600 } }),
+                });
+                const data = await readJson(response);
 
-                    if (!response.ok) {
-                        return {
-                            slug,
-                            error: data?.message || data?.error || `FleetYards API error (${response.status})`,
-                        };
-                    }
-
-                    return data;
-                }
-
-                try {
-                    return await getOrSetCache(
-                        `fleetyards:model:${slug}`,
-                        async () => {
-                            const targetUrl = `${API_BASE}/models/${encodeURIComponent(slug)}`;
-                            const response = await fetch(targetUrl, {
-                                headers: { Accept: "application/json" },
-                                next: { revalidate: 3600 },
-                            });
-                            const data = await readJson(response);
-
-                            if (!response.ok) {
-                                throw new Error(data?.message || data?.error || `FleetYards API error (${response.status})`);
-                            }
-
-                            return data;
-                        },
-                        3600,
-                    ); // Cache models for 1 hour
-                } catch (err) {
+                if (!response.ok) {
                     return {
                         slug,
-                        error: err?.message || "Unexpected model fetch error",
+                        error: data?.message || data?.error || `FleetYards API error (${response.status})`,
                     };
                 }
+
+                return data;
             }),
         );
 

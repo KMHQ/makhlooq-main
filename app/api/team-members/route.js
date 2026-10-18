@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireFleetAdmin, getAdminSession } from "../../../lib/adminAuth";
 import { fetchDiscordMembers } from "../../../lib/discord";
-import { getOrSetCache, invalidateCache } from "../../../lib/redis";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
@@ -14,8 +14,7 @@ export async function GET(request) {
 
     if (discordUid) {
         try {
-            const data = await getOrSetCache(
-                `team-members:uid:${discordUid}`,
+            const data = await unstable_cache(
                 async () => {
                     let { data: member, error } = await supabase
                         .from("team_members")
@@ -33,8 +32,9 @@ export async function GET(request) {
                     }
                     return member || null;
                 },
-                3600,
-            ); // 1-hour cache
+                [`team-members:uid:${discordUid}`],
+                { tags: ["team-members"], revalidate: 3600 },
+            )();
 
             if (!data) {
                 return NextResponse.json({ error: "Member not found" }, { status: 404 });
@@ -54,16 +54,16 @@ export async function GET(request) {
         if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
         try {
-            const data = await getOrSetCache(
-                "team-members:all",
+            const data = await unstable_cache(
                 async () => {
                     const { data: members, error } = await supabase.from("team_members").select("*").order("joined_at");
 
                     if (error) throw error;
                     return members || [];
                 },
-                3600,
-            ); // 1-hour cache
+                ["team-members:all"],
+                { tags: ["team-members"], revalidate: 3600 },
+            )();
 
             return NextResponse.json(data);
         } catch (error) {
@@ -74,16 +74,16 @@ export async function GET(request) {
 
     // Public: only return approved members
     try {
-        const data = await getOrSetCache(
-            "team-members:approved",
+        const data = await unstable_cache(
             async () => {
                 const { data: members, error } = await supabase.from("team_members").select("*").eq("is_approved", true).order("joined_at");
 
                 if (error) throw error;
                 return members || [];
             },
-            3600,
-        ); // 1-hour cache
+            ["team-members:approved"],
+            { tags: ["team-members"], revalidate: 3600 },
+        )();
 
         return NextResponse.json(data);
     } catch (error) {
@@ -122,16 +122,7 @@ export async function POST(request) {
     const { data, error } = await supabase.from("team_members").insert(body).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-    // Invalidate team members cache lists
-    await invalidateCache("team-members:all");
-    await invalidateCache("team-members:approved");
-    if (body.discord_uid) {
-        await invalidateCache(`team-members:uid:${body.discord_uid}`);
-    }
-    if (body.name) {
-        await invalidateCache(`team-members:uid:${body.name}`);
-    }
+    revalidateTag("team-members", { expire: 0 });
 
     return NextResponse.json(data, { status: 201 });
 }
