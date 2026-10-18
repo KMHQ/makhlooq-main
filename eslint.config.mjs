@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
         "build/**",
         "next-env.d.ts",
         "_next/**",
+        "public/**",
         "payload-reference/**",
         "app/(payload)/admin/importMap.js",
     ]),
