@@ -1,5 +1,5 @@
 import { getPayload } from "payload";
-import config from "../../payload.config";
+import config from "@payload-config";
 
 // Cache the resolved payload instance (not the promise)
 // so a failed connection doesn't permanently poison the cache.

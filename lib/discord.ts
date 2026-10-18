@@ -4,12 +4,40 @@
  */
 
 import { cacheLife, cacheTag } from "next/cache";
+import { isEnvAdminDiscordId } from "./adminAuth";
+
+export interface DiscordUser {
+    id: string;
+    username: string;
+    global_name: string | null;
+    avatar: string | null;
+    discriminator?: string;
+    bot?: boolean;
+}
+
+export interface DiscordGuildMember {
+    user: DiscordUser;
+    nick: string | null;
+    roles: string[];
+    joined_at: string;
+}
+
+export interface DiscordRole {
+    id: string;
+    name: string;
+}
+
+// A type alias (not interface) so it stays assignable to the JSON awards column.
+export type MemberAward = {
+    category: string;
+    tier: string;
+};
 
 const getBotToken = () => process.env.DISCORD_BOT_TOKEN;
 const getGuildId = () => process.env.DISCORD_GUILD_ID;
 
-// Map of Role IDs for Clearance Levels (higher index = higher clearance priority)
-export const CLEARANCE_ROLES = [
+// Clearance levels, lowest to highest: the last match wins.
+const CLEARANCE_ROLES = [
     { id: "1370432627814961212", name: "R0" },
     { id: "1364662076013940841", name: "R1" },
     { id: "1364662156850761890", name: "R2" },
@@ -17,10 +45,10 @@ export const CLEARANCE_ROLES = [
     { id: "1362415755009986790", name: "R4" },
     { id: "1364662461365751989", name: "R5" },
     { id: "1362416160787791993", name: "R6" },
-];
+] as const;
 
-// Map of Role IDs for Military Ranks (lower index = higher rank priority)
-export const RANK_ROLES = [
+// Military ranks, highest first: the first match wins.
+const RANK_ROLES = [
     { id: "1370438091613016135", name: "Field Marshal" },
     { id: "1370437141452030102", name: "General" },
     { id: "1370436925537910936", name: "Commander" },
@@ -34,70 +62,49 @@ export const RANK_ROLES = [
     { id: "1370436042544644288", name: "Soldier" },
     { id: "1370435922730156093", name: "Citizen" },
     { id: "1370486810832273489", name: "Makhlooq" },
-];
+] as const;
 
 export const KMHQ_ROLE_ID = "1409930627704164493";
 
-// Map of Leadership Roles -> { roleName }
-export const LEADERSHIP_ROLES = {
-    "1364677903995900097": { role: "Quaid - Founder", isAdmin: false },
-    "1365424506507890771": { role: "High Council", isAdmin: false },
-    "1365424626276241470": { role: "Advisor", isAdmin: false },
-    [KMHQ_ROLE_ID]: { role: "KMHQ", isAdmin: false },
+// Leadership role IDs -> flair, in display priority order.
+const LEADERSHIP_ROLES: Record<string, string> = {
+    "1364677903995900097": "Quaid - Founder",
+    "1365424506507890771": "High Council",
+    "1365424626276241470": "Advisor",
+    [KMHQ_ROLE_ID]: "KMHQ",
 };
+const LEADERSHIP_PRIORITY = ["Quaid - Founder", "High Council", "Advisor", "KMHQ"];
 
-const TIER_RANKING = { Ustad: 4, Uncle: 3, Launda: 2, Charsi: 1 };
+const TIER_RANKING: Record<string, number> = { Ustad: 4, Uncle: 3, Launda: 2, Charsi: 1 };
 
-async function getGuildMembers() {
+async function getGuildMembers(): Promise<DiscordGuildMember[]> {
     "use cache";
     cacheLife({ revalidate: 300 });
     cacheTag("discord");
-    const token = getBotToken();
-    const guildId = getGuildId();
 
-    try {
-        const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members?limit=1000`, {
-            headers: {
-                Authorization: `Bot ${token}`,
-            },
-        });
+    const response = await fetch(`https://discord.com/api/v10/guilds/${getGuildId()}/members?limit=1000`, {
+        headers: { Authorization: `Bot ${getBotToken()}` },
+    });
 
-        if (!response.ok) {
-            let errMsg = response.statusText;
-            try {
-                const errBody = await response.json();
-                if (errBody && errBody.message) {
-                    errMsg = `${response.statusText} - ${errBody.message} (code ${errBody.code})`;
-                }
-            } catch (_) {}
-            throw new Error(`Discord API error: ${response.status} ${errMsg}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error("Failed to fetch Discord members:", error);
-        throw error;
+    if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { message?: string; code?: number } | null;
+        const detail = body?.message ? ` - ${body.message} (code ${body.code})` : "";
+        throw new Error(`Discord API error: ${response.status} ${response.statusText}${detail}`);
     }
+
+    return response.json();
 }
 
-async function getGuildRoles() {
+async function getGuildRoles(): Promise<DiscordRole[]> {
     "use cache";
     cacheLife({ revalidate: 300 });
     cacheTag("discord");
-    const token = getBotToken();
-    const guildId = getGuildId();
 
     try {
-        const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/roles`, {
-            headers: {
-                Authorization: `Bot ${token}`,
-            },
+        const response = await fetch(`https://discord.com/api/v10/guilds/${getGuildId()}/roles`, {
+            headers: { Authorization: `Bot ${getBotToken()}` },
         });
-
-        if (!response.ok) {
-            throw new Error(`Discord API error: ${response.status} ${response.statusText}`);
-        }
-
+        if (!response.ok) throw new Error(`Discord API error: ${response.status} ${response.statusText}`);
         return await response.json();
     } catch (error) {
         console.error("Failed to fetch Discord roles:", error);
@@ -105,7 +112,7 @@ async function getGuildRoles() {
     }
 }
 
-export async function fetchDiscordMembers() {
+export async function fetchDiscordMembers(): Promise<DiscordGuildMember[]> {
     if (!getBotToken() || !getGuildId()) {
         console.warn("Discord Bot Token or Guild ID missing");
         return [];
@@ -114,27 +121,13 @@ export async function fetchDiscordMembers() {
     return getGuildMembers();
 }
 
-export async function fetchDiscordRoles() {
+export async function fetchDiscordRoles(): Promise<DiscordRole[]> {
     if (!getBotToken() || !getGuildId()) {
         console.warn("Discord Bot Token or Guild ID missing");
         return [];
     }
 
     return getGuildRoles();
-}
-
-/**
- * Maps Discord presence to internal status
- */
-export function mapDiscordStatus(presence) {
-    switch (presence) {
-        case "online":
-        case "idle":
-        case "dnd":
-            return "active";
-        default:
-            return "active";
-    }
 }
 
 /**
@@ -145,77 +138,35 @@ export function mapDiscordStatus(presence) {
  * - is_admin (boolean)
  * - awards ([{ category, tier }])
  */
-export function parseMemberRoles(userRoleIds = [], rolesMap = new Map(), discordUid = "") {
-    const adminIds = (process.env.ADMIN_DISCORD_IDS || "").split(",").map((s) => s.trim());
+export function parseMemberRoles(userRoleIds: string[] = [], rolesMap = new Map<string, DiscordRole>(), discordUid = "") {
+    const sec_level = CLEARANCE_ROLES.findLast((c) => userRoleIds.includes(c.id))?.name ?? "R0";
+    const category = RANK_ROLES.find((r) => userRoleIds.includes(r.id))?.name ?? "Makhlooq";
 
-    let sec_level = "R0";
-    let category = "Makhlooq";
-    let role = "KMHQ";
-
-    // Track highest clearance found
-    CLEARANCE_ROLES.forEach((c, idx) => {
-        if (userRoleIds.includes(c.id)) {
-            sec_level = c.name;
-        }
-    });
-
-    // Track highest rank found
-    let minRankIdx = 999;
-    RANK_ROLES.forEach((r, idx) => {
-        if (userRoleIds.includes(r.id)) {
-            if (idx < minRankIdx) {
-                minRankIdx = idx;
-                category = r.name;
-            }
-        }
-    });
-
-    // Track leadership roles
-    const rolesPriority = ["Quaid - Founder", "High Council", "Advisor", "KMHQ"];
-    const matchedRoles = [];
-    userRoleIds.forEach((roleId) => {
-        if (LEADERSHIP_ROLES[roleId]) {
-            matchedRoles.push(LEADERSHIP_ROLES[roleId].role);
-        }
-    });
-    matchedRoles.sort((a, b) => rolesPriority.indexOf(a) - rolesPriority.indexOf(b));
-    role = matchedRoles.length > 0 ? matchedRoles.join(", ") : "KMHQ";
+    const leadership = userRoleIds
+        .map((roleId) => LEADERSHIP_ROLES[roleId])
+        .filter((role): role is string => Boolean(role))
+        .sort((a, b) => LEADERSHIP_PRIORITY.indexOf(a) - LEADERSHIP_PRIORITY.indexOf(b));
+    const role = leadership.length > 0 ? leadership.join(", ") : "KMHQ";
 
     // Admin status: ONLY granted for R6 clearance or explicit env admin ID
-    const is_admin = sec_level === "R6" || adminIds.includes(discordUid);
+    const is_admin = sec_level === "R6" || isEnvAdminDiscordId(discordUid);
 
-    // Track awards
-    const categoryAwards = {};
-    userRoleIds.forEach((roleId) => {
-        const discordRole = rolesMap.get(roleId);
-        if (!discordRole) return;
+    // Awards come from roles named "<Tier>-e-<Category>"; keep the highest tier per category.
+    const categoryAwards: Record<string, string> = {};
+    for (const roleId of userRoleIds) {
+        const match = rolesMap.get(roleId)?.name.match(/^(Ustad|Uncle|Launda|Charsi)-e-([A-Za-z]+)$/i);
+        if (!match) continue;
 
-        // Check if role name matches Tier-e-Category
-        const match = discordRole.name.match(/^(Ustad|Uncle|Launda|Charsi)-e-([A-Za-z]+)$/i);
-        if (match) {
-            const tier = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
-            let cat = match[2].charAt(0).toUpperCase() + match[2].slice(1);
-            if (cat.toLowerCase() === "rihla") cat = "Rehla";
+        const tier = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+        let cat = match[2].charAt(0).toUpperCase() + match[2].slice(1);
+        if (cat.toLowerCase() === "rihla") cat = "Rehla";
 
-            const currentScore = TIER_RANKING[categoryAwards[cat]] || 0;
-            const newScore = TIER_RANKING[tier] || 0;
-
-            if (newScore > currentScore) {
-                categoryAwards[cat] = tier;
-            }
+        if ((TIER_RANKING[tier] ?? 0) > (TIER_RANKING[categoryAwards[cat]] ?? 0)) {
+            categoryAwards[cat] = tier;
         }
-    });
+    }
 
-    const awards = Object.keys(categoryAwards).map((cat) => ({
-        category: cat,
-        tier: categoryAwards[cat],
-    }));
+    const awards: MemberAward[] = Object.entries(categoryAwards).map(([category, tier]) => ({ category, tier }));
 
-    return {
-        sec_level,
-        category,
-        role,
-        is_admin,
-        awards,
-    };
+    return { sec_level, category, role, is_admin, awards };
 }

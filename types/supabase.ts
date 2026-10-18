@@ -50,8 +50,15 @@ type FleetMembersRow = {
 };
 
 type AboutSettingsRow = {
-    id: number;
-    [column: string]: Json | undefined;
+    id: string;
+    bridge_heading: string | null;
+    bridge_subtitle: string | null;
+    bridge_background_url: string | null;
+    archives_background_url: string | null;
+    archives_intro_year: string | null;
+    archives_intro_title: string | null;
+    archives_intro_desc: string | null;
+    updated_at: string | null;
 };
 
 type Table<Row> = {
