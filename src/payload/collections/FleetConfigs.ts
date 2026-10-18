@@ -1,5 +1,5 @@
 import { CollectionConfig } from "payload";
-import { revalidatePathHook } from "../hooks/revalidate";
+import { revalidateTagsHook } from "../hooks/revalidate";
 
 export const FleetConfigs: CollectionConfig = {
     slug: "fleet_configs",
@@ -14,8 +14,8 @@ export const FleetConfigs: CollectionConfig = {
         group: "Fleet",
     },
     hooks: {
-        afterChange: [revalidatePathHook("/fleet")],
-        afterDelete: [revalidatePathHook("/fleet")],
+        afterChange: [revalidateTagsHook("fleet-configs")],
+        afterDelete: [revalidateTagsHook("fleet-configs")],
     },
     access: {
         read: () => true,

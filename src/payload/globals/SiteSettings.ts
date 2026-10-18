@@ -1,5 +1,5 @@
 import { GlobalConfig } from "payload";
-import { revalidateAllHook } from "../hooks/revalidate";
+import { revalidateTagsHook } from "../hooks/revalidate";
 
 export const SiteSettings: GlobalConfig = {
     slug: "site-settings",
@@ -8,7 +8,7 @@ export const SiteSettings: GlobalConfig = {
         group: "Global",
     },
     hooks: {
-        afterChange: [revalidateAllHook()],
+        afterChange: [revalidateTagsHook("global:site-settings")],
     },
     fields: [
         // --- SEO ---

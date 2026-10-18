@@ -1,5 +1,5 @@
 import { CollectionConfig } from "payload";
-import { revalidatePathHook } from "../hooks/revalidate";
+import { revalidateTagsHook } from "../hooks/revalidate";
 
 export const TeamMembers: CollectionConfig = {
     slug: "team_members",
@@ -14,8 +14,8 @@ export const TeamMembers: CollectionConfig = {
         group: "Team",
     },
     hooks: {
-        afterChange: [revalidatePathHook("/team")],
-        afterDelete: [revalidatePathHook("/team")],
+        afterChange: [revalidateTagsHook("team-members", "news-posts")],
+        afterDelete: [revalidateTagsHook("team-members", "news-posts")],
     },
     access: {
         read: () => true,

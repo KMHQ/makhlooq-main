@@ -1,5 +1,5 @@
 import { GlobalConfig } from "payload";
-import { revalidatePathHook } from "../hooks/revalidate";
+import { revalidateTagsHook } from "../hooks/revalidate";
 
 export const HomePage: GlobalConfig = {
     slug: "home-page",
@@ -8,7 +8,7 @@ export const HomePage: GlobalConfig = {
         group: "Pages",
     },
     hooks: {
-        afterChange: [revalidatePathHook("/")],
+        afterChange: [revalidateTagsHook("global:home-page")],
     },
     fields: [
         // --- SEO ---
@@ -99,7 +99,7 @@ export const HomePage: GlobalConfig = {
                     name: "backgroundVideo",
                     type: "upload",
                     relationTo: "media",
-                    label: "Background Video (Optional fallback: /Fight space and ground  Star Citizen epic cinematic,   Lighthouse.mp4)",
+                    label: "Background Video (Optional fallback: /hero-cinematic.mp4)",
                 },
                 {
                     name: "posterImage",

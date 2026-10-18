@@ -1,5 +1,5 @@
 import { CollectionConfig } from "payload";
-import { revalidatePathHook } from "../hooks/revalidate";
+import { revalidateTagsHook } from "../hooks/revalidate";
 
 export const NewsPosts: CollectionConfig = {
     slug: "news-posts",
@@ -10,8 +10,8 @@ export const NewsPosts: CollectionConfig = {
         description: "Use Content Blocks to build the article — drag to reorder text, images, and videos.",
     },
     hooks: {
-        afterChange: [revalidatePathHook("/news")],
-        afterDelete: [revalidatePathHook("/news")],
+        afterChange: [revalidateTagsHook("news-posts")],
+        afterDelete: [revalidateTagsHook("news-posts")],
     },
     fields: [
         // ─── Core meta ─────────────────────────────────────────────
