@@ -48,3 +48,6 @@ tmp_*
 
 # reference scaffold (create-next-app + create-payload-app), not part of the app
 /payload-reference/
+
+# supabase cli local state
+/supabase/.temp/

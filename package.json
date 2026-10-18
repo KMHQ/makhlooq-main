@@ -13,7 +13,9 @@
         "format:check": "prettier --check .",
         "generate:types": "payload generate:types",
         "generate:importmap": "payload generate:importmap",
-        "payload": "payload"
+        "payload": "payload",
+        "typecheck": "tsc --noEmit",
+        "generate:db-types": "supabase gen types typescript --db-url \"$DATABASE_URL\" > types/supabase.ts"
     },
     "dependencies": {
         "@payloadcms/db-postgres": "^3.91.0",

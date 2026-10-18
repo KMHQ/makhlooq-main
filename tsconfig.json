@@ -1,28 +1,28 @@
 {
     "compilerOptions": {
+        "target": "ES2017",
         "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
         "skipLibCheck": true,
-        "strict": false,
+        "strict": true,
         "noEmit": true,
-        "incremental": true,
-        "module": "esnext",
         "esModuleInterop": true,
+        "module": "esnext",
         "moduleResolution": "bundler",
-        "paths": {
-            "@/*": ["./src/*"],
-            "@payload-config": ["./payload.config.ts"]
-        },
         "resolveJsonModule": true,
         "isolatedModules": true,
         "jsx": "react-jsx",
+        "incremental": true,
         "plugins": [
             {
                 "name": "next"
             }
         ],
-        "target": "ES2017"
+        "paths": {
+            "@/*": ["./*"],
+            "@payload-config": ["./payload.config.ts"]
+        }
     },
-    "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "payload-types.ts", ".next/dev/types/**/*.ts"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts"],
     "exclude": ["node_modules", "payload-reference"]
 }
