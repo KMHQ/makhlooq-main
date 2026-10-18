@@ -45,7 +45,6 @@ const Footer = dynamic(() => import("../../src/components/Footer"), {
 });
 
 // ▸ CORE UI COMPONENTS (Imported directly for above-the-fold critical content)
-import Preloader from "../../src/components/Preloader";
 import Header from "../../src/components/Header";
 import Hero from "../../src/components/Hero";
 
@@ -74,12 +73,6 @@ export default function HomePageClient({ data: initialData }) {
     const siteData = data?.site || {};
 
     useEffect(() => {
-        // ▸ PERFORMANCE: Prevent scroll until preloader hides (avoids uncontrolled scroll)
-        document.documentElement.style.setProperty("overflow", "hidden", "important");
-        if (typeof window !== "undefined") {
-            window.history.scrollRestoration = "manual";
-        }
-
         // ▸ SMOOTH SCROLL LIBRARY (Lenis) optimized for performance
         const lenis = new Lenis({
             duration: 0.9,
@@ -110,9 +103,6 @@ export default function HomePageClient({ data: initialData }) {
 
     return (
         <AnimatePresence>
-            {/* ▸ PRELOADER - Critical path, always shown */}
-            <Preloader key="preloader" />
-
             {/* ▸ HEADER & HERO - Above-the-fold, critical content */}
             <Header
                 key="header"
