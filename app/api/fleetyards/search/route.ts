@@ -5,9 +5,8 @@ import { FLEETYARDS_API } from "@/lib/fleetyards";
 
 // Proxy to look up a FleetYards fleet or ship model by slug for admin validation
 export async function GET(request: NextRequest) {
+    const slug = request.nextUrl.searchParams.get("slug");
     try {
-        const slug = request.nextUrl.searchParams.get("slug");
-
         if (!slug) {
             return NextResponse.json({ error: "slug is required" }, { status: 400 });
         }

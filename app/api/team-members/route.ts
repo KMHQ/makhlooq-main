@@ -1,39 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { cacheLife, cacheTag, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { requireFleetAdmin } from "@/lib/adminAuth";
 import { fetchDiscordMembers } from "@/lib/discord";
 import { supabase } from "@/lib/supabase";
 import { errorMessage } from "@/lib/errors";
-import type { Insert, TeamMember } from "@/types/db";
-
-async function getMember(discordUid: string): Promise<TeamMember | null> {
-    "use cache";
-    cacheLife("hours");
-    cacheTag("team-members");
-
-    let { data: member, error } = await supabase.from("team_members").select("*").eq("discord_uid", discordUid).maybeSingle();
-
-    if (!member) {
-        const fallback = await supabase.from("team_members").select("*").ilike("name", discordUid).maybeSingle();
-        if (fallback.data) member = fallback.data;
-    }
-
-    if (error) throw error;
-    return member || null;
-}
-
-async function getMembers(approvedOnly: boolean): Promise<TeamMember[]> {
-    "use cache";
-    cacheLife("hours");
-    cacheTag("team-members");
-
-    let query = supabase.from("team_members").select("*");
-    if (approvedOnly) query = query.eq("is_approved", true);
-    const { data: members, error } = await query.order("joined_at");
-
-    if (error) throw error;
-    return members || [];
-}
+import { getMember, getMembers } from "@/lib/teamMembers";
+import type { Insert } from "@/types/db";
 
 export async function GET(request: NextRequest) {
     const discordUid = request.nextUrl.searchParams.get("discord_uid");

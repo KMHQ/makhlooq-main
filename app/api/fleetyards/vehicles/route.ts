@@ -4,13 +4,13 @@ import { errorMessage } from "@/lib/errors";
 import { FLEETYARDS_API, getNextLink } from "@/lib/fleetyards";
 
 export async function GET(request: NextRequest) {
-    try {
-        const url = request.nextUrl;
-        const slug = url.searchParams.get("slug");
-        const all = url.searchParams.get("all") === "1" || url.searchParams.get("all") === "true";
-        const perPage = url.searchParams.get("perPage") || (all ? "50" : "30");
-        const page = url.searchParams.get("page") || "1";
+    const url = request.nextUrl;
+    const slug = url.searchParams.get("slug");
+    const all = url.searchParams.get("all") === "1" || url.searchParams.get("all") === "true";
+    const perPage = url.searchParams.get("perPage") || (all ? "50" : "30");
+    const page = url.searchParams.get("page") || "1";
 
+    try {
         if (!slug) {
             return NextResponse.json({ error: "Missing fleet slug parameter" }, { status: 400 });
         }

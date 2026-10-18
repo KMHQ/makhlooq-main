@@ -3,8 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 const ALLOWED_HOSTS = new Set(["api.fleetyards.net", "fleetyards.net"]);
 
 export async function GET(request: NextRequest) {
+    const urlStr = request.nextUrl.searchParams.get("url");
     try {
-        const urlStr = request.nextUrl.searchParams.get("url");
         if (!urlStr) {
             return new NextResponse("Missing URL", { status: 400 });
         }

@@ -47,7 +47,7 @@ export async function POST() {
 
             const avatarUrl = user.avatar
                 ? `https://cdn.discordapp.com/avatars/${uid}/${user.avatar}.png`
-                : `https://cdn.discordapp.com/embed/avatars/${(BigInt(uid) >> 22n) % 5n}.png`;
+                : `https://cdn.discordapp.com/embed/avatars/${(BigInt(uid) >> BigInt(22)) % BigInt(5)}.png`;
 
             const tag = user.discriminator && user.discriminator !== "0" ? `${user.username}#${user.discriminator}` : user.username;
 

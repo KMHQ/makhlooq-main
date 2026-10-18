@@ -76,17 +76,17 @@ async function getModel(slug: string) {
 
 // `fresh=1` bypasses the cache (used by the admin page to pull new FleetYards data).
 export async function GET(request: NextRequest) {
-    try {
-        const url = request.nextUrl;
-        const all = url.searchParams.get("all") === "1" || url.searchParams.get("all") === "true";
-        const fresh = url.searchParams.get("fresh") === "1" || url.searchParams.get("fresh") === "true";
-        const perPage = url.searchParams.get("perPage") || (all ? "50" : "30");
-        const page = url.searchParams.get("page") || "1";
-        const slugs = (url.searchParams.get("slugs") || "")
-            .split(",")
-            .map((slug) => slug.trim())
-            .filter(Boolean);
+    const url = request.nextUrl;
+    const all = url.searchParams.get("all") === "1" || url.searchParams.get("all") === "true";
+    const fresh = url.searchParams.get("fresh") === "1" || url.searchParams.get("fresh") === "true";
+    const perPage = url.searchParams.get("perPage") || (all ? "50" : "30");
+    const page = url.searchParams.get("page") || "1";
+    const slugs = (url.searchParams.get("slugs") || "")
+        .split(",")
+        .map((slug) => slug.trim())
+        .filter(Boolean);
 
+    try {
         if (slugs.length === 0) {
             if (!all) {
                 return NextResponse.json({ error: "Missing slugs parameter" }, { status: 400 });

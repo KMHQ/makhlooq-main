@@ -21,9 +21,8 @@ async function getFleetInfo(slug: string) {
 }
 
 export async function GET(request: NextRequest) {
+    const slug = request.nextUrl.searchParams.get("slug");
     try {
-        const slug = request.nextUrl.searchParams.get("slug");
-
         if (!slug) {
             return NextResponse.json({ error: "Missing fleet slug parameter" }, { status: 400 });
         }
