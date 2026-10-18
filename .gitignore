@@ -42,3 +42,6 @@ tmp_*
 
 # performance metrics (scripts/profile-pages.mjs output)
 /perf/
+
+# hostinger static link (scripts/create-static-link.js output)
+/_next/
