@@ -5,8 +5,6 @@ const TeamPageClient = nextDynamic(() => import("./TeamPageClient"), {
     ssr: true,
 });
 
-export const dynamic = "force-dynamic";
-
 async function getTeamPageData() {
     try {
         const payload = await getPayloadInstance();

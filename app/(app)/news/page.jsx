@@ -5,8 +5,6 @@ const NewsPageClient = nextDynamic(() => import("./NewsPageClient"), {
     ssr: true,
 });
 
-export const dynamic = "force-dynamic";
-
 async function getNewsPageData() {
     try {
         const payload = await getPayloadInstance();

@@ -5,8 +5,6 @@ const FleetPageClient = nextDynamic(() => import("./FleetPageClient"), {
     ssr: true,
 });
 
-export const dynamic = "force-dynamic";
-
 async function getFleetPageData() {
     try {
         const payload = await getPayloadInstance();

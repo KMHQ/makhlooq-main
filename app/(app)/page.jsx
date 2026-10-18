@@ -5,8 +5,6 @@ const HomePageClient = nextDynamic(() => import("./HomePageClient"), {
     ssr: true,
 });
 
-export const dynamic = "force-dynamic";
-
 async function getHomePageData() {
     try {
         const payload = await getPayloadInstance();

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireFleetAdmin } from "../../../lib/adminAuth";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 
 // Use service role key for admin operations to bypass RLS, fallback to anon key for local dev
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
@@ -24,50 +24,50 @@ function getEnvFleetConfigs() {
         }));
 }
 
+async function getFleetConfigs() {
+    "use cache";
+    cacheLife("hours");
+    cacheTag("fleet-configs", "team-members");
+
+    const { data, error } = await supabase
+        .from("fleet_configs")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+        // Fetch team members to map avatars by discord_uid, id, and name
+        const { data: members } = await supabase.from("team_members").select("id, discord_uid, name, avatar_url");
+
+        const avatarsMap = {};
+        if (members && members.length > 0) {
+            members.forEach((m) => {
+                if (!m.avatar_url) return;
+                if (m.discord_uid) avatarsMap[m.discord_uid] = m.avatar_url;
+                if (m.id) avatarsMap[m.id] = m.avatar_url;
+                if (m.name) avatarsMap[m.name.trim().toLowerCase()] = m.avatar_url;
+            });
+        }
+
+        return data.map((d) => {
+            const avatar =
+                (d.ceo_discord_uid && avatarsMap[d.ceo_discord_uid]) || (d.ceo_name && avatarsMap[d.ceo_name.trim().toLowerCase()]) || null;
+            return {
+                ...d,
+                ceo_avatar_url: avatar,
+            };
+        });
+    }
+    return [];
+}
+
 // GET — list all fleet configs (ordered by sort_order)
 export async function GET(request) {
     try {
         const envConfigs = getEnvFleetConfigs();
-        const enrichedData = await unstable_cache(
-            async () => {
-                const { data, error } = await supabase
-                    .from("fleet_configs")
-                    .select("*")
-                    .order("sort_order", { ascending: true })
-                    .order("created_at", { ascending: true });
-
-                if (error) throw error;
-
-                if (data && data.length > 0) {
-                    // Fetch team members to map avatars by discord_uid, id, and name
-                    const { data: members } = await supabase.from("team_members").select("id, discord_uid, name, avatar_url");
-
-                    const avatarsMap = {};
-                    if (members && members.length > 0) {
-                        members.forEach((m) => {
-                            if (!m.avatar_url) return;
-                            if (m.discord_uid) avatarsMap[m.discord_uid] = m.avatar_url;
-                            if (m.id) avatarsMap[m.id] = m.avatar_url;
-                            if (m.name) avatarsMap[m.name.trim().toLowerCase()] = m.avatar_url;
-                        });
-                    }
-
-                    return data.map((d) => {
-                        const avatar =
-                            (d.ceo_discord_uid && avatarsMap[d.ceo_discord_uid]) ||
-                            (d.ceo_name && avatarsMap[d.ceo_name.trim().toLowerCase()]) ||
-                            null;
-                        return {
-                            ...d,
-                            ceo_avatar_url: avatar,
-                        };
-                    });
-                }
-                return [];
-            },
-            ["fleet-configs:all"],
-            { tags: ["fleet-configs"], revalidate: 3600 },
-        )();
+        const enrichedData = await getFleetConfigs();
 
         if (enrichedData && enrichedData.length > 0) {
             // Combine env configs with DB configs; since slugs are no longer unique,

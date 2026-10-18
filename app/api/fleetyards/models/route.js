@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cacheLife, cacheTag } from "next/cache";
 
 const API_BASE = "https://api.fleetyards.net/v1";
 
@@ -24,6 +25,67 @@ async function readJson(response) {
     }
 }
 
+async function fetchAllModels(perPage, page) {
+    const collected = [];
+    let currentPageOrUrl = page;
+    let pagesFetched = 0;
+
+    while (true) {
+        const targetUrl = String(currentPageOrUrl).startsWith("http")
+            ? currentPageOrUrl
+            : `${API_BASE}/models?perPage=${encodeURIComponent(perPage)}&page=${encodeURIComponent(currentPageOrUrl)}`;
+        const response = await fetch(targetUrl, { headers: { Accept: "application/json" } });
+        const data = await readJson(response);
+
+        if (!response.ok) {
+            throw new Error(data?.message || data?.error || `FleetYards API error (${response.status})`);
+        }
+
+        const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
+        collected.push(...items);
+        pagesFetched += 1;
+
+        const nextUrl = getNextLink(response.headers.get("link"));
+        if (nextUrl) {
+            currentPageOrUrl = nextUrl;
+        } else if (items.length >= (Number(perPage) || 30)) {
+            currentPageOrUrl = String((Number(currentPageOrUrl) || pagesFetched) + 1);
+        } else {
+            break;
+        }
+
+        if (pagesFetched >= 100) break;
+    }
+
+    return { items: collected, pagesFetched };
+}
+
+async function fetchModel(slug) {
+    const response = await fetch(`${API_BASE}/models/${encodeURIComponent(slug)}`, { headers: { Accept: "application/json" } });
+    const data = await readJson(response);
+
+    if (!response.ok) {
+        return { slug, error: data?.message || data?.error || `FleetYards API error (${response.status})` };
+    }
+
+    return data;
+}
+
+async function getAllModels(perPage, page) {
+    "use cache";
+    cacheLife("hours");
+    cacheTag("fleetyards");
+    return fetchAllModels(perPage, page);
+}
+
+async function getModel(slug) {
+    "use cache";
+    cacheLife("hours");
+    cacheTag("fleetyards");
+    return fetchModel(slug);
+}
+
+// `fresh=1` bypasses the cache (used by the admin page to pull new FleetYards data).
 export async function GET(request) {
     try {
         const url = new URL(request.url);
@@ -41,65 +103,10 @@ export async function GET(request) {
                 return NextResponse.json({ error: "Missing slugs parameter" }, { status: 400 });
             }
 
-            const fetchAllModels = async () => {
-                const collected = [];
-                let currentPageOrUrl = page;
-                let pagesFetched = 0;
-
-                while (true) {
-                    const targetUrl = String(currentPageOrUrl).startsWith("http")
-                        ? currentPageOrUrl
-                        : `${API_BASE}/models?perPage=${encodeURIComponent(perPage)}&page=${encodeURIComponent(currentPageOrUrl)}`;
-                    const response = await fetch(targetUrl, {
-                        headers: { Accept: "application/json" },
-                        ...(fresh ? { cache: "no-store" } : { next: { revalidate: 3600 } }),
-                    });
-                    const data = await readJson(response);
-
-                    if (!response.ok) {
-                        throw new Error(data?.message || data?.error || `FleetYards API error (${response.status})`);
-                    }
-
-                    const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
-                    collected.push(...items);
-                    pagesFetched += 1;
-
-                    const nextUrl = getNextLink(response.headers.get("link"));
-                    if (nextUrl) {
-                        currentPageOrUrl = nextUrl;
-                    } else if (items.length >= (Number(perPage) || 30)) {
-                        currentPageOrUrl = String((Number(currentPageOrUrl) || pagesFetched) + 1);
-                    } else {
-                        break;
-                    }
-
-                    if (pagesFetched >= 100) break;
-                }
-
-                return { items: collected, pagesFetched };
-            };
-
-            return NextResponse.json(await fetchAllModels());
+            return NextResponse.json(await (fresh ? fetchAllModels : getAllModels)(perPage, page));
         }
 
-        const models = await Promise.all(
-            slugs.map(async (slug) => {
-                const response = await fetch(`${API_BASE}/models/${encodeURIComponent(slug)}`, {
-                    headers: { Accept: "application/json" },
-                    ...(fresh ? { cache: "no-store" } : { next: { revalidate: 3600 } }),
-                });
-                const data = await readJson(response);
-
-                if (!response.ok) {
-                    return {
-                        slug,
-                        error: data?.message || data?.error || `FleetYards API error (${response.status})`,
-                    };
-                }
-
-                return data;
-            }),
-        );
+        const models = await Promise.all(slugs.map((slug) => (fresh ? fetchModel : getModel)(slug)));
 
         return NextResponse.json({ items: models });
     } catch (error) {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cacheLife, cacheTag } from "next/cache";
 
 // Proxy to look up a FleetYards fleet or ship model by slug for admin validation
 export async function GET(request) {
@@ -24,12 +25,15 @@ export async function GET(request) {
 }
 
 async function lookupSlug(cleanSlug) {
+    "use cache";
+    cacheLife({ revalidate: 300 });
+    cacheTag("fleetyards");
+
     const headers = { Accept: "application/json" };
 
     // 1. Check ship model first (most common for fleet asset entries)
     const modelRes = await fetch(`https://api.fleetyards.net/v1/models/${encodeURIComponent(cleanSlug)}`, {
         headers,
-        next: { revalidate: 300 },
     });
 
     if (modelRes.ok) {
@@ -51,11 +55,11 @@ async function lookupSlug(cleanSlug) {
     // 2. Fallback to public fleet lookup
     const fleetUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(cleanSlug)}`;
     const statsUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(cleanSlug)}/stats/members`;
-    const res = await fetch(fleetUrl, { headers, next: { revalidate: 300 } });
+    const res = await fetch(fleetUrl, { headers });
 
     if (res.ok) {
         const resData = await res.json();
-        const statsRes = await fetch(statsUrl, { headers, next: { revalidate: 300 } });
+        const statsRes = await fetch(statsUrl, { headers });
         const memberStats = statsRes.ok ? await statsRes.json() : null;
 
         return {

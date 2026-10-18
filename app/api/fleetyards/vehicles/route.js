@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cacheLife, cacheTag } from "next/cache";
 
 function getNextLink(linkHeader) {
     if (!linkHeader) return null;
@@ -31,12 +32,15 @@ export async function GET(request) {
 }
 
 async function fetchVehicles({ slug, all, perPage, page }) {
+    "use cache";
+    cacheLife({ revalidate: 300 });
+    cacheTag("fleetyards");
+
     const headers = { Accept: "application/json" };
 
     const fetchModelFallback = async () => {
         const modelResponse = await fetch(`https://api.fleetyards.net/v1/models/${encodeURIComponent(slug)}`, {
             headers,
-            next: { revalidate: 300 },
         });
         const modelData = await modelResponse.json().catch(() => ({}));
 
@@ -58,7 +62,6 @@ async function fetchVehicles({ slug, all, perPage, page }) {
             : `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}/vehicles?perPage=${encodeURIComponent(perPage)}&page=${encodeURIComponent(pageNumberOrUrl)}`;
         const response = await fetch(targetUrl, {
             headers,
-            next: { revalidate: 300 },
         });
         const pageData = await response.json().catch(() => ({}));
 

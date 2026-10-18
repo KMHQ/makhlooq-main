@@ -2,11 +2,40 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { requireFleetAdmin, getAdminSession } from "../../../lib/adminAuth";
 import { fetchDiscordMembers } from "../../../lib/discord";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function getMember(discordUid) {
+    "use cache";
+    cacheLife("hours");
+    cacheTag("team-members");
+
+    let { data: member, error } = await supabase.from("team_members").select("*").eq("discord_uid", discordUid).maybeSingle();
+
+    if (!member) {
+        const fallback = await supabase.from("team_members").select("*").ilike("name", discordUid).maybeSingle();
+        if (fallback.data) member = fallback.data;
+    }
+
+    if (error) throw error;
+    return member || null;
+}
+
+async function getMembers(approvedOnly) {
+    "use cache";
+    cacheLife("hours");
+    cacheTag("team-members");
+
+    let query = supabase.from("team_members").select("*");
+    if (approvedOnly) query = query.eq("is_approved", true);
+    const { data: members, error } = await query.order("joined_at");
+
+    if (error) throw error;
+    return members || [];
+}
 
 export async function GET(request) {
     const url = new URL(request.url);
@@ -14,27 +43,7 @@ export async function GET(request) {
 
     if (discordUid) {
         try {
-            const data = await unstable_cache(
-                async () => {
-                    let { data: member, error } = await supabase
-                        .from("team_members")
-                        .select("*")
-                        .eq("discord_uid", discordUid)
-                        .maybeSingle();
-
-                    if (!member) {
-                        const fallback = await supabase.from("team_members").select("*").ilike("name", discordUid).maybeSingle();
-                        if (fallback.data) member = fallback.data;
-                    }
-
-                    if (error) {
-                        throw error;
-                    }
-                    return member || null;
-                },
-                [`team-members:uid:${discordUid}`],
-                { tags: ["team-members"], revalidate: 3600 },
-            )();
+            const data = await getMember(discordUid);
 
             if (!data) {
                 return NextResponse.json({ error: "Member not found" }, { status: 404 });
@@ -52,42 +61,12 @@ export async function GET(request) {
     if (showAll) {
         const auth = await requireFleetAdmin();
         if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
-
-        try {
-            const data = await unstable_cache(
-                async () => {
-                    const { data: members, error } = await supabase.from("team_members").select("*").order("joined_at");
-
-                    if (error) throw error;
-                    return members || [];
-                },
-                ["team-members:all"],
-                { tags: ["team-members"], revalidate: 3600 },
-            )();
-
-            return NextResponse.json(data);
-        } catch (error) {
-            console.error("Supabase error fetching all members:", error.message);
-            return NextResponse.json({ error: "Database connection failed. Please check your Supabase credentials." }, { status: 500 });
-        }
     }
 
-    // Public: only return approved members
     try {
-        const data = await unstable_cache(
-            async () => {
-                const { data: members, error } = await supabase.from("team_members").select("*").eq("is_approved", true).order("joined_at");
-
-                if (error) throw error;
-                return members || [];
-            },
-            ["team-members:approved"],
-            { tags: ["team-members"], revalidate: 3600 },
-        )();
-
-        return NextResponse.json(data);
+        return NextResponse.json(await getMembers(!showAll));
     } catch (error) {
-        console.error("Supabase error fetching approved members:", error.message);
+        console.error("Supabase error fetching members:", error.message);
         return NextResponse.json({ error: "Database connection failed. Please check your Supabase credentials." }, { status: 500 });
     }
 }

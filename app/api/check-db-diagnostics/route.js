@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPayloadInstance } from "../../../lib/payload";
 
-export const dynamic = "force-dynamic";
-
 export async function GET() {
     try {
         const payload = await getPayloadInstance();

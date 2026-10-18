@@ -1,4 +1,22 @@
 import { NextResponse } from "next/server";
+import { cacheLife, cacheTag } from "next/cache";
+
+async function getFleetInfo(slug) {
+    "use cache";
+    cacheLife({ revalidate: 300 });
+    cacheTag("fleetyards");
+
+    const response = await fetch(`https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}`, {
+        headers: { Accept: "application/json" },
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data?.message || data?.error || `FleetYards API error (${response.status})`);
+    }
+
+    return data;
+}
 
 export async function GET(request) {
     try {
@@ -9,18 +27,7 @@ export async function GET(request) {
             return NextResponse.json({ error: "Missing fleet slug parameter" }, { status: 400 });
         }
 
-        const targetUrl = `https://api.fleetyards.net/v1/public/fleets/${encodeURIComponent(slug)}`;
-        const response = await fetch(targetUrl, {
-            headers: { Accept: "application/json" },
-            next: { revalidate: 300 },
-        });
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data?.message || data?.error || `FleetYards API error (${response.status})`);
-        }
-
-        return NextResponse.json(data);
+        return NextResponse.json(await getFleetInfo(slug));
     } catch (error) {
         return NextResponse.json({ error: error?.message || "Unexpected fetch error" }, { status: 500 });
     }
