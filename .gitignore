@@ -45,3 +45,6 @@ tmp_*
 
 # hostinger static link (scripts/create-static-link.js output)
 /_next/
+
+# reference scaffold (create-next-app + create-payload-app), not part of the app
+/payload-reference/

@@ -23,5 +23,5 @@
         "target": "ES2017"
     },
     "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "payload-types.ts", ".next/dev/types/**/*.ts"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "payload-reference"]
 }
