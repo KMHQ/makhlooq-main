@@ -111,25 +111,25 @@ makhlooq/
 ├── app/                        # Next.js App Router
 │   ├── (app)/                  # Public-facing pages
 │   ├── (payload)/              # Payload CMS admin routes
-│   └── api/                    # API routes
-│       ├── auth/discord/       # Discord OAuth login & callback
-│       ├── fleetyards/         # Fleetyards API proxy (ships & models)
-│       └── team/               # Team member CRUD endpoints
-├── src/
+│   ├── api/                    # API routes
+│   │   ├── auth/discord/       # Discord OAuth login & callback
+│   │   ├── fleetyards/         # Fleetyards API proxy (ships & models)
+│   │   └── team-members/       # Team member CRUD endpoints
 │   ├── components/             # React components
 │   │   ├── fleet/              # 3D fleet viewer (Three.js / R3F)
 │   │   ├── team/               # Member roster & admin panel
-│   │   └── about/              # About / news sections
-│   ├── payload/                # Payload CMS collections & globals
-│   └── lib/                    # Shared utilities & auth helpers
-├── lib/                        # Server-side utilities (adminAuth, supabase)
+│   │   └── admin/              # News editor
+│   └── lib/                    # Server utilities (auth, Discord, Supabase, Payload queries)
+├── collections/                # Payload CMS collections
+├── globals/                    # Payload CMS globals
+├── hooks/                      # Payload hooks (cache revalidation)
+├── types/                      # Shared TypeScript types
 ├── public/                     # Static assets (images, fonts)
 ├── scripts/                    # Dev & deployment scripts
-│   ├── create-deploy-zip.ps1   # Build production ZIP for Hostinger
-│   └── create-static-link.js  # Symlinks .next/static after build
+│   └── create-static-link.js   # Links .next/static after build
 ├── supabase/                   # Database schema & migrations
 ├── payload.config.ts           # Payload CMS configuration
-├── next.config.mjs             # Next.js configuration
+├── next.config.ts              # Next.js configuration
 └── server.js                   # Custom Node.js server entry point
 ```
 
