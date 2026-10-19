@@ -25,10 +25,10 @@ import {
     ArrowDown,
     ArrowUpDown,
 } from "lucide-react";
-import { AuthScreen, LoginScreen, DeniedScreen } from "@/src/components/fleet/admin/FleetAdminAuth";
-import AboutNewsEditor from "@/src/components/admin/AboutNewsEditor";
-import COSelector from "@/src/components/fleet/admin/COSelector";
-import type { FleetConfigEntry } from "@/src/components/fleet/ships";
+import { AuthScreen, LoginScreen, DeniedScreen } from "@/app/components/fleet/admin/FleetAdminAuth";
+import AboutNewsEditor from "@/app/components/admin/AboutNewsEditor";
+import COSelector from "@/app/components/fleet/admin/COSelector";
+import type { FleetConfigEntry } from "@/app/components/fleet/ships";
 import type { FleetMember, TeamMember } from "@/types/db";
 import type { SessionResponse, SessionUser } from "@/types/session";
 

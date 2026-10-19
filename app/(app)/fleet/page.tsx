@@ -1,4 +1,4 @@
-import { getPageData, seoMetadata } from "@/lib/payload/queries";
+import { getPageData, seoMetadata } from "@/app/lib/payload/queries";
 import FleetPageClient from "./FleetPageClient";
 
 export async function generateMetadata() {

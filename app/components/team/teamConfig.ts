@@ -1,5 +1,5 @@
 import { Crown, Shield, Sword, Terminal, Users, Zap, type LucideIcon } from "lucide-react";
-import type { MemberAward } from "@/lib/discord";
+import type { MemberAward } from "@/app/lib/discord";
 
 export type { MemberAward };
 

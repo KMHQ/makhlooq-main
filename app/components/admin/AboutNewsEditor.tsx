@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { FormattedPost } from "@/lib/newsPosts";
+import type { FormattedPost } from "@/app/lib/newsPosts";
 import {
     Plus,
     ExternalLink,

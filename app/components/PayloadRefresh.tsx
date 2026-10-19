@@ -2,7 +2,7 @@
 
 import { RefreshRouteOnSave } from "@payloadcms/live-preview-react";
 import { useRouter } from "next/navigation";
-import { getServerUrl } from "@/lib/serverUrl";
+import { getServerUrl } from "@/app/lib/serverUrl";
 
 export default function PayloadRefresh() {
     const router = useRouter();

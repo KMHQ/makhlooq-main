@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { ArrowLeft, Save, CheckCircle, LogOut, Shield } from "lucide-react";
-import Header from "@/src/components/Header";
-import ProfileEditor, { type ProfileForm } from "@/src/components/team/ProfileEditor";
+import Header from "@/app/components/Header";
+import ProfileEditor, { type ProfileForm } from "@/app/components/team/ProfileEditor";
 import type { TeamMember } from "@/types/db";
 import type { SessionResponse, SessionUser } from "@/types/session";
 

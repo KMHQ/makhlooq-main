@@ -1,5 +1,5 @@
 import type { Media } from "@/payload-types";
-import { getGlobal, getNewsPosts, seoMetadata } from "@/lib/payload/queries";
+import { getGlobal, getNewsPosts, seoMetadata } from "@/app/lib/payload/queries";
 import NewsPageClient from "./NewsPageClient";
 
 const DEFAULT_HERO_BACKGROUND = "/backgrounds/9a5b333b-3981-4d6a-a235-7e91fc1c6ff8.jpg";

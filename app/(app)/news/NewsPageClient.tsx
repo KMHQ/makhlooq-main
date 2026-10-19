@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useMemo } from "react";
 import type { LucideIcon } from "lucide-react";
-import { getServerUrl } from "@/lib/serverUrl";
-import { mediaUrl } from "@/lib/media";
+import { getServerUrl } from "@/app/lib/serverUrl";
+import { mediaUrl } from "@/app/lib/media";
 import type { NewsPage, NewsPost, SiteSetting, TeamMember } from "@/payload-types";
 import { motion, AnimatePresence } from "motion/react";
 import Lenis from "lenis";
-import Header from "@/src/components/Header";
-import { PortableTextRenderer } from "@/src/components/PortableTextRenderer";
+import Header from "@/app/components/Header";
+import { PortableTextRenderer } from "@/app/components/PortableTextRenderer";
 
 type ContentBlock = NonNullable<NewsPost["contentBlocks"]>[number];
 import { Radio, Search, Calendar, User, Newspaper, Flame, ShieldAlert, Sparkles, Image as ImageIcon, Video } from "lucide-react";

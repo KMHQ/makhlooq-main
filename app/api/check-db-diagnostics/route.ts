@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getPayloadInstance } from "@/lib/payload";
-import { errorMessage } from "@/lib/errors";
+import { getPayloadInstance } from "@/app/lib/payload";
+import { errorMessage } from "@/app/lib/errors";
 
 export async function GET() {
     try {

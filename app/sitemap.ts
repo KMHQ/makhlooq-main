@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { connection } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/app/lib/supabase";
 
 async function getApprovedMembers() {
     "use cache";

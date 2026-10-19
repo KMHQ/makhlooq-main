@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
-import { requireFleetAdmin } from "@/lib/adminAuth";
-import { fetchDiscordMembers } from "@/lib/discord";
-import { supabase } from "@/lib/supabase";
-import { errorMessage } from "@/lib/errors";
-import { getMember, getMembers } from "@/lib/teamMembers";
+import { requireFleetAdmin } from "@/app/lib/adminAuth";
+import { fetchDiscordMembers } from "@/app/lib/discord";
+import { supabase } from "@/app/lib/supabase";
+import { errorMessage } from "@/app/lib/errors";
+import { getMember, getMembers } from "@/app/lib/teamMembers";
 import type { Insert } from "@/types/db";
 
 export async function GET(request: NextRequest) {

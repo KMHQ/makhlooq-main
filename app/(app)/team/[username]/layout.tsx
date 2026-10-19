@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getMember } from "@/lib/teamMembers";
+import { getMember } from "@/app/lib/teamMembers";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
     const { username } = await params;

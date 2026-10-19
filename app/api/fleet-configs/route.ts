@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag, revalidateTag } from "next/cache";
-import { requireFleetAdmin } from "@/lib/adminAuth";
-import { supabase } from "@/lib/supabase";
-import { errorMessage } from "@/lib/errors";
-import { toFleetType } from "@/lib/fleetTypes";
+import { requireFleetAdmin } from "@/app/lib/adminAuth";
+import { supabase } from "@/app/lib/supabase";
+import { errorMessage } from "@/app/lib/errors";
+import { toFleetType } from "@/app/lib/fleetTypes";
 import type { FleetConfig } from "@/types/db";
 
 // Fleets listed in FLEETYARDS_FLEET_SLUGS show up even before they have a DB row.

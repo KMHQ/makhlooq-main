@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getAdminSession, getAdminFromDiscordId } from "@/lib/adminAuth";
-import { supabase } from "@/lib/supabase";
+import { getAdminSession, getAdminFromDiscordId } from "@/app/lib/adminAuth";
+import { supabase } from "@/app/lib/supabase";
 
 export async function GET(request: NextRequest) {
     const adminParam = request.nextUrl.searchParams.get("admin");

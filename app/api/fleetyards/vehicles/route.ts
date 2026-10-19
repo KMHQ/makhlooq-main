@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
-import { errorMessage } from "@/lib/errors";
-import { FLEETYARDS_API, getNextLink } from "@/lib/fleetyards";
+import { errorMessage } from "@/app/lib/errors";
+import { FLEETYARDS_API, getNextLink } from "@/app/lib/fleetyards";
 
 export async function GET(request: NextRequest) {
     const url = request.nextUrl;

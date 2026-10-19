@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import GridOverlay from "./GridOverlay";
-import { mediaUrl } from "@/lib/media";
+import { mediaUrl } from "@/app/lib/media";
 import type { HomePage } from "@/payload-types";
 
 // Text decode effect

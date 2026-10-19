@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
-import { errorMessage } from "@/lib/errors";
-import { FLEETYARDS_API } from "@/lib/fleetyards";
+import { errorMessage } from "@/app/lib/errors";
+import { FLEETYARDS_API } from "@/app/lib/fleetyards";
 
 async function getFleetStats(slug: string) {
     "use cache";

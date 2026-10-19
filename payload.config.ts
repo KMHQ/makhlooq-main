@@ -6,17 +6,17 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 
 // Collections
-import { Users } from "./src/payload/collections/Users";
-import { Media } from "./src/payload/collections/Media";
-import { NewsPosts } from "./src/payload/collections/NewsPosts";
-import { Announcements } from "./src/payload/collections/Announcements";
-import { FleetConfigs } from "./src/payload/collections/FleetConfigs";
-import { TeamMembers } from "./src/payload/collections/TeamMembers";
+import { Users } from "./collections/Users";
+import { Media } from "./collections/Media";
+import { NewsPosts } from "./collections/NewsPosts";
+import { Announcements } from "./collections/Announcements";
+import { FleetConfigs } from "./collections/FleetConfigs";
+import { TeamMembers } from "./collections/TeamMembers";
 
 // Globals
-import { HomePage } from "./src/payload/globals/HomePage";
-import { SiteSettings } from "./src/payload/globals/SiteSettings";
-import { NewsPage, FleetPage, TeamPage } from "./src/payload/globals/OtherPages";
+import { HomePage } from "./globals/HomePage";
+import { SiteSettings } from "./globals/SiteSettings";
+import { NewsPage, FleetPage, TeamPage } from "./globals/OtherPages";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);

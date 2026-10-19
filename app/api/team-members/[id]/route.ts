@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
-import { requireFleetAdmin } from "@/lib/adminAuth";
-import { supabase } from "@/lib/supabase";
+import { requireFleetAdmin } from "@/app/lib/adminAuth";
+import { supabase } from "@/app/lib/supabase";
 import type { Update } from "@/types/db";
 
 type Context = { params: Promise<{ id: string }> };

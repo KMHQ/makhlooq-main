@@ -1,9 +1,9 @@
 "use client";
 
-import { getServerUrl } from "@/lib/serverUrl";
-import TeamPageImpl from "@/src/components/team/TeamPage";
-import Header from "@/src/components/Header";
-import type { PageData } from "@/lib/payload/queries";
+import { getServerUrl } from "@/app/lib/serverUrl";
+import TeamPageImpl from "@/app/components/team/TeamPage";
+import Header from "@/app/components/Header";
+import type { PageData } from "@/app/lib/payload/queries";
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { requireFleetAdmin } from "@/lib/adminAuth";
-import { supabase } from "@/lib/supabase";
-import { errorMessage } from "@/lib/errors";
+import { requireFleetAdmin } from "@/app/lib/adminAuth";
+import { supabase } from "@/app/lib/supabase";
+import { errorMessage } from "@/app/lib/errors";
 
 // GET — list members for a fleet (public, no auth needed)
 export async function GET(request: NextRequest) {

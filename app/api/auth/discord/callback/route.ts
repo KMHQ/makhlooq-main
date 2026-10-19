@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
-import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from "@/lib/adminAuth";
-import { KMHQ_ROLE_ID, type DiscordUser } from "@/lib/discord";
-import { supabase } from "@/lib/supabase";
+import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from "@/app/lib/adminAuth";
+import { KMHQ_ROLE_ID, type DiscordUser } from "@/app/lib/discord";
+import { supabase } from "@/app/lib/supabase";
 
 function sanitizeReturnTo(value: string | undefined) {
     return value && value.startsWith("/") && !value.startsWith("//") ? value : "/team";

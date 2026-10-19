@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { requireFleetAdmin } from "@/lib/adminAuth";
-import { getPayloadInstance } from "@/lib/payload";
-import { errorMessage } from "@/lib/errors";
-import { buildPostData, formatPost, parseNewsInput, uploadMedia } from "@/lib/newsPosts";
+import { requireFleetAdmin } from "@/app/lib/adminAuth";
+import { getPayloadInstance } from "@/app/lib/payload";
+import { errorMessage } from "@/app/lib/errors";
+import { buildPostData, formatPost, parseNewsInput, uploadMedia } from "@/app/lib/newsPosts";
 
 export async function GET() {
     try {

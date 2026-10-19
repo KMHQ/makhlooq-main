@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
-import { errorMessage } from "@/lib/errors";
-import { FLEETYARDS_API, getNextLink, type FleetYardsError } from "@/lib/fleetyards";
+import { errorMessage } from "@/app/lib/errors";
+import { FLEETYARDS_API, getNextLink, type FleetYardsError } from "@/app/lib/fleetyards";
 
 async function readJson(response: Response): Promise<(FleetYardsError & { items?: unknown[] }) | null> {
     const text = await response.text();

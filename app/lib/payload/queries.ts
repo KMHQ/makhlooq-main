@@ -10,7 +10,7 @@ export type PageData<T extends GlobalSlug> = Config["globals"][T] & { siteSettin
 type Seo = { title?: string | null; description?: string | null; imageUrl?: string | null } | undefined;
 
 // Cached for an hour, and expired immediately when the global is saved in Payload
-// (see src/payload/hooks/revalidate.ts). Errors propagate so a failed fetch is never cached.
+// (see hooks/revalidate.ts). Errors propagate so a failed fetch is never cached.
 async function fetchGlobal<T extends GlobalSlug>(slug: T): Promise<Config["globals"][T]> {
     "use cache";
     cacheLife("hours");

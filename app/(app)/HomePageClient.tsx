@@ -5,11 +5,11 @@ import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "motion/react";
 import Lenis from "lenis";
 import { useLivePreview } from "@payloadcms/live-preview-react";
-import { getServerUrl } from "@/lib/serverUrl";
-import type { PageData } from "@/lib/payload/queries";
-import Header from "@/src/components/Header";
-import Hero from "@/src/components/Hero";
-import AboutSkeleton from "@/src/components/AboutSkeleton";
+import { getServerUrl } from "@/app/lib/serverUrl";
+import type { PageData } from "@/app/lib/payload/queries";
+import Header from "@/app/components/Header";
+import Hero from "@/app/components/Hero";
+import AboutSkeleton from "@/app/components/AboutSkeleton";
 
 const SectionSkeleton = () => (
     <div className="min-h-screen bg-black animate-pulse flex items-center justify-center">
@@ -18,10 +18,10 @@ const SectionSkeleton = () => (
 );
 
 // Below-the-fold sections load on demand
-const Values = dynamic(() => import("@/src/components/Values"), { loading: SectionSkeleton });
-const About = dynamic(() => import("@/src/components/About"), { loading: AboutSkeleton });
-const Showcase = dynamic(() => import("@/src/components/Showcase"), { loading: SectionSkeleton });
-const FAQ = dynamic(() => import("@/src/components/FAQ"), { loading: SectionSkeleton });
+const Values = dynamic(() => import("@/app/components/Values"), { loading: SectionSkeleton });
+const About = dynamic(() => import("@/app/components/About"), { loading: AboutSkeleton });
+const Showcase = dynamic(() => import("@/app/components/Showcase"), { loading: SectionSkeleton });
+const FAQ = dynamic(() => import("@/app/components/FAQ"), { loading: SectionSkeleton });
 
 export type HomePageData = PageData<"home-page">;
 

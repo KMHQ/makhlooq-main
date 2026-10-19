@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
-import { getAdminSession } from "@/lib/adminAuth";
-import { supabase } from "@/lib/supabase";
+import { getAdminSession } from "@/app/lib/adminAuth";
+import { supabase } from "@/app/lib/supabase";
 import type { Update } from "@/types/db";
 
 const EDITABLE_FIELDS = ["node_color", "flair_color", "bio", "status", "avatar_url"] as const;

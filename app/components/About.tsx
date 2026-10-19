@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { mediaUrl } from "@/lib/media";
+import { mediaUrl } from "@/app/lib/media";
 import type { HomePage } from "@/payload-types";
 
 gsap.registerPlugin(ScrollTrigger);

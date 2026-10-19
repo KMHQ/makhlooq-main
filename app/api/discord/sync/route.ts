@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, KMHQ_ROLE_ID } from "@/lib/discord";
-import { requireFleetAdmin } from "@/lib/adminAuth";
-import { supabase } from "@/lib/supabase";
-import { errorMessage } from "@/lib/errors";
+import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, KMHQ_ROLE_ID } from "@/app/lib/discord";
+import { requireFleetAdmin } from "@/app/lib/adminAuth";
+import { supabase } from "@/app/lib/supabase";
+import { errorMessage } from "@/app/lib/errors";
 import type { Insert, TeamMember, Update } from "@/types/db";
 
 export async function POST() {

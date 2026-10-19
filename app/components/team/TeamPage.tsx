@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Search, User, X, ChevronRight, Activity, Plus, LogIn, Terminal, WifiOff, Clock, LogOut, RefreshCw } from "lucide-react";
 import type { TeamMember } from "@/types/db";
 import type { SessionResponse, SessionUser } from "@/types/session";
-import type { PageData } from "@/lib/payload/queries";
+import type { PageData } from "@/app/lib/payload/queries";
 import ProfileEditor, { type ProfileForm } from "./ProfileEditor";
 import RanksRolesChart from "./RanksRolesChart";
 import ProfileModal from "./ProfileModal";

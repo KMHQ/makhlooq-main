@@ -1,6 +1,6 @@
 import { revalidateTag } from "next/cache";
 
-// Expires the given cache tags (see lib/payload/queries.ts and the API routes) after a Payload save or delete.
+// Expires the given cache tags (see app/lib/payload/queries.ts and the API routes) after a Payload save or delete.
 export const revalidateTagsHook = (...tags: string[]) => {
     return () => {
         try {

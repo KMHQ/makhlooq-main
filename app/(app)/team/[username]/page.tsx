@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import Header from "@/src/components/Header";
-import ProfileModal from "@/src/components/team/ProfileModal";
+import Header from "@/app/components/Header";
+import ProfileModal from "@/app/components/team/ProfileModal";
 import type { TeamMember } from "@/types/db";
 
 export default function TeamMemberProfile() {

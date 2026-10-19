@@ -3,14 +3,14 @@
 import { useState, useEffect, useCallback, useRef, type UIEvent, type WheelEvent } from "react";
 import { AnimatePresence } from "motion/react";
 import { useLivePreview } from "@payloadcms/live-preview-react";
-import { getServerUrl } from "@/lib/serverUrl";
-import type { PageData } from "@/lib/payload/queries";
+import { getServerUrl } from "@/app/lib/serverUrl";
+import type { PageData } from "@/app/lib/payload/queries";
 import type { FleetYardsModel, FleetYardsVehicle } from "@/types/fleetyards";
 import type { TeamMember } from "@/types/db";
-import Header from "@/src/components/Header";
-import FleetScene from "@/src/components/fleet/FleetScene";
-import FleetShipDetails from "@/src/components/fleet/FleetShipDetails";
-import ProfileModal from "@/src/components/team/ProfileModal";
+import Header from "@/app/components/Header";
+import FleetScene from "@/app/components/fleet/FleetScene";
+import FleetShipDetails from "@/app/components/fleet/FleetShipDetails";
+import ProfileModal from "@/app/components/team/ProfileModal";
 import {
     formatCurrency,
     formatNumber,
@@ -18,7 +18,7 @@ import {
     mapVehicleToShip,
     type FleetConfigEntry,
     type FleetShip,
-} from "@/src/components/fleet/ships";
+} from "@/app/components/fleet/ships";
 
 const CAPITAL_TYPES = ["sub_capital", "capital"];
 const CARDS_PER_SLIDE = 4;

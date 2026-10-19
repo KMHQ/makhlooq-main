@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, Edit3, Save, X, Shield, Search, LogOut, RefreshCw, Award } from "lucide-react";
 
 // Modular Components
-import { ColorPicker, AddMemberModal } from "@/src/components/team/AdminComponents";
+import { ColorPicker, AddMemberModal } from "@/app/components/team/AdminComponents";
 import {
     AWARD_CATEGORIES,
     AWARD_TIERS,
@@ -17,7 +17,7 @@ import {
     getRoleConfig,
     parseAwards,
     type MemberAward,
-} from "@/src/components/team/teamConfig";
+} from "@/app/components/team/teamConfig";
 import type { TeamMember } from "@/types/db";
 import type { SessionResponse, SessionUser } from "@/types/session";
 

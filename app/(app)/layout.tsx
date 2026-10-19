@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import PayloadRefresh from "@/src/components/PayloadRefresh";
+import PayloadRefresh from "@/app/components/PayloadRefresh";
 
 const jetbrainsMono = JetBrains_Mono({
     subsets: ["latin"],
