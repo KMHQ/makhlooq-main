@@ -150,12 +150,12 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
 
     const goPrev = useCallback(() => {
         if (ships.length === 0) return;
-        setSelectedIndex((i) => (i - 1 + ships.length) % ships.length);
+        setSelectedIndex((i) => ((i < ships.length ? i : 0) - 1 + ships.length) % ships.length);
     }, [ships.length]);
 
     const goNext = useCallback(() => {
         if (ships.length === 0) return;
-        setSelectedIndex((i) => (i + 1) % ships.length);
+        setSelectedIndex((i) => ((i < ships.length ? i : 0) + 1) % ships.length);
     }, [ships.length]);
 
     useEffect(() => {
@@ -167,11 +167,8 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
         return () => window.removeEventListener("keydown", handleKey);
     }, [goNext, goPrev]);
 
-    useEffect(() => {
-        if (ships.length > 0 && selectedIndex >= ships.length) setSelectedIndex(0);
-    }, [ships.length, selectedIndex]);
-
-    const selectedShip = ships[selectedIndex] || null;
+    // Fall back to the first ship when the list shrinks below the selected index
+    const selectedShip = ships[selectedIndex < ships.length ? selectedIndex : 0] || null;
     const activeShip = selectedShipDetails || selectedShip;
 
     // Refresh the selected ship's model details from FleetYards

@@ -29,10 +29,12 @@ export default function COSelector({
     const [customName, setCustomName] = useState(valueName);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Sync internal customName when valueName changes externally
-    useEffect(() => {
+    // Sync internal customName during render when valueName changes externally
+    const [prevValueName, setPrevValueName] = useState(valueName);
+    if (prevValueName !== valueName) {
+        setPrevValueName(valueName);
         setCustomName(valueName);
-    }, [valueName]);
+    }
 
     // Click outside listener
     useEffect(() => {

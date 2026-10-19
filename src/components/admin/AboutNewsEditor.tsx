@@ -43,21 +43,27 @@ export default function AboutNewsEditor() {
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [copiedId, setCopiedId] = useState<number | null>(null);
 
-    const fetchNews = async () => {
-        setLoadingNews(true);
+    const requestNews = async (): Promise<FormattedPost[]> => {
         try {
             const res = await fetch("/api/about-news");
             const data = await res.json();
-            setNews(Array.isArray(data) ? data : []);
+            return Array.isArray(data) ? data : [];
         } catch {
-            setNews([]);
-        } finally {
-            setLoadingNews(false);
+            return [];
         }
     };
 
+    const fetchNews = async () => {
+        setLoadingNews(true);
+        setNews(await requestNews());
+        setLoadingNews(false);
+    };
+
     useEffect(() => {
-        fetchNews();
+        requestNews().then((list) => {
+            setNews(list);
+            setLoadingNews(false);
+        });
     }, []);
 
     const handleDelete = async (id: number, dispatchTitle: string) => {

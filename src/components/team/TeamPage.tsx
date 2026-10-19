@@ -446,6 +446,21 @@ const EditProfileModal = ({ member, onClose, onUpdated }: EditProfileModalProps)
     );
 };
 
+// Public API — returns only approved members
+async function requestMembers(): Promise<{ members?: TeamMember[]; error?: string }> {
+    try {
+        const res = await fetch("/api/team-members", { cache: "no-store" });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+            return { members: [], error: data?.error || "Failed to establish connection with the central database." };
+        }
+        return { members: Array.isArray(data) ? data : [] };
+    } catch (err) {
+        console.error("Failed to fetch members:", err);
+        return { error: "Network communication error. Check your connection to the grid." };
+    }
+}
+
 export default function TeamPage({ pageData }: { pageData: PageData<"team-page"> | null }) {
     const kicker = pageData?.kicker || "Crew Network";
     const headingLine1 = pageData?.headingLine1 || "Team";
@@ -473,29 +488,21 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
     const [viewMode, setViewMode] = useState<"grid" | "network">("grid");
     const [syncing, setSyncing] = useState(false);
 
+    // Applies a members request result; members is left as-is on a network error
+    const applyMembersResult = useCallback((result: { members?: TeamMember[]; error?: string }) => {
+        if (result.members) setMembers(result.members);
+        if (result.error) setFetchError(result.error);
+        setLoading(false);
+    }, []);
+
     const fetchMembers = useCallback(async () => {
         setLoading(true);
         setFetchError(null);
-        try {
-            // Public API — returns only approved members
-            const res = await fetch("/api/team-members", { cache: "no-store" });
-            const data = await res.json().catch(() => null);
-            if (!res.ok) {
-                setFetchError(data?.error || "Failed to establish connection with the central database.");
-                setMembers([]);
-            } else {
-                setMembers(Array.isArray(data) ? data : []);
-            }
-        } catch (err) {
-            console.error("Failed to fetch members:", err);
-            setFetchError("Network communication error. Check your connection to the grid.");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+        applyMembersResult(await requestMembers());
+    }, [applyMembersResult]);
 
     useEffect(() => {
-        fetchMembers();
+        requestMembers().then(applyMembersResult);
 
         fetch("/api/auth/discord/session", { cache: "no-store" })
             .then((res) => res.json())
@@ -517,7 +524,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                 setCurrentUserMember(null);
                 setAuthError("Authentication service unreachable.");
             });
-    }, [fetchMembers]);
+    }, [applyMembersResult]);
 
     const loginWithDiscord = () => {
         window.location.href = "/api/auth/discord/login?returnTo=/team";

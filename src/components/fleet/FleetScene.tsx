@@ -32,7 +32,9 @@ interface FleetHoloModelProps {
 }
 
 function FleetHoloModel({ url, accentColor, shipKey, onError, onLoaded }: FleetHoloModelProps) {
-    const [scene, setScene] = useState<THREE.Group | null>(null);
+    // Tag the loaded scene with its url so a stale scene isn't shown while the next one loads
+    const [loaded, setLoaded] = useState<{ url: string; scene: THREE.Group } | null>(null);
+    const scene = loaded?.url === url ? loaded.scene : null;
     const model = useMemo(() => {
         if (!scene) return null;
 
@@ -71,7 +73,6 @@ function FleetHoloModel({ url, accentColor, shipKey, onError, onLoaded }: FleetH
 
     useEffect(() => {
         let cancelled = false;
-        setScene(null);
 
         const manager = new THREE.LoadingManager();
         manager.onError = (assetUrl) => {
@@ -92,7 +93,7 @@ function FleetHoloModel({ url, accentColor, shipKey, onError, onLoaded }: FleetH
                 url,
                 (gltf) => {
                     if (!cancelled) {
-                        setScene(gltf.scene);
+                        setLoaded({ url, scene: gltf.scene });
                         onLoaded?.();
                     }
                 },
@@ -129,20 +130,23 @@ function ScanRing({ color }: { color: string }) {
     );
 }
 
+function createStarPositions(count: number, radius: number) {
+    const p = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+        const i3 = i * 3;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(Math.random() * 2 - 1);
+        const r = radius * (0.8 + Math.random() * 0.2);
+        p[i3] = r * Math.sin(phi) * Math.cos(theta);
+        p[i3 + 1] = Math.abs(r * Math.sin(phi) * Math.sin(theta)); // Keep them mostly overhead
+        p[i3 + 2] = r * Math.cos(phi);
+    }
+    return p;
+}
+
 function SimpleStars({ count = 650, radius = 80 }) {
-    const points = useMemo(() => {
-        const p = new Float32Array(count * 3);
-        for (let i = 0; i < count; i++) {
-            const i3 = i * 3;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(Math.random() * 2 - 1);
-            const r = radius * (0.8 + Math.random() * 0.2);
-            p[i3] = r * Math.sin(phi) * Math.cos(theta);
-            p[i3 + 1] = Math.abs(r * Math.sin(phi) * Math.sin(theta)); // Keep them mostly overhead
-            p[i3 + 2] = r * Math.cos(phi);
-        }
-        return p;
-    }, [count, radius]);
+    // Lazy initializer: positions are generated once per mount, not on every render
+    const [points] = useState(() => createStarPositions(count, radius));
 
     return (
         <points>
@@ -178,10 +182,14 @@ export default function FleetScene({ selectedShip }: { selectedShip: FleetShip |
         setModelLoading(false);
     }, []);
 
-    useEffect(() => {
+    // Reset load state during render when the model changes
+    const modelResetKey = `${modelKey}|${modelUrl}`;
+    const [prevModelResetKey, setPrevModelResetKey] = useState(modelResetKey);
+    if (prevModelResetKey !== modelResetKey) {
+        setPrevModelResetKey(modelResetKey);
         setModelFailed(false);
         setModelLoading(Boolean(modelUrl));
-    }, [modelKey, modelUrl]);
+    }
 
     if (!modelUrl) {
         return (

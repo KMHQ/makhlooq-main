@@ -10,22 +10,27 @@ interface FleetShipDetailsProps {
 }
 
 export default function FleetShipDetails({ ship, onOpenMemberModal }: FleetShipDetailsProps) {
-    const [avatarUrl, setAvatarUrl] = useState(ship?.ceoAvatarUrl || "");
+    // Avatar fetched for a ship without one, tagged with the ship and CO it was fetched for
+    const avatarTarget = ship?.ceoDiscordUid || ship?.ceoName || "";
+    const avatarKey = `${ship?.id}|${avatarTarget}`;
+    const [fetchedAvatar, setFetchedAvatar] = useState<{ key: string; url: string } | null>(null);
+    // Set when the image fails to load; cleared implicitly once the ship or CO changes
+    const [failedAvatarKey, setFailedAvatarKey] = useState<string | null>(null);
+    const avatarUrl =
+        failedAvatarKey === avatarKey ? "" : ship?.ceoAvatarUrl || (fetchedAvatar?.key === avatarKey ? fetchedAvatar.url : "");
 
     useEffect(() => {
-        setAvatarUrl(ship?.ceoAvatarUrl || "");
-        if (!ship?.ceoAvatarUrl && (ship?.ceoDiscordUid || ship?.ceoName)) {
-            const target = ship.ceoDiscordUid || ship.ceoName;
-            fetch(`/api/team-members?discord_uid=${encodeURIComponent(target)}`)
+        if (!ship?.ceoAvatarUrl && avatarTarget) {
+            fetch(`/api/team-members?discord_uid=${encodeURIComponent(avatarTarget)}`)
                 .then((res) => res.json())
                 .then((data) => {
                     if (data && data.avatar_url) {
-                        setAvatarUrl(data.avatar_url);
+                        setFetchedAvatar({ key: avatarKey, url: data.avatar_url });
                     }
                 })
                 .catch(() => {});
         }
-    }, [ship?.id, ship?.ceoAvatarUrl, ship?.ceoDiscordUid, ship?.ceoName]);
+    }, [avatarKey, avatarTarget, ship?.ceoAvatarUrl]);
 
     if (!ship)
         return (
@@ -84,7 +89,7 @@ export default function FleetShipDetails({ ship, onOpenMemberModal }: FleetShipD
                                         src={avatarUrl}
                                         alt={owner}
                                         className="w-full h-full object-cover"
-                                        onError={() => setAvatarUrl("")}
+                                        onError={() => setFailedAvatarKey(avatarKey)}
                                     />
                                 ) : (
                                     <svg

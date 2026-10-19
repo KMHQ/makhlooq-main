@@ -546,21 +546,28 @@ function ManageMembersModal({ fleet, onClose }: { fleet: FleetConfigEntry; onClo
     const [editRole, setEditRole] = useState("");
     const [updating, setUpdating] = useState(false);
 
-    const fetchMembers = async () => {
-        setLoading(true);
+    const requestMembers = async (): Promise<FleetMember[]> => {
         try {
             const res = await fetch(`/api/fleet-members?fleetId=${fleet.id}`);
             const data = await res.json();
-            setMembers(Array.isArray(data) ? data : []);
+            return Array.isArray(data) ? data : [];
         } catch {
-            setMembers([]);
-        } finally {
-            setLoading(false);
+            return [];
         }
     };
 
+    const fetchMembers = async () => {
+        setLoading(true);
+        setMembers(await requestMembers());
+        setLoading(false);
+    };
+
+    // The modal is keyed by fleet id, so this runs once per fleet with loading already true
     useEffect(() => {
-        fetchMembers();
+        requestMembers().then((list) => {
+            setMembers(list);
+            setLoading(false);
+        });
     }, [fleet.id]);
 
     const handleAdd = async () => {
@@ -1266,6 +1273,7 @@ export default function FleetAdminPage() {
                 {showAddModal && <AddFleetModal onClose={() => setShowAddModal(false)} onAdd={handleAdd} teamMembers={teamMembers} />}
                 {selectedFleetForMembers && (
                     <ManageMembersModal
+                        key={selectedFleetForMembers.id}
                         fleet={selectedFleetForMembers}
                         onClose={() => {
                             setSelectedFleetForMembers(null);
