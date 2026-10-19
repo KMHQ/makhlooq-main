@@ -37,7 +37,7 @@
 | **CMS**            | Payload CMS 3 (Postgres adapter)                |
 | **Database**       | Supabase (PostgreSQL)                           |
 | **Auth**           | Discord OAuth2 + Bot API guild verification     |
-| **Hosting**        | Hostinger Node.js (LiteSpeed reverse proxy)     |
+| **Hosting**        | Hostinger Node.js Web Apps                      |
 
 ---
 
@@ -125,52 +125,27 @@ makhlooq/
 ├── hooks/                      # Payload hooks (cache revalidation)
 ├── types/                      # Shared TypeScript types
 ├── public/                     # Static assets (images, fonts)
-├── scripts/                    # Dev & deployment scripts
-│   └── create-static-link.js   # Links .next/static after build
+├── scripts/                    # Dev scripts
 ├── supabase/                   # Database schema & migrations
 ├── payload.config.ts           # Payload CMS configuration
-├── next.config.ts              # Next.js configuration
-└── server.js                   # Custom Node.js server entry point
+└── next.config.ts              # Next.js configuration
 ```
 
 ---
 
 ## Deployment (Hostinger)
 
-### Build & Package
+The site runs on Hostinger's Node.js Web Apps hosting, which builds and starts the app with Next.js directly.
 
-```powershell
-# 1. Build the project locally
-npm run build
-
-# 2. Create deployment ZIP (includes .next, excludes node_modules/dev files)
-./scripts/create-deploy-zip.ps1
-```
-
-### Upload to Hostinger
-
-1. Upload `deploy.zip` via **hPanel → File Manager** to `~/domains/kmhq.org/nodejs/`
-2. SSH in and extract: `unzip deploy.zip -d ~/domains/kmhq.org/nodejs/`
-3. Install production dependencies:
-    ```bash
-    cd ~/domains/kmhq.org/nodejs
-    npm install --omit=dev
-    ```
-4. Restart the Node.js app from **hPanel → Node.js → Restart**
-
-### Environment Variables on Hostinger
-
-Set all variables from the [table above](#2-environment-variables) via:
-**hPanel → Node.js → Environment Variables**
-
-> [!NOTE]
-> **Static assets** — LiteSpeed intercepts `/_next/static` before Node.js.
-> After first deploy, SSH in and run:
->
-> ```bash
-> mkdir -p ~/domains/kmhq.org/public_html/_next
-> ln -s ~/domains/kmhq.org/nodejs/.next/static ~/domains/kmhq.org/public_html/_next/static
-> ```
+1. In **hPanel → Websites → Add website → Node.js Apps**, import the GitHub repository and pick the `main` branch.
+2. Use these build settings:
+    - **Framework:** Next.js
+    - **Node.js version:** 22 or later
+    - **Install command:** `pnpm install`
+    - **Build command:** `pnpm build`
+    - **Start command:** `pnpm start`
+3. Set all variables from the [table above](#2-environment-variables) under **Environment variables** before the first build, since `NEXT_PUBLIC_*` values are inlined at build time.
+4. Deploy. Pushes to `main` can redeploy from the same screen.
 
 ---
 

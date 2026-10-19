@@ -9,7 +9,7 @@ Website for the Khalai Makhlooq Star Citizen org (kmhq.org): fleet viewer, team 
 Use pnpm.
 
 - `pnpm dev`: dev server (Turbopack). The site is at `localhost:3000` and Payload admin at `/admin`.
-- `pnpm build`: production build; type errors fail it. `postbuild` runs `scripts/create-static-link.js`, which links `.next/static` to `_next/static` for Hostinger/LiteSpeed.
+- `pnpm build`: production build; type errors fail it. `pnpm start` serves it.
 - `pnpm typecheck`, `pnpm lint`, `pnpm format`, `pnpm format:check`.
 - `pnpm generate:types` (writes `payload-types.ts`) and `pnpm generate:importmap` after changing Payload collections, globals or admin components.
 - `pnpm generate:db-types` regenerates `types/supabase.ts` from the live database (needs `DATABASE_URL` and the globally installed `supabase` CLI). The committed file is hand-written from `supabase/migrations/` until it's run.
@@ -33,4 +33,4 @@ There is no test suite. The package is ESM (`"type": "module"`), which the Paylo
 
 ## Deployment
 
-Hostinger Node.js behind LiteSpeed, running `server.js`. You build locally and upload a zip. The steps are in the README's "Deployment" section, and environment variables are listed in `.env.example`.
+Hostinger Node.js Web Apps, deployed from GitHub; Hostinger runs `pnpm build` and `pnpm start`. The steps are in the README's "Deployment" section, and environment variables are listed in `.env.example`.
