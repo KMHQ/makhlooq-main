@@ -1,5 +1,4 @@
 # Build output and static assets
-_next/
 .next/
 public/
 media/
