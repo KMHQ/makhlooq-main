@@ -2,3 +2,17 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+# Also install Linux musl binaries: Hostinger's glibc is too old for the
+# glibc builds (e.g. @next/swc-linux-x64-gnu), so Next falls back to musl.
+supportedArchitectures:
+  os:
+  - current
+  - linux
+  cpu:
+  - current
+  - x64
+  libc:
+  - current
+  - glibc
+  - musl
