@@ -1,5 +1,4 @@
 import { withPayload } from "@payloadcms/next/withPayload";
-import type { NextConfig } from "next";
 
 const FLEETYARDS = "fleetyards.net api.fleetyards.net storage.fltyrd.net";
 
@@ -37,10 +36,16 @@ const securityHeaders = [
     { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
 
-const nextConfig: NextConfig = {
+/** @type {import("next").NextConfig} */
+const nextConfig = {
     cacheComponents: true,
     partialPrefetching: true,
     poweredByHeader: false,
+    // Webpack can't concatenate Payload's ESM og route with Next's CJS `next/og` ("Cannot get final name for export 'ImageResponse'").
+    webpack(config, { isServer }) {
+        if (isServer) config.optimization.concatenateModules = false;
+        return config;
+    },
     images: {
         remotePatterns: [
             { protocol: "https", hostname: "**.supabase.co" },
