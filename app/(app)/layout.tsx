@@ -77,13 +77,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
 
-                {/* The deploy is built locally, so expose the runtime server URL to Payload live preview. */}
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `window.__SERVER_URL__ = ${JSON.stringify(process.env.NEXT_PUBLIC_SERVER_URL || "https://kmhq.org")};`,
-                    }}
-                />
-
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://cdn.discordapp.com" />
