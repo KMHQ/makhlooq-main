@@ -18,6 +18,10 @@ Keep `CLAUDE.md`, `ARCHITECTURE.md` and `README.md` up to date: when a change af
 - After changing Payload collections, globals or admin components, run `pnpm generate:types` and `pnpm generate:importmap`.
 - `pnpm generate:db-types` regenerates `types/supabase.ts` from the live database. It needs `DATABASE_URL` and the globally installed `supabase` CLI. Until it's run, the file is hand-written from `supabase/migrations/`.
 
+## Code conventions
+
+- Prefer built-in Tailwind utilities over arbitrary values when the visual difference is negligible.
+
 ## Verification
 
 - There is no test suite. After a series of changes, run `pnpm build`. It catches type errors and Cache Components errors (uncached data outside `<Suspense>`, prerender failures), which only show up at build time.
