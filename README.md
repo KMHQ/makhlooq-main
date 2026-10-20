@@ -65,19 +65,22 @@ Copy `.env.example` to `.env` and fill in the values:
 cp .env.example .env
 ```
 
-| Variable                        | Description                                                             |
-| ------------------------------- | ----------------------------------------------------------------------- |
-| `DATABASE_URL`                  | Supabase Postgres connection URI (URL-encode special chars in password) |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL                                               |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase `anon` / publishable key                                       |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase `service_role` secret key                                      |
-| `DISCORD_CLIENT_ID`             | Discord App OAuth2 Client ID                                            |
-| `DISCORD_CLIENT_SECRET`         | Discord App OAuth2 Client Secret                                        |
-| `DISCORD_BOT_TOKEN`             | Discord Bot token (for guild membership checks)                         |
-| `DISCORD_GUILD_ID`              | Your Discord server (guild) ID                                          |
-| `ADMIN_DISCORD_IDS`             | Comma-separated Discord User IDs with super-admin access                |
-| `NEXT_PUBLIC_SITE_URL`          | Public site URL, e.g. `https://kmhq.org`                                |
-| `PAYLOAD_SECRET`                | _(Optional)_ Secret for Payload CMS JWT signing                         |
+| Variable                        | Description                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------------ |
+| `DATABASE_URL`                  | Supabase Postgres connection URI (URL-encode special chars in password)        |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL                                                      |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase `service_role` secret key                                             |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | _(Optional)_ Supabase `anon` key, used only without the service role key       |
+| `DISCORD_CLIENT_ID`             | Discord App OAuth2 Client ID                                                   |
+| `DISCORD_CLIENT_SECRET`         | Discord App OAuth2 Client Secret                                               |
+| `DISCORD_BOT_TOKEN`             | Discord Bot token (for guild membership checks)                                |
+| `DISCORD_GUILD_ID`              | Your Discord server (guild) ID                                                 |
+| `ADMIN_DISCORD_IDS`             | Comma-separated Discord User IDs with super-admin access                       |
+| `NEXT_PUBLIC_SITE_URL`          | Public site URL, e.g. `https://kmhq.org`                                       |
+| `NEXT_PUBLIC_SERVER_URL`        | _(Optional)_ Base URL for Payload live preview, defaults to `https://kmhq.org` |
+| `ADMIN_SESSION_SECRET`          | _(Optional)_ Admin cookie secret, falls back to `DISCORD_CLIENT_SECRET`        |
+| `PAYLOAD_SECRET`                | Secret for Payload CMS JWT signing                                             |
+| `FLEETYARDS_FLEET_SLUGS`        | _(Optional)_ Comma-separated FleetYards fleet slugs to show without a DB row   |
 
 > [!IMPORTANT]
 > `DATABASE_URL` must have special characters in the password **percent-encoded**.
