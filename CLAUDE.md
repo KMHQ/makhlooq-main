@@ -22,6 +22,10 @@ Keep `CLAUDE.md`, `ARCHITECTURE.md` and `README.md` up to date: when a change af
 
 - There is no test suite. After a series of changes, run `pnpm build`. It catches type errors and Cache Components errors (uncached data outside `<Suspense>`, prerender failures), which only show up at build time.
 
+## Versioning
+
+- Before every push, bump the `version` in `package.json` and commit it on its own as `chore: version`. Bump the minor version if the commits being pushed include a `feat`; otherwise bump the patch version.
+
 ## Gotchas
 
 - Cache data with `"use cache"` + `cacheLife` + `cacheTag`, never `unstable_cache` or route segment config (`export const dynamic` is rejected under Cache Components). Keep `try/catch` outside `"use cache"` functions so failures aren't cached.
