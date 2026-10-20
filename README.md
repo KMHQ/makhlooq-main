@@ -131,14 +131,14 @@ makhlooq/
 ├── scripts/                    # Dev scripts
 ├── supabase/                   # Database schema & migrations
 ├── payload.config.ts           # Payload CMS configuration
-└── next.config.ts              # Next.js configuration
+└── next.config.mjs             # Next.js configuration
 ```
 
 ---
 
 ## Deployment (Hostinger)
 
-The site runs on Hostinger's Node.js Web Apps hosting, which builds and starts the app with Next.js directly.
+The site runs on Hostinger's Node.js Web Apps hosting, which builds and starts the app with Next.js directly. Its glibc is too old for Next's native SWC binaries, so Next falls back to WebAssembly SWC, which only supports webpack: `pnpm build` runs `next build --webpack`, and the config is plain `next.config.mjs` so it loads without compiling.
 
 1. In **hPanel → Websites → Add website → Node.js Apps**, import the GitHub repository and pick the `main` branch.
 2. Use these build settings:
