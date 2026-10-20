@@ -215,7 +215,7 @@ export default function FleetScene({ selectedShip }: { selectedShip: FleetShip |
                                 style={{ boxShadow: `0 0 30px ${accentColor}18` }}
                             />
                             <span
-                                className="absolute inset-1 rounded-full border border-lime-300/55 border-t-transparent animate-spin"
+                                className="absolute inset-1 animate-spin rounded-full border border-lime-300/55 border-t-transparent"
                                 style={{ borderTopColor: "transparent" }}
                             />
                             <span

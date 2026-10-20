@@ -51,7 +51,7 @@ function FAQItem({ faq, index, isOpen, onClick }: FAQItemProps) {
             className={`group relative overflow-hidden rounded-[1.75rem] border transition-all duration-300 ${
                 isOpen
                     ? "border-lime-300/35 bg-lime-300/[0.075]"
-                    : "border-lime-300/12 bg-white/[0.025] hover:border-lime-300/28 hover:bg-lime-300/[0.045] hover:translate-x-2"
+                    : "border-lime-300/12 hover:border-lime-300/28 bg-white/[0.025] hover:translate-x-2 hover:bg-lime-300/[0.045]"
             }`}
         >
             <button
@@ -59,7 +59,7 @@ function FAQItem({ faq, index, isOpen, onClick }: FAQItemProps) {
                 onClick={onClick}
                 className="relative z-10 grid w-full gap-5 p-6 text-left md:grid-cols-[120px_minmax(0,1fr)_56px] md:items-center md:p-8"
             >
-                <div className="font-mono text-base font-bold uppercase tracking-[0.34em] text-lime-300/55 group-hover:text-lime-300 transition-colors">
+                <div className="font-mono text-base font-bold uppercase tracking-[0.34em] text-lime-300/55 transition-colors group-hover:text-lime-300">
                     Q-{String(index + 1).padStart(2, "0")}
                 </div>
                 <div className="text-3xl font-semibold leading-none tracking-[-0.055em] text-white md:text-5xl">{faq.q}</div>
@@ -67,7 +67,7 @@ function FAQItem({ faq, index, isOpen, onClick }: FAQItemProps) {
                     className={`ml-auto flex h-12 w-12 items-center justify-center rounded-full border font-mono text-2xl transition-all duration-300 ${
                         isOpen
                             ? "rotate-45 border-lime-300/50 bg-lime-300 text-[#061006]"
-                            : "border-lime-300/20 text-lime-300/75 group-hover:border-lime-300/50 group-hover:bg-lime-300/10 group-hover:rotate-90"
+                            : "border-lime-300/20 text-lime-300/75 group-hover:rotate-90 group-hover:border-lime-300/50 group-hover:bg-lime-300/10"
                     }`}
                 >
                     +
@@ -94,7 +94,7 @@ function FAQItem({ faq, index, isOpen, onClick }: FAQItemProps) {
             </AnimatePresence>
 
             <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-lime-300/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,230,53,0.05),transparent_50%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,230,53,0.05),transparent_50%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         </motion.div>
     );
 }
@@ -157,7 +157,7 @@ export default function FAQ({ data }: { data?: HomePage["faq"] }) {
         <section id="faq" ref={sectionRef} className="relative overflow-hidden bg-[#040704] py-28 text-white md:py-40">
             <div className="pointer-events-none absolute inset-0">
                 <div className="absolute right-[-6%] top-[12%] h-[30rem] w-[30rem] rounded-full bg-lime-400/10 blur-[140px]" />
-                <div className="absolute left-[-10%] bottom-[-10%] h-[28rem] w-[28rem] rounded-full bg-emerald-500/10 blur-[150px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] h-[28rem] w-[28rem] rounded-full bg-emerald-500/10 blur-[150px]" />
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(163,230,53,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(34,197,94,0.035)_1px,transparent_1px)] bg-[size:80px_80px] opacity-45 [mask-image:radial-gradient(circle_at_center,black,transparent_76%)]" />
             </div>
 
@@ -175,7 +175,7 @@ export default function FAQ({ data }: { data?: HomePage["faq"] }) {
                                 <div key={line} className="overflow-hidden pb-4">
                                     <div
                                         data-faq-title
-                                        className="cursor-default text-[22vw] text-transparent [-webkit-text-stroke:1.3px_rgba(190,242,100,0.55)] md:text-[14vw] lg:text-[10vw] transition-all duration-500 hover:text-lime-300 hover:[-webkit-text-stroke:2px_transparent] hover:-skew-x-6 hover:scale-[1.02] hover:drop-shadow-[0_0_30px_rgba(163,230,53,0.5)]"
+                                        className="cursor-default text-[22vw] text-transparent transition-all duration-500 [-webkit-text-stroke:1.3px_rgba(190,242,100,0.55)] hover:-skew-x-6 hover:scale-[1.02] hover:text-lime-300 hover:drop-shadow-[0_0_30px_rgba(163,230,53,0.5)] hover:[-webkit-text-stroke:2px_transparent] md:text-[14vw] lg:text-[10vw]"
                                     >
                                         {line}
                                     </div>
@@ -217,7 +217,7 @@ export default function FAQ({ data }: { data?: HomePage["faq"] }) {
                 </div>
 
                 {filteredFaqs.length === 0 && (
-                    <div className="rounded-[1.75rem] border border-lime-300/12 bg-white/[0.025] p-10 text-center font-mono text-lg uppercase tracking-[0.24em] text-white/35">
+                    <div className="border-lime-300/12 rounded-[1.75rem] border bg-white/[0.025] p-10 text-center font-mono text-lg uppercase tracking-[0.24em] text-white/35">
                         {noResultsText}
                     </div>
                 )}

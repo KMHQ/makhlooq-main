@@ -55,19 +55,19 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
         <div className="space-y-6">
             {/* Node preview */}
             <div
-                className="rounded-3xl border bg-[#040c08]/50 p-8 flex items-center gap-8 backdrop-blur-xl transition-all"
+                className="flex items-center gap-8 rounded-3xl border bg-[#040c08]/50 p-8 backdrop-blur-xl transition-all"
                 style={{ borderColor: `${color}30`, boxShadow: `0 0 40px ${color}05` }}
             >
                 <div className="relative flex-shrink-0">
                     <div
-                        className="w-24 h-24 rounded-2xl overflow-hidden border-2 shadow-2xl transition-transform hover:scale-105"
+                        className="h-24 w-24 overflow-hidden rounded-2xl border-2 shadow-2xl transition-transform hover:scale-105"
                         style={{ borderColor: color, boxShadow: `0 0 30px ${color}40` }}
                     >
                         {member.avatar_url ? (
-                            <img src={member.avatar_url} alt={member.name} className="w-full h-full object-cover" />
+                            <img src={member.avatar_url} alt={member.name} className="h-full w-full object-cover" />
                         ) : (
                             <div
-                                className="w-full h-full flex items-center justify-center text-3xl font-bold"
+                                className="flex h-full w-full items-center justify-center text-3xl font-bold"
                                 style={{ background: color, color: "#040806" }}
                             >
                                 {member.name?.[0]}
@@ -75,13 +75,13 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                         )}
                     </div>
                     <span
-                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full border-4 border-[#040806] shadow-lg"
+                        className="absolute -right-2 -top-2 h-6 w-6 rounded-full border-4 border-[#040806] shadow-lg"
                         style={{ background: form.status === "active" ? "#22c55e" : "#6b7280" }}
                     />
                 </div>
                 <div>
-                    <div className="text-2xl font-bold text-white tracking-tight">{member.name}</div>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
+                    <div className="text-2xl font-bold tracking-tight text-white">{member.name}</div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                         {(member.role || "KMHQ")
                             .split(",")
                             .map((r) => r.trim())
@@ -93,7 +93,7 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                                 return (
                                     <span
                                         key={flair}
-                                        className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-full border"
+                                        className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest"
                                         style={{
                                             color: currentAccent,
                                             background: `${currentAccent}12`,
@@ -106,11 +106,11 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                                 );
                             })}
                     </div>
-                    <div className="text-gray-600 text-xs mt-2.5 font-mono">{member.discord_tag || "DISCORD_N/A"}</div>
+                    <div className="mt-2.5 font-mono text-xs text-gray-600">{member.discord_tag || "DISCORD_N/A"}</div>
                     {member.is_admin && (
-                        <div className="flex items-center gap-1.5 mt-3 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 w-fit">
+                        <div className="mt-3 flex w-fit items-center gap-1.5 rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5">
                             <Shield size={10} className="text-emerald-400" />
-                            <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Admin Power</span>
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Admin Power</span>
                         </div>
                     )}
                 </div>
@@ -118,12 +118,12 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
 
             {/* Avatar upload */}
             <div className="rounded-3xl border border-white/5 bg-[#040c08]/40 p-8 backdrop-blur-sm">
-                <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
+                <h3 className="mb-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-white">
                     <Upload size={16} className="text-emerald-500" /> Avatar Upload
                 </h3>
-                <label className="flex items-center gap-4 cursor-pointer group">
-                    <div className="flex-1 rounded-2xl border-2 border-dashed border-white/10 bg-white/5 p-8 text-center group-hover:border-emerald-500/40 group-hover:bg-emerald-500/5 transition-all">
-                        <p className="text-gray-500 text-sm font-medium group-hover:text-emerald-400">
+                <label className="group flex cursor-pointer items-center gap-4">
+                    <div className="flex-1 rounded-2xl border-2 border-dashed border-white/10 bg-white/5 p-8 text-center transition-all group-hover:border-emerald-500/40 group-hover:bg-emerald-500/5">
+                        <p className="text-sm font-medium text-gray-500 group-hover:text-emerald-400">
                             {uploading ? "Uploading avatar..." : "Upload your best photo (PNG/JPG, Max 20MB)"}
                         </p>
                     </div>
@@ -133,10 +133,10 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
 
             {/* Node color */}
             <div className="rounded-3xl border border-white/5 bg-[#040c08]/40 p-8 backdrop-blur-sm">
-                <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest">
+                <h3 className="mb-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-white">
                     <Palette size={16} className="text-emerald-500" /> Frame Color
                 </h3>
-                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-8">
+                <div className="mb-8 grid grid-cols-4 gap-3 sm:grid-cols-6">
                     {PRESET_COLORS.map((c) => (
                         <button
                             key={c}
@@ -152,11 +152,11 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                 </div>
                 <div className="flex items-center gap-4">
                     <ColorPicker value={form.node_color} onChange={(c) => setForm((f) => ({ ...f, node_color: c }))} />
-                    <div className="flex-1 relative">
+                    <div className="relative flex-1">
                         <input
                             value={form.node_color}
                             onChange={(e) => setForm((f) => ({ ...f, node_color: e.target.value }))}
-                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white text-sm font-mono outline-none focus:border-emerald-500/40 transition-colors"
+                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-mono text-sm text-white outline-none transition-colors focus:border-emerald-500/40"
                         />
                     </div>
                 </div>
@@ -164,25 +164,25 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
 
             {/* Status, Admin Power, Joining Date & Bio */}
             <div className="rounded-3xl border border-white/5 bg-[#040c08]/40 p-8 backdrop-blur-sm">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                     <div className="space-y-5">
                         {/* Status Toggle */}
                         <div>
-                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-2">
+                            <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                                 Active Status
                             </label>
                             <button
                                 type="button"
                                 onClick={() => setForm((f) => ({ ...f, status: f.status === "active" ? "inactive" : "active" }))}
-                                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border font-mono text-sm font-bold transition-all cursor-pointer ${
+                                className={`flex w-full cursor-pointer items-center justify-between rounded-xl border px-4 py-3 font-mono text-sm font-bold transition-all ${
                                     form.status === "active"
-                                        ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
-                                        : "bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60"
+                                        ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                                        : "border-gray-600/30 bg-gray-800/40 text-gray-400 hover:bg-gray-800/60"
                                 }`}
                             >
                                 <span className="flex items-center gap-2.5">
                                     <span
-                                        className={`w-2.5 h-2.5 rounded-full ${form.status === "active" ? "bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse" : "bg-gray-500"}`}
+                                        className={`h-2.5 w-2.5 rounded-full ${form.status === "active" ? "animate-pulse bg-emerald-400 shadow-[0_0_8px_#10b981]" : "bg-gray-500"}`}
                                     />
                                     {form.status === "active" ? "ACTIVE" : "INACTIVE"}
                                 </span>
@@ -193,16 +193,16 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                         {/* Admin Power Toggle (if admin) */}
                         {member.is_admin !== undefined && (
                             <div>
-                                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest block mb-2">
+                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-500">
                                     Admin Administrative Power
                                 </label>
                                 <button
                                     type="button"
                                     onClick={() => setForm((f) => ({ ...f, is_admin: !f.is_admin }))}
-                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border font-mono text-sm font-bold transition-all cursor-pointer ${
+                                    className={`flex w-full cursor-pointer items-center justify-between rounded-xl border px-4 py-3 font-mono text-sm font-bold transition-all ${
                                         form.is_admin
-                                            ? "bg-purple-500/15 border-purple-500/40 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)]"
-                                            : "bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60"
+                                            ? "border-purple-500/40 bg-purple-500/15 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)]"
+                                            : "border-gray-600/30 bg-gray-800/40 text-gray-400 hover:bg-gray-800/60"
                                     }`}
                                 >
                                     <span className="flex items-center gap-2.5">
@@ -214,9 +214,9 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                             </div>
                         )}
 
-                        <div className="pt-2 space-y-2">
-                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Joining Date</label>
-                            <div className="w-full rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-white/50 text-sm font-mono flex items-center justify-between">
+                        <div className="space-y-2 pt-2">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Joining Date</label>
+                            <div className="flex w-full items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 font-mono text-sm text-white/50">
                                 <span>
                                     {form.joined_at
                                         ? new Date(form.joined_at).toLocaleDateString("en-US", {
@@ -226,18 +226,18 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                                           })
                                         : "N/A"}
                                 </span>
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-white/30 bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                                <span className="rounded border border-white/5 bg-white/5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white/30">
                                     Read Only
                                 </span>
                             </div>
                         </div>
                     </div>
                     <div className="space-y-4">
-                        <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Biography</label>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Biography</label>
                         <textarea
                             value={form.bio}
                             onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-                            className="w-full h-44 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors resize-none"
+                            className="h-44 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-emerald-500/40"
                             placeholder="Write your story, with some style..."
                         />
                     </div>

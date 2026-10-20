@@ -121,7 +121,7 @@ export default function About({ data }: { data?: HomePage["about"] }) {
                                 {sectionLabel}
                             </span>
                         </div>
-                        <p className="max-w-4xl text-2xl leading-10 text-white/48 md:text-3xl md:leading-[1.25]">{introPara}</p>
+                        <p className="text-white/48 max-w-4xl text-2xl leading-10 md:text-3xl md:leading-[1.25]">{introPara}</p>
                     </div>
 
                     <div className="rounded-2xl border border-lime-300/15 bg-lime-300/5 px-6 py-5 font-mono text-base uppercase tracking-[0.25em] text-lime-200/70">
@@ -138,7 +138,7 @@ export default function About({ data }: { data?: HomePage["about"] }) {
                             <div key={line} className="overflow-hidden pb-4">
                                 <div
                                     data-manifesto-line
-                                    className="cursor-default text-[23vw] text-transparent [-webkit-text-stroke:1.3px_rgba(190,242,100,0.5)] md:text-[15vw] lg:text-[10.5vw] transition-all duration-500 hover:text-lime-300 hover:[-webkit-text-stroke:2px_transparent] hover:-skew-x-6 hover:scale-[1.02] hover:drop-shadow-[0_0_30px_rgba(163,230,53,0.5)]"
+                                    className="cursor-default text-[23vw] text-transparent transition-all duration-500 [-webkit-text-stroke:1.3px_rgba(190,242,100,0.5)] hover:-skew-x-6 hover:scale-[1.02] hover:text-lime-300 hover:drop-shadow-[0_0_30px_rgba(163,230,53,0.5)] hover:[-webkit-text-stroke:2px_transparent] md:text-[15vw] lg:text-[10.5vw]"
                                 >
                                     {line}
                                 </div>
@@ -177,12 +177,12 @@ export default function About({ data }: { data?: HomePage["about"] }) {
                         <div
                             key={item.kicker}
                             data-doctrine-card
-                            className="group relative min-h-[360px] overflow-hidden rounded-[1.75rem] border border-lime-300/12 bg-white/[0.025] p-8 transition-transform duration-300 hover:-translate-y-2 hover:border-lime-300/30"
+                            className="border-lime-300/12 group relative min-h-[360px] overflow-hidden rounded-[1.75rem] border bg-white/[0.025] p-8 transition-transform duration-300 hover:-translate-y-2 hover:border-lime-300/30"
                         >
                             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lime-300/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                             <div className="mb-10 font-mono text-sm uppercase tracking-[0.28em] text-lime-300/55">{item.kicker}</div>
                             <h3 className="text-4xl font-semibold leading-none tracking-[-0.06em] text-white md:text-5xl">{item.title}</h3>
-                            <p className="mt-8 text-xl leading-9 text-white/48">{item.copy}</p>
+                            <p className="text-white/48 mt-8 text-xl leading-9">{item.copy}</p>
                         </div>
                     ))}
                 </div>

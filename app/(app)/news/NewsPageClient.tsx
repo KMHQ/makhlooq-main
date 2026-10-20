@@ -40,20 +40,20 @@ function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentT
     if (!Array.isArray(blocks) || blocks.length === 0) return null;
 
     return (
-        <div className="space-y-8 w-full">
+        <div className="w-full space-y-8">
             {blocks.map((block, idx) => {
                 switch (block.blockType) {
                     case "textBlock":
                         return (
                             <div
                                 key={idx}
-                                className="relative p-6 rounded-2xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.02] hover:border-white/10 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]"
+                                className="relative rounded-2xl border border-white/[0.03] bg-white/[0.01] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] transition-all duration-300 hover:border-white/10 hover:bg-white/[0.02]"
                             >
-                                <div className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5 select-none">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <div className="mb-3 flex select-none items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
                                     COMMS DATA // DECREE_{idx + 1}
                                 </div>
-                                <div className="prose prose-invert prose-emerald max-w-none text-gray-300 leading-relaxed text-sm">
+                                <div className="prose prose-invert prose-emerald max-w-none text-sm leading-relaxed text-gray-300">
                                     <PortableTextRenderer content={block.content} />
                                 </div>
                             </div>
@@ -65,22 +65,22 @@ function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentT
                         return (
                             <figure
                                 key={idx}
-                                className={`relative group p-4 rounded-2xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.02] hover:border-white/10 transition-all duration-300 w-full shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] ${block.fullWidth ? "" : "max-w-3xl mx-auto"}`}
+                                className={`group relative w-full rounded-2xl border border-white/[0.03] bg-white/[0.01] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] transition-all duration-300 hover:border-white/10 hover:bg-white/[0.02] ${block.fullWidth ? "" : "mx-auto max-w-3xl"}`}
                             >
-                                <div className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5 select-none">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                                <div className="mb-3 flex select-none items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
                                     VISUAL SCAN // COMP_{idx + 1}
                                 </div>
-                                <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40 relative flex justify-center items-center">
+                                <div className="relative flex items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40">
                                     <img
                                         src={imgSrc}
                                         alt={(typeof block.image === "object" && block.image?.alt) || block.caption || ""}
-                                        className="max-w-full h-auto max-h-[70vh] object-contain transition-transform duration-700 group-hover:scale-[1.01]"
+                                        className="h-auto max-h-[70vh] max-w-full object-contain transition-transform duration-700 group-hover:scale-[1.01]"
                                         loading="lazy"
                                     />
                                 </div>
                                 {block.caption && (
-                                    <figcaption className="mt-3 text-center text-[10px] font-mono text-gray-400 tracking-[0.15em] uppercase select-none">
+                                    <figcaption className="mt-3 select-none text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gray-400">
                                         {block.caption}
                                     </figcaption>
                                 )}
@@ -98,13 +98,13 @@ function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentT
                         return (
                             <figure
                                 key={idx}
-                                className="relative group p-4 rounded-2xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.02] hover:border-white/10 transition-all duration-300 w-full max-w-3xl mx-auto shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]"
+                                className="group relative mx-auto w-full max-w-3xl rounded-2xl border border-white/[0.03] bg-white/[0.01] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] transition-all duration-300 hover:border-white/10 hover:bg-white/[0.02]"
                             >
-                                <div className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5 select-none">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                                <div className="mb-3 flex select-none items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-400" />
                                     VIDEO TRANSMISSION // CAPTURE_{idx + 1}
                                 </div>
-                                <div className="rounded-xl overflow-hidden border border-white/10 aspect-video bg-black relative shadow-2xl">
+                                <div className="relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl">
                                     {isDirect ? (
                                         <video
                                             src={src}
@@ -113,20 +113,20 @@ function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentT
                                             muted={block.autoplay ?? undefined}
                                             loop={block.autoplay ?? undefined}
                                             playsInline
-                                            className="w-full h-full object-contain bg-black"
+                                            className="h-full w-full bg-black object-contain"
                                         />
                                     ) : (
                                         <iframe
                                             src={toEmbedSrc(src) ?? undefined}
                                             title={block.caption || "Video"}
-                                            className="w-full h-full border-0"
+                                            className="h-full w-full border-0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
                                         />
                                     )}
                                 </div>
                                 {block.caption && (
-                                    <figcaption className="mt-3 text-center text-[10px] font-mono text-gray-400 tracking-[0.15em] uppercase select-none">
+                                    <figcaption className="mt-3 select-none text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gray-400">
                                         {block.caption}
                                     </figcaption>
                                 )}
@@ -142,27 +142,27 @@ function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentT
                         return (
                             <figure
                                 key={idx}
-                                className="relative group p-4 rounded-2xl border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.02] hover:border-white/10 transition-all duration-300 w-full max-w-3xl mx-auto shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]"
+                                className="group relative mx-auto w-full max-w-3xl rounded-2xl border border-white/[0.03] bg-white/[0.01] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] transition-all duration-300 hover:border-white/10 hover:bg-white/[0.02]"
                             >
-                                <div className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5 select-none">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                <div className="mb-3 flex select-none items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
                                     EXTERNAL FEED // CONNECT_{idx + 1}
                                 </div>
-                                <div className="rounded-xl overflow-hidden border border-white/10 aspect-video bg-black relative shadow-2xl">
+                                <div className="relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl">
                                     {isDirect ? (
-                                        <video src={block.url} controls className="w-full h-full object-contain bg-black" />
+                                        <video src={block.url} controls className="h-full w-full bg-black object-contain" />
                                     ) : (
                                         <iframe
                                             src={embedSrc ?? undefined}
                                             title={block.caption || "Embed"}
-                                            className="w-full h-full border-0"
+                                            className="h-full w-full border-0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
                                         />
                                     )}
                                 </div>
                                 {block.caption && (
-                                    <figcaption className="mt-3 text-center text-[10px] font-mono text-gray-400 tracking-[0.15em] uppercase select-none">
+                                    <figcaption className="mt-3 select-none text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gray-400">
                                         {block.caption}
                                     </figcaption>
                                 )}
@@ -206,14 +206,14 @@ function AuthorBadge({ post, accentText, className = "" }: { post: NewsPost; acc
     if (!author) return null;
 
     return (
-        <div className={`flex items-center gap-2 font-mono text-xs text-gray-300 uppercase tracking-[0.3em] ${className}`}>
+        <div className={`flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-gray-300 ${className}`}>
             {author.avatar ? (
-                <img src={author.avatar} alt={author.name} className="w-5 h-5 rounded-full border border-white/20 object-cover" />
+                <img src={author.avatar} alt={author.name} className="h-5 w-5 rounded-full border border-white/20 object-cover" />
             ) : (
                 <User size={14} className={accentText} />
             )}
             <span>
-                By <span className="text-white font-bold">{author.handle ? `@${author.handle}` : author.name}</span>
+                By <span className="font-bold text-white">{author.handle ? `@${author.handle}` : author.name}</span>
             </span>
         </div>
     );
@@ -230,7 +230,7 @@ function PostBody({ post, accentText }: { post: NewsPost; accentText: string }) 
     }
     if (hasLegacyBody) {
         return (
-            <div className="text-gray-200 text-sm leading-relaxed tracking-[0.04em]">
+            <div className="text-sm leading-relaxed tracking-[0.04em] text-gray-200">
                 <PortableTextRenderer content={post.body} />
             </div>
         );
@@ -475,9 +475,9 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
     const getCoverSrc = (item: NewsPost) => mediaUrl(item.coverImage);
 
     return (
-        <div className="min-h-[100dvh] w-full bg-[#010301] relative text-white selection:bg-lime-400/30 flex flex-col font-sans transition-colors duration-700 tracking-wide">
+        <div className="relative flex min-h-[100dvh] w-full flex-col bg-[#010301] font-sans tracking-wide text-white transition-colors duration-700 selection:bg-lime-400/30">
             {/* GLOBAL FIXED FULL-PAGE BACKGROUND */}
-            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+            <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTheme.id}
@@ -485,33 +485,33 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                         animate={{ opacity: 0.75, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.98 }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="absolute inset-0 z-0 bg-cover bg-center bg-fixed"
+                        className="absolute inset-0 z-0 bg-cover bg-fixed bg-center"
                         style={{ backgroundImage: `url('${activeTheme.backgroundImage}')` }}
                     />
                 </AnimatePresence>
 
                 <div
-                    className="absolute inset-0 z-0 transition-all duration-700 pointer-events-none"
+                    className="pointer-events-none absolute inset-0 z-0 transition-all duration-700"
                     style={{
                         background: `radial-gradient(ellipse 90% 70% at 50% 20%, ${activeTheme.bgGlow}, transparent 75%), linear-gradient(to bottom, rgba(2,4,2,0.40) 0%, rgba(2,4,2,0.25) 40%, rgba(2,4,2,0.65) 100%)`,
                     }}
                 />
 
-                <div className="absolute inset-0 pointer-events-none opacity-[0.03] [background-image:linear-gradient(rgba(255,255,255,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.15)_1px,transparent_1px)] [background-size:64px_64px]" />
+                <div className="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:linear-gradient(rgba(255,255,255,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.15)_1px,transparent_1px)] [background-size:64px_64px]" />
             </div>
 
             <Header siteSettings={siteSettings} />
 
-            <main className="flex-1 flex flex-col w-full relative z-10">
+            <main className="relative z-10 flex w-full flex-1 flex-col">
                 {/* HERO */}
-                <section className="relative w-full py-24 md:py-32 px-4 md:px-12 lg:px-16 flex items-center justify-center border-b border-white/10 transition-all duration-700 bg-transparent">
+                <section className="relative flex w-full items-center justify-center border-b border-white/10 bg-transparent px-4 py-24 transition-all duration-700 md:px-12 md:py-32 lg:px-16">
                     <div className="relative z-10 w-full text-center">
                         <motion.div
                             key={`kicker-${activeTheme.id}`}
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
-                            className={`inline-flex items-center gap-2 px-6 py-2 rounded-full border ${activeTheme.accentBorder} bg-black/60 backdrop-blur-sm font-mono text-xs font-black uppercase tracking-[0.45em] ${activeTheme.accentText} mb-8 shadow-2xl`}
+                            className={`inline-flex items-center gap-2 rounded-full border px-6 py-2 ${activeTheme.accentBorder} bg-black/60 font-mono text-xs font-black uppercase tracking-[0.45em] backdrop-blur-sm ${activeTheme.accentText} mb-8 shadow-2xl`}
                         >
                             <ActiveIcon size={14} className="animate-pulse" />
                             {activeTheme.kicker}
@@ -522,11 +522,11 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.1 }}
-                            className="text-5xl md:text-8xl font-black uppercase tracking-[0.18em] text-white leading-tight mb-8 drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]"
+                            className="mb-8 text-5xl font-black uppercase leading-tight tracking-[0.18em] text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] md:text-8xl"
                             style={{ letterSpacing: "0.18em" }}
                         >
                             {activeTheme.headingTitle}{" "}
-                            <span className={`text-transparent bg-clip-text bg-gradient-to-br ${activeTheme.titleGradient}`}>
+                            <span className={`bg-gradient-to-br bg-clip-text text-transparent ${activeTheme.titleGradient}`}>
                                 {activeTheme.headingAccent}
                             </span>
                         </motion.h1>
@@ -536,7 +536,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="w-full text-lg md:text-2xl text-gray-100 leading-relaxed font-light tracking-[0.08em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] uppercase"
+                            className="w-full text-lg font-light uppercase leading-relaxed tracking-[0.08em] text-gray-100 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] md:text-2xl"
                             style={{ letterSpacing: "0.08em" }}
                         >
                             {activeTheme.tagline}
@@ -545,9 +545,9 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                 </section>
 
                 {/* CONTROLS */}
-                <section className="sticky top-[72px] z-30 w-full bg-[#020402]/60 backdrop-blur-md border-b border-white/10 py-4 px-4 md:px-12 lg:px-16 shadow-2xl transition-colors duration-500">
-                    <div className="w-full flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <section className="sticky top-[72px] z-30 w-full border-b border-white/10 bg-[#020402]/60 px-4 py-4 shadow-2xl backdrop-blur-md transition-colors duration-500 md:px-12 lg:px-16">
+                    <div className="flex w-full flex-col items-center justify-between gap-4 md:flex-row">
+                        <div className="flex w-full flex-wrap items-center gap-2.5 [ms-overflow-style:none] [scrollbar-width:none] md:w-auto [&::-webkit-scrollbar]:hidden">
                             {CATEGORIES.map((cat) => {
                                 const isSelected = selectedCategory === cat.id;
                                 const catTheme = CATEGORY_THEMES[cat.id] || CATEGORY_THEMES.all;
@@ -555,10 +555,10 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                     <button
                                         key={cat.id}
                                         onClick={() => setSelectedCategory(cat.id)}
-                                        className={`px-5 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap border cursor-pointer ${
+                                        className={`cursor-pointer whitespace-nowrap rounded-xl border px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 ${
                                             isSelected
                                                 ? catTheme.activePill + " scale-105"
-                                                : "bg-black/50 border-white/15 text-gray-200 hover:border-white/40 hover:text-white hover:bg-black/75"
+                                                : "border-white/15 bg-black/50 text-gray-200 hover:border-white/40 hover:bg-black/75 hover:text-white"
                                         }`}
                                         style={{ letterSpacing: "0.2em" }}
                                     >
@@ -568,20 +568,20 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                             })}
                         </div>
 
-                        <div className="relative w-full md:w-80 shrink-0">
+                        <div className="relative w-full shrink-0 md:w-80">
                             <Search size={16} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${activeTheme.accentText}`} />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="SEARCH DISPATCHES..."
-                                className={`w-full bg-black/60 border ${activeTheme.accentBorder} rounded-xl pl-10 pr-4 py-2.5 text-xs font-mono text-white placeholder-gray-400 outline-none focus:bg-black/80 transition-all uppercase tracking-[0.15em]`}
+                                className={`w-full border bg-black/60 ${activeTheme.accentBorder} rounded-xl py-2.5 pl-10 pr-4 font-mono text-xs uppercase tracking-[0.15em] text-white placeholder-gray-400 outline-none transition-all focus:bg-black/80`}
                                 style={{ letterSpacing: "0.15em" }}
                             />
                             {searchQuery && (
                                 <button
                                     onClick={() => setSearchQuery("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs font-mono"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs text-gray-400 hover:text-white"
                                 >
                                     ✕
                                 </button>
@@ -591,19 +591,19 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                 </section>
 
                 {/* MAIN CONTENT */}
-                <section className="relative w-full py-12 md:py-20 px-4 md:px-12 lg:px-16 bg-transparent flex-1">
+                <section className="relative w-full flex-1 bg-transparent px-4 py-12 md:px-12 md:py-20 lg:px-16">
                     <div className="w-full">
                         {filteredPosts.length === 0 ? (
-                            <div className="py-20 text-center border border-white/10 rounded-[2.5rem] bg-black/50 p-12 backdrop-blur-md w-full">
-                                <ShieldAlert size={48} className={`mx-auto ${activeTheme.accentText} opacity-90 mb-4`} />
+                            <div className="w-full rounded-[2.5rem] border border-white/10 bg-black/50 p-12 py-20 text-center backdrop-blur-md">
+                                <ShieldAlert size={48} className={`mx-auto ${activeTheme.accentText} mb-4 opacity-90`} />
                                 <h3
-                                    className="text-2xl font-bold uppercase tracking-[0.2em] text-white mb-2"
+                                    className="mb-2 text-2xl font-bold uppercase tracking-[0.2em] text-white"
                                     style={{ letterSpacing: "0.2em" }}
                                 >
                                     No Dispatches Found
                                 </h3>
                                 <p
-                                    className="text-gray-300 text-sm max-w-md mx-auto mb-6 tracking-[0.08em]"
+                                    className="mx-auto mb-6 max-w-md text-sm tracking-[0.08em] text-gray-300"
                                     style={{ letterSpacing: "0.08em" }}
                                 >
                                     {searchQuery || selectedCategory !== "all"
@@ -616,7 +616,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                             setSelectedCategory("all");
                                             setSearchQuery("");
                                         }}
-                                        className={`px-6 py-2.5 rounded-xl ${activeTheme.activePill} font-mono font-bold text-xs uppercase tracking-[0.25em] transition-transform hover:scale-105`}
+                                        className={`rounded-xl px-6 py-2.5 ${activeTheme.activePill} font-mono text-xs font-bold uppercase tracking-[0.25em] transition-transform hover:scale-105`}
                                         style={{ letterSpacing: "0.25em" }}
                                     >
                                         Reset Filters
@@ -624,29 +624,29 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                 )}
                             </div>
                         ) : (
-                            <div className="space-y-16 w-full">
+                            <div className="w-full space-y-16">
                                 {/* ── FEATURED POST ─────────────────────────────────────── */}
                                 {featuredPost && selectedCategory === "all" && !searchQuery && (
                                     <motion.article
                                         initial={{ opacity: 0, y: 30 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.6 }}
-                                        className={`group relative overflow-hidden rounded-[2.5rem] border ${activeTheme.accentBorder} bg-black/35 backdrop-blur-md p-8 md:p-12 shadow-[0_30px_100px_rgba(0,0,0,0.8)] hover:border-white/40 hover:bg-black/50 transition-all duration-500 w-full`}
+                                        className={`group relative overflow-hidden rounded-[2.5rem] border ${activeTheme.accentBorder} w-full bg-black/35 p-8 shadow-[0_30px_100px_rgba(0,0,0,0.8)] backdrop-blur-md transition-all duration-500 hover:border-white/40 hover:bg-black/50 md:p-12`}
                                     >
                                         <div
-                                            className={`absolute top-0 right-0 px-6 py-2 rounded-bl-2xl ${activeTheme.activePill} font-mono font-black text-[10px] uppercase tracking-[0.35em] flex items-center gap-1.5 shadow-lg`}
+                                            className={`absolute right-0 top-0 rounded-bl-2xl px-6 py-2 ${activeTheme.activePill} flex items-center gap-1.5 font-mono text-[10px] font-black uppercase tracking-[0.35em] shadow-lg`}
                                         >
                                             <Flame size={12} /> Priority Dispatch
                                         </div>
 
-                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
+                                        <div className="grid w-full grid-cols-1 items-start gap-8 lg:grid-cols-12">
                                             {/* Cover Image */}
                                             {getCoverSrc(featuredPost) && (
-                                                <div className="lg:col-span-5 rounded-3xl overflow-hidden border border-white/10 aspect-video relative group-hover:border-white/30 transition-colors w-full">
+                                                <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 transition-colors group-hover:border-white/30 lg:col-span-5">
                                                     <img
                                                         src={getCoverSrc(featuredPost) ?? undefined}
                                                         alt={featuredPost.title}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                                     />
                                                 </div>
                                             )}
@@ -654,7 +654,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                             {/* Content */}
                                             <div
                                                 className={
-                                                    getCoverSrc(featuredPost) ? "lg:col-span-7 space-y-5" : "lg:col-span-12 space-y-5"
+                                                    getCoverSrc(featuredPost) ? "space-y-5 lg:col-span-7" : "space-y-5 lg:col-span-12"
                                                 }
                                             >
                                                 <div className="flex flex-wrap items-center gap-3">
@@ -673,7 +673,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                     </span>
                                                     {featuredPost.category && (
                                                         <span
-                                                            className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-[0.25em] border ${CATEGORY_COLORS[(featuredPost.category || "").toLowerCase()] || "border-white/10 bg-white/10 text-gray-300"}`}
+                                                            className={`rounded-full border px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.25em] ${CATEGORY_COLORS[(featuredPost.category || "").toLowerCase()] || "border-white/10 bg-white/10 text-gray-300"}`}
                                                         >
                                                             {featuredPost.category}
                                                         </span>
@@ -681,7 +681,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                 </div>
 
                                                 <h2
-                                                    className="text-3xl md:text-5xl font-black uppercase tracking-[0.12em] text-white leading-tight"
+                                                    className="text-3xl font-black uppercase leading-tight tracking-[0.12em] text-white md:text-5xl"
                                                     style={{ letterSpacing: "0.12em" }}
                                                 >
                                                     {featuredPost.title}
@@ -693,7 +693,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                 <AuthorBadge
                                                     post={featuredPost}
                                                     accentText={activeTheme.accentText}
-                                                    className="pt-4 border-t border-white/10"
+                                                    className="border-t border-white/10 pt-4"
                                                 />
                                             </div>
                                         </div>
@@ -711,11 +711,11 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                             >
                                                 Recent Signals & Updates
                                             </h3>
-                                            <div className="flex-1 h-px bg-white/20" />
+                                            <div className="h-px flex-1 bg-white/20" />
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full">
+                                    <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                         {(selectedCategory !== "all" || searchQuery ? filteredPosts : remainingPosts).map((item, idx) => {
                                             const imageSrc = getCoverSrc(item);
                                             const catKey = (item.category || "").toLowerCase();
@@ -730,16 +730,16 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                     whileInView={{ opacity: 1, y: 0 }}
                                                     viewport={{ once: true }}
                                                     transition={{ duration: 0.5, delay: (idx % 4) * 0.08 }}
-                                                    className="group relative flex flex-col justify-between overflow-hidden rounded-[2rem] border border-white/15 bg-black/35 p-7 hover:border-white/40 hover:bg-black/55 transition-all duration-300 backdrop-blur-md shadow-2xl w-full"
+                                                    className="group relative flex w-full flex-col justify-between overflow-hidden rounded-[2rem] border border-white/15 bg-black/35 p-7 shadow-2xl backdrop-blur-md transition-all duration-300 hover:border-white/40 hover:bg-black/55"
                                                 >
                                                     <div className="space-y-5">
                                                         {/* Cover image */}
                                                         {imageSrc && (
-                                                            <div className="rounded-2xl overflow-hidden border border-white/10 aspect-video relative group-hover:border-white/30 transition-colors w-full">
+                                                            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 transition-colors group-hover:border-white/30">
                                                                 <img
                                                                     src={imageSrc}
                                                                     alt={item.title}
-                                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                                     loading="lazy"
                                                                 />
                                                             </div>
@@ -759,7 +759,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                             </span>
                                                             {item.category && (
                                                                 <span
-                                                                    className={`px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-[0.25em] border ${catBadgeClass}`}
+                                                                    className={`rounded-full border px-2.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.25em] ${catBadgeClass}`}
                                                                 >
                                                                     {item.category}
                                                                 </span>
@@ -779,7 +779,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
 
                                                         {/* Title */}
                                                         <h3
-                                                            className="text-xl font-bold uppercase tracking-[0.12em] text-white group-hover:text-gray-100 transition-colors leading-snug drop-shadow"
+                                                            className="text-xl font-bold uppercase leading-snug tracking-[0.12em] text-white drop-shadow transition-colors group-hover:text-gray-100"
                                                             style={{ letterSpacing: "0.12em" }}
                                                         >
                                                             {item.title}
@@ -795,7 +795,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                     <AuthorBadge
                                                         post={item}
                                                         accentText={itemTheme.accentText}
-                                                        className="mt-6 pt-4 border-t border-white/15 justify-between"
+                                                        className="mt-6 justify-between border-t border-white/15 pt-4"
                                                     />
                                                 </motion.article>
                                             );

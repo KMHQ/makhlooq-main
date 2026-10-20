@@ -42,7 +42,7 @@ export function PortableTextRenderer({ content }: { content: unknown }) {
             return (
                 <div className="prose-invert max-w-none">
                     {content.split("\n").map((line, i) => (
-                        <p key={i} className="text-gray-300 leading-relaxed mb-4">
+                        <p key={i} className="mb-4 leading-relaxed text-gray-300">
                             {line}
                         </p>
                     ))}
@@ -70,7 +70,7 @@ function renderLexicalNode(node: LexicalNode, key: number): ReactNode {
     switch (node.type) {
         case "paragraph":
             return (
-                <p key={key} className="text-gray-300 leading-relaxed mb-4">
+                <p key={key} className="mb-4 leading-relaxed text-gray-300">
                     {renderLexicalNodes(node.children)}
                 </p>
             );
@@ -91,7 +91,7 @@ function renderLexicalNode(node: LexicalNode, key: number): ReactNode {
             return (
                 <blockquote
                     key={key}
-                    className="border-l-4 border-lime-500 pl-4 italic text-gray-400 my-4 bg-white/[0.01] py-2 pr-2 rounded-r-lg"
+                    className="my-4 rounded-r-lg border-l-4 border-lime-500 bg-white/[0.01] py-2 pl-4 pr-2 italic text-gray-400"
                 >
                     {renderLexicalNodes(node.children)}
                 </blockquote>
@@ -117,7 +117,7 @@ function renderLexicalNode(node: LexicalNode, key: number): ReactNode {
                     href={node.fields?.url || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-lime-400 underline underline-offset-2 hover:text-lime-200 transition-colors"
+                    className="text-lime-400 underline underline-offset-2 transition-colors hover:text-lime-200"
                 >
                     {renderLexicalNodes(node.children)}
                 </a>
@@ -127,7 +127,7 @@ function renderLexicalNode(node: LexicalNode, key: number): ReactNode {
             const url = upload?.url;
             if (!url) return null;
             return (
-                <div key={key} className="my-6 rounded-lg overflow-hidden border border-white/10">
+                <div key={key} className="my-6 overflow-hidden rounded-lg border border-white/10">
                     <Image src={url} alt={upload?.alt || ""} width={900} height={500} className="w-full object-cover" />
                 </div>
             );
@@ -135,10 +135,10 @@ function renderLexicalNode(node: LexicalNode, key: number): ReactNode {
         case "text": {
             const format = Number(node.format) || 0;
             let el: ReactNode = node.text;
-            if (format & 1) el = <strong className="text-white font-bold">{el}</strong>;
+            if (format & 1) el = <strong className="font-bold text-white">{el}</strong>;
             if (format & 2) el = <em className="text-lime-200">{el}</em>;
             if (format & 16)
-                el = <code className="bg-white/10 text-lime-300 px-1.5 py-0.5 rounded text-sm font-mono border border-white/5">{el}</code>;
+                el = <code className="rounded border border-white/5 bg-white/10 px-1.5 py-0.5 font-mono text-sm text-lime-300">{el}</code>;
             return <span key={key}>{el}</span>;
         }
         default:

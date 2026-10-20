@@ -101,7 +101,7 @@ export default function COSelector({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full flex items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-left transition-all backdrop-blur-md ${
+                className={`flex w-full items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-left backdrop-blur-md transition-all ${
                     isOpen
                         ? "border-emerald-500/60 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
                         : valueName
@@ -109,52 +109,52 @@ export default function COSelector({
                           : "border-white/10 bg-white/[0.02] hover:border-white/20"
                 }`}
             >
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="flex min-w-0 flex-1 items-center gap-2.5">
                     {selectedMember ? (
                         <>
                             {selectedMember.avatar_url ? (
                                 <img
                                     src={selectedMember.avatar_url}
                                     alt={selectedMember.name}
-                                    className="w-6 h-6 rounded-full object-cover border border-emerald-400/40 shrink-0"
+                                    className="h-6 w-6 shrink-0 rounded-full border border-emerald-400/40 object-cover"
                                 />
                             ) : (
-                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-[10px] font-black shrink-0">
+                                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/20 text-[10px] font-black text-emerald-400">
                                     {selectedMember.name?.[0]?.toUpperCase() || "C"}
                                 </div>
                             )}
-                            <div className="min-w-0 flex-1 flex items-center gap-2">
-                                <span className="text-white font-bold text-xs truncate">{selectedMember.name}</span>
-                                <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 shrink-0">
+                            <div className="flex min-w-0 flex-1 items-center gap-2">
+                                <span className="truncate text-xs font-bold text-white">{selectedMember.name}</span>
+                                <span className="shrink-0 rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest text-emerald-400/80">
                                     {selectedMember.category || "CO"}
                                 </span>
                             </div>
                         </>
                     ) : valueName ? (
                         <>
-                            <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 text-gray-300 flex items-center justify-center text-[10px] font-black shrink-0">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[10px] font-black text-gray-300">
                                 {valueName[0]?.toUpperCase() || "C"}
                             </div>
-                            <div className="min-w-0 flex-1 flex items-center gap-2">
-                                <span className="text-white font-bold text-xs truncate">{valueName}</span>
-                                <span className="text-[9px] font-mono text-gray-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/10 shrink-0">
+                            <div className="flex min-w-0 flex-1 items-center gap-2">
+                                <span className="truncate text-xs font-bold text-white">{valueName}</span>
+                                <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-[9px] text-gray-400">
                                     Custom
                                 </span>
                             </div>
                         </>
                     ) : (
-                        <div className="flex items-center gap-2 text-gray-500 text-xs">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
                             <User size={14} className="text-gray-500" />
                             <span>{placeholder}</span>
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex shrink-0 items-center gap-1">
                     {valueName && (
                         <div
                             onClick={handleClear}
-                            className="p-1 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/10 transition-colors"
+                            className="rounded-md p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-red-400"
                             title="Clear CO"
                         >
                             <X size={12} />
@@ -169,9 +169,9 @@ export default function COSelector({
 
             {/* Dropdown Panel */}
             {isOpen && (
-                <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-emerald-500/30 bg-[#050B08]/95 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[320px]">
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 flex max-h-[320px] flex-col overflow-hidden rounded-2xl border border-emerald-500/30 bg-[#050B08]/95 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
                     {/* Search Bar */}
-                    <div className="p-3 border-b border-white/10 bg-black/40 sticky top-0 z-10 space-y-2">
+                    <div className="sticky top-0 z-10 space-y-2 border-b border-white/10 bg-black/40 p-3">
                         <div className="relative">
                             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500/70" />
                             <input
@@ -180,15 +180,15 @@ export default function COSelector({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search Discord member or rank..."
-                                className="w-full rounded-xl border border-emerald-500/20 bg-white/[0.04] pl-9 pr-3 py-2 text-xs text-white outline-none focus:border-emerald-500/60 focus:bg-emerald-500/[0.06] transition-all"
+                                className="w-full rounded-xl border border-emerald-500/20 bg-white/[0.04] py-2 pl-9 pr-3 text-xs text-white outline-none transition-all focus:border-emerald-500/60 focus:bg-emerald-500/[0.06]"
                             />
                         </div>
                     </div>
 
                     {/* Members List */}
-                    <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                    <div className="custom-scrollbar flex-1 space-y-1 overflow-y-auto p-2">
                         {teamMembers.length > 0 && (
-                            <div className="px-2 py-1 text-[9px] font-mono font-bold uppercase tracking-widest text-emerald-500/60 flex items-center gap-1">
+                            <div className="flex items-center gap-1 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-emerald-500/60">
                                 <Shield size={10} /> Synced Discord Roster ({filteredMembers.length})
                             </div>
                         )}
@@ -203,40 +203,40 @@ export default function COSelector({
                                     key={m.id || m.discord_uid}
                                     type="button"
                                     onClick={() => handleSelectMember(m)}
-                                    className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
+                                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${
                                         isSelected
-                                            ? "bg-emerald-500/20 border border-emerald-500/40 text-white"
-                                            : "hover:bg-white/[0.05] border border-transparent text-gray-300 hover:text-white"
+                                            ? "border border-emerald-500/40 bg-emerald-500/20 text-white"
+                                            : "border border-transparent text-gray-300 hover:bg-white/[0.05] hover:text-white"
                                     }`}
                                 >
-                                    <div className="flex items-center gap-3 min-w-0">
+                                    <div className="flex min-w-0 items-center gap-3">
                                         {m.avatar_url ? (
                                             <img
                                                 src={m.avatar_url}
                                                 alt={m.name}
-                                                className="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0"
+                                                className="h-8 w-8 shrink-0 rounded-full border border-white/10 object-cover"
                                             />
                                         ) : (
-                                            <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black shrink-0">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-black text-emerald-400">
                                                 {m.name?.[0]?.toUpperCase() || "C"}
                                             </div>
                                         )}
-                                        <div className="min-w-0 flex flex-col">
-                                            <div className="text-xs font-bold text-white truncate flex items-center gap-1.5">
+                                        <div className="flex min-w-0 flex-col">
+                                            <div className="flex items-center gap-1.5 truncate text-xs font-bold text-white">
                                                 {m.name}
                                                 {m.discord_tag && (
-                                                    <span className="text-[10px] font-mono text-gray-500 font-normal">
+                                                    <span className="font-mono text-[10px] font-normal text-gray-500">
                                                         @{m.discord_tag}
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="text-[10px] font-mono text-emerald-400/70 uppercase tracking-wider truncate">
+                                            <div className="truncate font-mono text-[10px] uppercase tracking-wider text-emerald-400/70">
                                                 {m.category || m.role || "Member"}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {isSelected && <Check size={14} className="text-emerald-400 shrink-0" />}
+                                    {isSelected && <Check size={14} className="shrink-0 text-emerald-400" />}
                                 </button>
                             );
                         })}
@@ -249,8 +249,8 @@ export default function COSelector({
                     </div>
 
                     {/* Custom Name Section */}
-                    <div className="p-3 border-t border-white/10 bg-black/60 shrink-0">
-                        <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-gray-500 mb-1.5">
+                    <div className="shrink-0 border-t border-white/10 bg-black/60 p-3">
+                        <div className="mb-1.5 font-mono text-[9px] font-bold uppercase tracking-widest text-gray-500">
                             Or Enter Custom CO Name
                         </div>
                         <form onSubmit={handleCustomSubmit} className="flex gap-2">
@@ -263,7 +263,7 @@ export default function COSelector({
                             />
                             <button
                                 type="submit"
-                                className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition-all shrink-0"
+                                className="shrink-0 rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-bold text-black transition-all hover:bg-emerald-400"
                             >
                                 Set
                             </button>

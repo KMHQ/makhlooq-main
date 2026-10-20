@@ -12,8 +12,8 @@ import Hero from "@/app/components/Hero";
 import AboutSkeleton from "@/app/components/AboutSkeleton";
 
 const SectionSkeleton = () => (
-    <div className="min-h-screen bg-black animate-pulse flex items-center justify-center">
-        <div className="w-16 h-16 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+    <div className="flex min-h-screen animate-pulse items-center justify-center bg-black">
+        <div className="h-16 w-16 animate-spin rounded-full border-2 border-emerald-500/30 border-t-emerald-500" />
     </div>
 );
 

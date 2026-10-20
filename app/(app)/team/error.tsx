@@ -4,14 +4,14 @@ import { AlertTriangle, RotateCcw } from "lucide-react";
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     return (
-        <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <div className="flex min-h-screen items-center justify-center bg-black p-4 text-white">
             <div className="max-w-md text-center">
-                <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold mb-2">Team Loading Failed</h1>
-                <p className="text-gray-400 mb-6">Unable to load the team interface. Please try again.</p>
+                <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+                <h1 className="mb-2 text-2xl font-bold">Team Loading Failed</h1>
+                <p className="mb-6 text-gray-400">Unable to load the team interface. Please try again.</p>
                 <button
                     onClick={reset}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg transition-colors"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-black transition-colors hover:bg-emerald-600"
                 >
                     <RotateCcw size={16} />
                     Retry

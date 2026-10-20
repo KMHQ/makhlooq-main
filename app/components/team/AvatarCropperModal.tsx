@@ -159,27 +159,27 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }: Avatar
             exit={{ opacity: 0 }}
         >
             <motion.div
-                className="relative max-w-md w-full rounded-3xl overflow-hidden border border-emerald-500/20 bg-gradient-to-b from-[#0d1a12] to-[#070f09] shadow-2xl p-6 md:p-8"
+                className="relative w-full max-w-md overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-b from-[#0d1a12] to-[#070f09] p-6 shadow-2xl md:p-8"
                 initial={{ scale: 0.9, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.9, y: 20, opacity: 0 }}
             >
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-20 text-white/40 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
+                    className="absolute right-4 top-4 z-20 rounded-full p-2 text-white/40 transition-colors hover:bg-white/5 hover:text-white"
                 >
                     <X size={18} />
                 </button>
 
-                <h3 className="text-lg font-bold text-white mb-6 font-mono tracking-widest uppercase text-center">
+                <h3 className="mb-6 text-center font-mono text-lg font-bold uppercase tracking-widest text-white">
                     Crop Avatar (1:1 Ratio)
                 </h3>
 
                 {/* Cropping viewport */}
-                <div className="flex justify-center items-center mb-8">
+                <div className="mb-8 flex items-center justify-center">
                     <div
                         ref={containerRef}
-                        className="relative w-[240px] h-[240px] border border-white/5 bg-[#030604] select-none"
+                        className="relative h-[240px] w-[240px] select-none border border-white/5 bg-[#030604]"
                         style={{ touchAction: "none" }}
                     >
                         {/* The image being cropped */}
@@ -191,7 +191,7 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }: Avatar
                                 onLoad={handleImageLoad}
                                 onMouseDown={handleMouseDown}
                                 onTouchStart={handleTouchStart}
-                                className="absolute cursor-grab active:cursor-grabbing max-w-none origin-center"
+                                className="absolute max-w-none origin-center cursor-grab active:cursor-grabbing"
                                 style={{
                                     width: `${width}px`,
                                     height: `${height}px`,
@@ -205,23 +205,23 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }: Avatar
                         )}
 
                         {/* Circular cut-out overlay */}
-                        <div className="absolute w-[360px] h-[360px] -left-[60px] -top-[60px] overflow-hidden pointer-events-none z-10">
+                        <div className="pointer-events-none absolute -left-[60px] -top-[60px] z-10 h-[360px] w-[360px] overflow-hidden">
                             <div
-                                className="w-[240px] h-[240px] rounded-full border-2 border-dashed border-emerald-500/40 shadow-[0_0_0_9999px_rgba(4,8,6,0.75)] absolute left-[60px] top-[60px]"
+                                className="absolute left-[60px] top-[60px] h-[240px] w-[240px] rounded-full border-2 border-dashed border-emerald-500/40 shadow-[0_0_0_9999px_rgba(4,8,6,0.75)]"
                                 style={{ boxShadow: "0 0 0 9999px rgba(4,8,6,0.75)" }}
                             />
                         </div>
 
                         {/* Loading Indicator */}
                         {loading && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-[#040806]/80 z-20">
-                                <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#040806]/80">
+                                <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
                             </div>
                         )}
 
                         {/* Help Indicator */}
                         {!loading && (
-                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md text-[9px] font-mono text-emerald-400/80 uppercase tracking-widest flex items-center gap-1 pointer-events-none z-20">
+                            <div className="pointer-events-none absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-md bg-black/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-emerald-400/80 backdrop-blur-md">
                                 <Move size={10} /> Drag to position
                             </div>
                         )}
@@ -229,8 +229,8 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }: Avatar
                 </div>
 
                 {/* Zoom Controls */}
-                <div className="space-y-3 mb-8">
-                    <div className="flex justify-between items-center text-xs font-mono text-gray-400">
+                <div className="mb-8 space-y-3">
+                    <div className="flex items-center justify-between font-mono text-xs text-gray-400">
                         <span className="flex items-center gap-1">
                             <ZoomOut size={12} /> Zoom Out
                         </span>
@@ -247,7 +247,7 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }: Avatar
                         value={zoom}
                         onChange={handleZoomChange}
                         disabled={loading}
-                        className="w-full h-1.5 rounded-lg bg-white/10 accent-emerald-500 cursor-pointer outline-none focus:ring-1 focus:ring-emerald-500/30"
+                        className="h-1.5 w-full cursor-pointer rounded-lg bg-white/10 accent-emerald-500 outline-none focus:ring-1 focus:ring-emerald-500/30"
                     />
                 </div>
 
@@ -255,14 +255,14 @@ export default function AvatarCropperModal({ imageUrl, onCrop, onClose }: Avatar
                 <div className="flex gap-4">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 rounded-xl border border-white/10 bg-white/5 text-white font-bold text-sm hover:bg-white/10 transition-all font-mono tracking-wider"
+                        className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 font-mono text-sm font-bold tracking-wider text-white transition-all hover:bg-white/10"
                     >
                         CANCEL
                     </button>
                     <button
                         onClick={handleCrop}
                         disabled={loading}
-                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-black font-bold text-sm hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 transition-all font-mono tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                        className="flex-1 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 py-3 font-mono text-sm font-bold tracking-wider text-black shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50"
                     >
                         CROP & SAVE
                     </button>

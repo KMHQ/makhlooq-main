@@ -2,12 +2,12 @@
 
 export default function Loading() {
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center bg-black">
             <div className="text-center">
                 <div className="mb-6 flex justify-center">
-                    <div className="w-12 h-12 border-3 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+                    <div className="border-3 h-12 w-12 animate-spin rounded-full border-emerald-500/20 border-t-emerald-500" />
                 </div>
-                <p className="text-emerald-400 font-mono">Loading team data...</p>
+                <p className="font-mono text-emerald-400">Loading team data...</p>
             </div>
         </div>
     );

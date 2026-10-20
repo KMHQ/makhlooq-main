@@ -36,17 +36,17 @@ export default function TeamMemberProfile() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#040806] text-white flex items-center justify-center">
-                <div className="w-10 h-10 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+            <div className="flex min-h-screen items-center justify-center bg-[#040806] text-white">
+                <div className="h-10 w-10 animate-spin rounded-full border-2 border-emerald-500/20 border-t-emerald-500" />
             </div>
         );
     }
 
     if (!member) {
         return (
-            <div className="min-h-screen bg-[#040806] text-white flex flex-col items-center justify-center gap-4">
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#040806] text-white">
                 <h1 className="text-2xl font-bold">Member Not Found</h1>
-                <Link href="/team" className="text-emerald-400 hover:underline text-sm">
+                <Link href="/team" className="text-sm text-emerald-400 hover:underline">
                     ← Back to Team
                 </Link>
             </div>

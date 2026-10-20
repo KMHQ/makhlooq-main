@@ -186,32 +186,32 @@ export default function AdminPage() {
 
     if (authing) {
         return (
-            <div className="min-h-screen bg-[#040806] text-white flex flex-col items-center justify-center p-6 gap-4">
-                <div className="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-gray-500 font-mono text-xs tracking-widest uppercase">Initializing Secure Link...</p>
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#040806] p-6 text-white">
+                <div className="h-10 w-10 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+                <p className="font-mono text-xs uppercase tracking-widest text-gray-500">Initializing Secure Link...</p>
             </div>
         );
     }
 
     if (!session) {
         return (
-            <div className="min-h-screen bg-[#040806] text-white flex items-center justify-center p-6">
+            <div className="flex min-h-screen items-center justify-center bg-[#040806] p-6 text-white">
                 <div className="w-full max-w-sm text-center">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-black/40 border border-emerald-500/10 rounded-3xl p-10 backdrop-blur-xl"
+                        className="rounded-3xl border border-emerald-500/10 bg-black/40 p-10 backdrop-blur-xl"
                     >
-                        <div className="flex justify-center mb-8">
-                            <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+                        <div className="mb-8 flex justify-center">
+                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
                                 <Shield size={40} className="text-emerald-400" />
                             </div>
                         </div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Command Center</h1>
-                        <p className="text-gray-500 text-sm mb-8 uppercase tracking-widest font-mono">Restricted Access</p>
+                        <h1 className="mb-2 text-3xl font-bold text-white">Command Center</h1>
+                        <p className="mb-8 font-mono text-sm uppercase tracking-widest text-gray-500">Restricted Access</p>
                         <button
                             onClick={loginWithDiscord}
-                            className="w-full py-4 rounded-xl bg-[#5865F2] text-white font-bold hover:bg-[#4752C4] transition-all shadow-[0_0_20px_rgba(88,101,242,0.2)] flex items-center justify-center gap-3"
+                            className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#5865F2] py-4 font-bold text-white shadow-[0_0_20px_rgba(88,101,242,0.2)] transition-all hover:bg-[#4752C4]"
                         >
                             <img
                                 src="https://assets-global.website-files.com/6257adef93467e5028da4f2d/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
@@ -222,7 +222,7 @@ export default function AdminPage() {
                         </button>
                         <Link
                             href="/team"
-                            className="inline-flex items-center gap-2 mt-8 text-gray-500 text-xs hover:text-white transition-colors uppercase tracking-widest font-bold"
+                            className="mt-8 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 transition-colors hover:text-white"
                         >
                             <ArrowLeft size={14} /> Return to Network
                         </Link>
@@ -234,31 +234,31 @@ export default function AdminPage() {
 
     if (!authed) {
         return (
-            <div className="min-h-screen bg-[#040806] text-white flex items-center justify-center p-6">
+            <div className="flex min-h-screen items-center justify-center bg-[#040806] p-6 text-white">
                 <div className="w-full max-w-sm text-center">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-red-500/5 border border-red-500/10 rounded-3xl p-10 backdrop-blur-xl"
+                        className="rounded-3xl border border-red-500/10 bg-red-500/5 p-10 backdrop-blur-xl"
                     >
-                        <div className="flex justify-center mb-8">
-                            <div className="w-20 h-20 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                        <div className="mb-8 flex justify-center">
+                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-red-500/20 bg-red-500/10">
                                 <Shield size={40} className="text-red-500" />
                             </div>
                         </div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Access Denied</h1>
-                        <p className="text-gray-400 text-sm mb-8">
+                        <h1 className="mb-2 text-3xl font-bold text-white">Access Denied</h1>
+                        <p className="mb-8 text-sm text-gray-400">
                             Identification confirmed, but administrative clearance was not found for this account.
                         </p>
                         <button
                             onClick={logout}
-                            className="w-full py-4 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all mb-4 flex items-center justify-center gap-2"
+                            className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 py-4 font-bold text-white transition-all hover:bg-white/5"
                         >
                             <LogOut size={18} /> Sign Out
                         </button>
                         <Link
                             href="/team"
-                            className="inline-flex items-center gap-2 mt-4 text-gray-600 text-xs hover:text-white transition-colors uppercase tracking-widest font-bold"
+                            className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-600 transition-colors hover:text-white"
                         >
                             <ArrowLeft size={14} /> Back to Network
                         </Link>
@@ -269,62 +269,62 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#040806] text-white selection:bg-emerald-500/30 w-full">
+        <div className="min-h-screen w-full bg-[#040806] text-white selection:bg-emerald-500/30">
             <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(16,185,129,0.06),transparent_55%)]" />
 
-            <div className="relative z-10 w-full px-4 md:px-6 lg:px-8 pt-8 pb-24">
+            <div className="relative z-10 w-full px-4 pb-24 pt-8 md:px-6 lg:px-8">
                 {/* Header */}
-                <div className="flex flex-col gap-8 mb-12">
+                <div className="mb-12 flex flex-col gap-8">
                     <div className="flex items-center justify-between">
                         <Link
                             href="/team"
-                            className="inline-flex items-center gap-2 text-gray-500 hover:text-emerald-400 transition-colors text-sm font-medium group"
+                            className="group inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors hover:text-emerald-400"
                         >
-                            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Team
+                            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" /> Back to Team
                         </Link>
                         <button
                             onClick={logout}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-red-500/20 text-red-400 text-xs font-bold hover:bg-red-500/10 transition-all"
+                            className="flex items-center gap-2 rounded-xl border border-red-500/20 px-4 py-2 text-xs font-bold text-red-400 transition-all hover:bg-red-500/10"
                         >
                             <LogOut size={14} /> Sign Out
                         </button>
                     </div>
 
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                    <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
                         <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500 text-black uppercase tracking-widest">
+                            <div className="mb-4 flex items-center gap-3">
+                                <span className="rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-black">
                                     Administrator
                                 </span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-2">Crew Management</h1>
-                            <p className="text-gray-500 text-sm">Crew roster, roles, colors, and admin settings — all managed here</p>
+                            <h1 className="mb-2 text-4xl font-bold tracking-tight text-white md:text-5xl">Crew Management</h1>
+                            <p className="text-sm text-gray-500">Crew roster, roles, colors, and admin settings — all managed here</p>
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <div className="relative group">
+                            <div className="group relative">
                                 <Search
                                     size={14}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-emerald-400 transition-colors"
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 transition-colors group-focus-within:text-emerald-400"
                                 />
                                 <input
                                     value={filter}
                                     onChange={(e) => setFilter(e.target.value)}
                                     placeholder="Filter personnel…"
-                                    className="pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none focus:border-emerald-500/40 w-48 transition-all focus:w-64"
+                                    className="w-48 rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white outline-none transition-all focus:w-64 focus:border-emerald-500/40"
                                 />
                             </div>
                             <button
                                 onClick={syncDiscord}
                                 disabled={syncing}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-all disabled:opacity-50"
+                                className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-white/10 disabled:opacity-50"
                             >
                                 <RefreshCw size={16} className={syncing ? "animate-spin" : ""} />
                                 {syncing ? "Syncing..." : "Discord Sync"}
                             </button>
                             <button
                                 onClick={() => setShowAdd(true)}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                                className="flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-2.5 text-sm font-bold text-black shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:bg-emerald-400"
                             >
                                 <Plus size={16} /> Add Member
                             </button>
@@ -333,7 +333,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
                     {[
                         { label: "Total Crew", value: approvedMembers.length },
                         { label: "Active Crew", value: approvedMembers.filter((m) => m.status === "active").length },
@@ -347,11 +347,11 @@ export default function AdminPage() {
                             }`}
                         >
                             <div
-                                className={`text-[10px] uppercase tracking-[0.2em] font-bold mb-2 ${s.highlight ? "text-amber-400/70" : "text-gray-500"}`}
+                                className={`mb-2 text-[10px] font-bold uppercase tracking-[0.2em] ${s.highlight ? "text-amber-400/70" : "text-gray-500"}`}
                             >
                                 {s.label}
                             </div>
-                            <div className={`text-3xl font-bold font-mono ${s.highlight && s.value > 0 ? "text-amber-400" : "text-white"}`}>
+                            <div className={`font-mono text-3xl font-bold ${s.highlight && s.value > 0 ? "text-amber-400" : "text-white"}`}>
                                 {s.value}
                             </div>
                         </div>
@@ -361,12 +361,12 @@ export default function AdminPage() {
                 {/* Pending Crew Section */}
                 {pendingMembers.length > 0 && (
                     <div className="mb-10">
-                        <div className="flex items-center gap-3 mb-5">
-                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-black text-[10px] font-black">
+                        <div className="mb-5 flex items-center gap-3">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-black">
                                 {pendingMembers.length}
                             </div>
-                            <h2 className="text-lg font-bold text-white tracking-tight">Pending Crew Requests</h2>
-                            <span className="text-xs font-mono uppercase tracking-widest text-amber-400/70">Awaiting your approval</span>
+                            <h2 className="text-lg font-bold tracking-tight text-white">Pending Crew Requests</h2>
+                            <span className="font-mono text-xs uppercase tracking-widest text-amber-400/70">Awaiting your approval</span>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {pendingMembers.map((m) => (
@@ -381,14 +381,14 @@ export default function AdminPage() {
                                         {m.avatar_url ? (
                                             <img src={m.avatar_url} alt={m.name} className="h-full w-full object-cover" />
                                         ) : (
-                                            <div className="flex h-full w-full items-center justify-center bg-amber-500/20 text-amber-400 font-bold text-lg">
+                                            <div className="flex h-full w-full items-center justify-center bg-amber-500/20 text-lg font-bold text-amber-400">
                                                 {m.name?.[0]}
                                             </div>
                                         )}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="truncate font-bold text-white">{m.name}</div>
-                                        <div className="text-[10px] font-mono text-amber-400/60 uppercase tracking-wider">
+                                        <div className="font-mono text-[10px] uppercase tracking-wider text-amber-400/60">
                                             {m.discord_tag}
                                         </div>
                                         <div className="mt-1 text-[10px] text-gray-500">
@@ -398,13 +398,13 @@ export default function AdminPage() {
                                     <div className="flex flex-col gap-2">
                                         <button
                                             onClick={() => approveMember(m.id)}
-                                            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-black text-black uppercase tracking-wider hover:bg-emerald-400 transition-all"
+                                            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-black transition-all hover:bg-emerald-400"
                                         >
                                             Approve
                                         </button>
                                         <button
                                             onClick={() => rejectMember(m.id)}
-                                            className="rounded-lg border border-red-500/20 px-3 py-1.5 text-[11px] font-black text-red-400 uppercase tracking-wider hover:bg-red-500/10 transition-all"
+                                            className="rounded-lg border border-red-500/20 px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-red-400 transition-all hover:bg-red-500/10"
                                         >
                                             Reject
                                         </button>
@@ -416,13 +416,13 @@ export default function AdminPage() {
                 )}
 
                 {/* Table Container */}
-                <div className="rounded-3xl border border-white/5 bg-[#040c08]/40 shadow-2xl overflow-hidden backdrop-blur-xl">
+                <div className="overflow-hidden rounded-3xl border border-white/5 bg-[#040c08]/40 shadow-2xl backdrop-blur-xl">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
+                        <table className="w-full text-left text-sm">
                             <thead>
-                                <tr className="border-b border-white/5 bg-white/2">
+                                <tr className="bg-white/2 border-b border-white/5">
                                     {["Crew", "Role / Rank", "Status", "Frame Color", "Deployed", "Power", "Actions"].map((h) => (
-                                        <th key={h} className="px-6 py-5 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">
+                                        <th key={h} className="px-6 py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">
                                             {h}
                                         </th>
                                     ))}
@@ -433,7 +433,7 @@ export default function AdminPage() {
                                     <tr>
                                         <td
                                             colSpan={7}
-                                            className="px-6 py-20 text-center text-gray-600 font-mono text-xs uppercase tracking-widest animate-pulse"
+                                            className="animate-pulse px-6 py-20 text-center font-mono text-xs uppercase tracking-widest text-gray-600"
                                         >
                                             Loading crew list...
                                         </td>
@@ -442,7 +442,7 @@ export default function AdminPage() {
                                     <tr>
                                         <td
                                             colSpan={7}
-                                            className="px-6 py-20 text-center text-gray-500 font-mono text-xs uppercase tracking-widest"
+                                            className="px-6 py-20 text-center font-mono text-xs uppercase tracking-widest text-gray-500"
                                         >
                                             No matching members found
                                         </td>
@@ -453,23 +453,23 @@ export default function AdminPage() {
                                         const d = isEditing ? editData : m;
                                         return (
                                             <Fragment key={m.id}>
-                                                <tr className="group hover:bg-white/2 transition-colors">
+                                                <tr className="hover:bg-white/2 group transition-colors">
                                                     {/* Member */}
                                                     <td className="px-6 py-5">
                                                         <div className="flex items-center gap-4">
                                                             <div
-                                                                className="w-10 h-10 rounded-xl overflow-hidden border-2 flex-shrink-0 shadow-lg"
+                                                                className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl border-2 shadow-lg"
                                                                 style={{ borderColor: d.node_color || "#10b981" }}
                                                             >
                                                                 {m.avatar_url ? (
                                                                     <img
                                                                         src={m.avatar_url}
                                                                         alt={m.name}
-                                                                        className="w-full h-full object-cover"
+                                                                        className="h-full w-full object-cover"
                                                                     />
                                                                 ) : (
                                                                     <div
-                                                                        className="w-full h-full flex items-center justify-center font-bold"
+                                                                        className="flex h-full w-full items-center justify-center font-bold"
                                                                         style={{ background: d.node_color || "#10b981", color: "#040806" }}
                                                                     >
                                                                         {m.name?.[0]}
@@ -479,31 +479,31 @@ export default function AdminPage() {
                                                             <div className="flex flex-col">
                                                                 {isEditing ? (
                                                                     <div className="space-y-2">
-                                                                        <div className="text-white font-bold tracking-tight">{m.name}</div>
+                                                                        <div className="font-bold tracking-tight text-white">{m.name}</div>
                                                                         <input
                                                                             value={d.avatar_url || ""}
                                                                             onChange={(e) =>
                                                                                 setEditData((p) => ({ ...p, avatar_url: e.target.value }))
                                                                             }
-                                                                            className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
+                                                                            className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                                             placeholder="Avatar URL"
                                                                         />
                                                                     </div>
                                                                 ) : (
                                                                     <>
-                                                                        <div className="text-white font-bold tracking-tight">{m.name}</div>
-                                                                        <div className="text-gray-600 text-[10px] font-mono">
+                                                                        <div className="font-bold tracking-tight text-white">{m.name}</div>
+                                                                        <div className="font-mono text-[10px] text-gray-600">
                                                                             {m.discord_tag || "DISCORD_N/A"}
                                                                         </div>
                                                                         {m.bio ? (
                                                                             <div
-                                                                                className="text-gray-400 text-[11px] line-clamp-2 mt-1 italic border-l border-emerald-500/30 pl-2 max-w-xs"
+                                                                                className="mt-1 line-clamp-2 max-w-xs border-l border-emerald-500/30 pl-2 text-[11px] italic text-gray-400"
                                                                                 title={m.bio}
                                                                             >
                                                                                 &ldquo;{m.bio}&rdquo;
                                                                             </div>
                                                                         ) : (
-                                                                            <div className="text-gray-600 text-[10px] italic mt-0.5">
+                                                                            <div className="mt-0.5 text-[10px] italic text-gray-600">
                                                                                 No bio set
                                                                             </div>
                                                                         )}
@@ -516,9 +516,9 @@ export default function AdminPage() {
                                                     {/* Role / Cat */}
                                                     <td className="px-6 py-5">
                                                         {isEditing ? (
-                                                            <div className="space-y-2 min-w-[200px]">
+                                                            <div className="min-w-[200px] space-y-2">
                                                                 {/* Multiple Flairs Pills */}
-                                                                <div className="flex flex-wrap gap-1 p-2 rounded-lg border border-emerald-500/20 bg-white/5 min-h-[46px] max-w-[220px] items-center">
+                                                                <div className="flex min-h-[46px] max-w-[220px] flex-wrap items-center gap-1 rounded-lg border border-emerald-500/20 bg-white/5 p-2">
                                                                     {(d.role || "")
                                                                         .split(",")
                                                                         .map((r) => r.trim())
@@ -529,7 +529,7 @@ export default function AdminPage() {
                                                                             return (
                                                                                 <span
                                                                                     key={flair}
-                                                                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border"
+                                                                                    className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[10px]"
                                                                                     style={{
                                                                                         color: currentAccent,
                                                                                         borderColor: `${currentAccent}30`,
@@ -547,7 +547,7 @@ export default function AdminPage() {
                                                                                                 .join(", ");
                                                                                             setEditData((p) => ({ ...p, role: remaining }));
                                                                                         }}
-                                                                                        className="hover:text-red-400 font-bold ml-1 transition-colors cursor-pointer"
+                                                                                        className="ml-1 cursor-pointer font-bold transition-colors hover:text-red-400"
                                                                                     >
                                                                                         &times;
                                                                                     </button>
@@ -558,7 +558,7 @@ export default function AdminPage() {
                                                                         .split(",")
                                                                         .map((r) => r.trim())
                                                                         .filter(Boolean).length === 0 && (
-                                                                        <span className="text-gray-500 text-[10px] italic">No flairs</span>
+                                                                        <span className="text-[10px] italic text-gray-500">No flairs</span>
                                                                     )}
                                                                 </div>
 
@@ -567,7 +567,7 @@ export default function AdminPage() {
                                                                         type="text"
                                                                         id={`edit-flair-input-${m.id}`}
                                                                         placeholder="New..."
-                                                                        className="flex-1 rounded-lg border border-emerald-500/20 bg-white/5 px-2.5 py-1 text-white text-xs outline-none focus:border-emerald-500/40"
+                                                                        className="flex-1 rounded-lg border border-emerald-500/20 bg-white/5 px-2.5 py-1 text-xs text-white outline-none focus:border-emerald-500/40"
                                                                         onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
                                                                             if (e.key === "Enter") {
                                                                                 e.preventDefault();
@@ -603,12 +603,12 @@ export default function AdminPage() {
                                                                                 input.value = "";
                                                                             }
                                                                         }}
-                                                                        className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-mono text-xs border border-emerald-500/30 transition-colors cursor-pointer font-bold"
+                                                                        className="cursor-pointer rounded-lg border border-emerald-500/30 bg-emerald-500/20 px-2.5 py-1 font-mono text-xs font-bold text-emerald-300 transition-colors hover:bg-emerald-500/30"
                                                                     >
                                                                         + Add
                                                                     </button>
                                                                 </div>
-                                                                <div className="flex items-center gap-1.5 mt-1.5">
+                                                                <div className="mt-1.5 flex items-center gap-1.5">
                                                                     <ColorPicker
                                                                         value={d.flair_color || "#10b981"}
                                                                         onChange={(c) => setEditData((p) => ({ ...p, flair_color: c }))}
@@ -618,7 +618,7 @@ export default function AdminPage() {
                                                                         onChange={(e) =>
                                                                             setEditData((p) => ({ ...p, flair_icon: e.target.value }))
                                                                         }
-                                                                        className="rounded-lg border border-emerald-500/20 bg-white/5 px-2 py-1 text-white text-[10px] outline-none"
+                                                                        className="rounded-lg border border-emerald-500/20 bg-white/5 px-2 py-1 text-[10px] text-white outline-none"
                                                                     >
                                                                         {[
                                                                             "crown",
@@ -640,7 +640,7 @@ export default function AdminPage() {
                                                                     onChange={(e) =>
                                                                         setEditData((p) => ({ ...p, category: e.target.value }))
                                                                     }
-                                                                    className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
+                                                                    className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                                 >
                                                                     {CATS.map((c) => (
                                                                         <option key={c} value={c} className="bg-[#0a1a12]">
@@ -655,7 +655,7 @@ export default function AdminPage() {
                                                                     onChange={(e) =>
                                                                         setEditData((p) => ({ ...p, sec_level: e.target.value }))
                                                                     }
-                                                                    className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
+                                                                    className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                                 >
                                                                     {SEC_LEVELS.map((s) => (
                                                                         <option key={s} value={s} className="bg-[#0a1a12]">
@@ -666,7 +666,7 @@ export default function AdminPage() {
                                                             </div>
                                                         ) : (
                                                             <div>
-                                                                <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                                                <div className="flex max-w-[150px] flex-wrap gap-1">
                                                                     {(m.role || "KMHQ")
                                                                         .split(",")
                                                                         .map((r) => r.trim())
@@ -674,7 +674,7 @@ export default function AdminPage() {
                                                                         .map((flair) => (
                                                                             <span
                                                                                 key={flair}
-                                                                                className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider border"
+                                                                                className="rounded border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider"
                                                                                 style={{
                                                                                     color: m.flair_color || "#10b981",
                                                                                     borderColor: (m.flair_color || "#10b981") + "25",
@@ -685,10 +685,10 @@ export default function AdminPage() {
                                                                             </span>
                                                                         ))}
                                                                 </div>
-                                                                <div className="text-gray-600 text-[10px] uppercase tracking-widest mt-1.5">
+                                                                <div className="mt-1.5 text-[10px] uppercase tracking-widest text-gray-600">
                                                                     {m.category}
                                                                 </div>
-                                                                <div className="text-gray-500 text-[9px] font-mono mt-0.5">
+                                                                <div className="mt-0.5 font-mono text-[9px] text-gray-500">
                                                                     SEC:{" "}
                                                                     {m.sec_level && SEC_LEVELS.includes(m.sec_level) ? m.sec_level : "R0"}
                                                                 </div>
@@ -702,7 +702,7 @@ export default function AdminPage() {
                                                             <select
                                                                 value={d.status ?? ""}
                                                                 onChange={(e) => setEditData((p) => ({ ...p, status: e.target.value }))}
-                                                                className="rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
+                                                                className="rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                             >
                                                                 {["active", "inactive"].map((s) => (
                                                                     <option key={s} value={s} className="bg-[#0a1a12]">
@@ -713,13 +713,13 @@ export default function AdminPage() {
                                                         ) : (
                                                             <div className="flex items-center gap-2">
                                                                 <span
-                                                                    className="w-2 h-2 rounded-full"
+                                                                    className="h-2 w-2 rounded-full"
                                                                     style={{
                                                                         background: STATUS_COLORS[m.status ?? ""] || STATUS_COLORS.inactive,
                                                                         boxShadow: `0 0 10px ${STATUS_COLORS[m.status ?? ""] || STATUS_COLORS.inactive}`,
                                                                     }}
                                                                 />
-                                                                <span className="text-gray-400 text-xs font-medium capitalize">
+                                                                <span className="text-xs font-medium capitalize text-gray-400">
                                                                     {m.status}
                                                                 </span>
                                                             </div>
@@ -734,17 +734,17 @@ export default function AdminPage() {
                                                                     value={d.node_color || "#10b981"}
                                                                     onChange={(c) => setEditData((p) => ({ ...p, node_color: c }))}
                                                                 />
-                                                                <span className="text-white text-xs font-mono bg-white/5 px-2 py-1 rounded">
+                                                                <span className="rounded bg-white/5 px-2 py-1 font-mono text-xs text-white">
                                                                     {d.node_color}
                                                                 </span>
                                                             </div>
                                                         ) : (
                                                             <div className="flex items-center gap-3">
                                                                 <div
-                                                                    className="w-6 h-6 rounded-lg border border-white/10"
+                                                                    className="h-6 w-6 rounded-lg border border-white/10"
                                                                     style={{ background: m.node_color || "#10b981" }}
                                                                 />
-                                                                <span className="text-gray-600 text-xs font-mono">{m.node_color}</span>
+                                                                <span className="font-mono text-xs text-gray-600">{m.node_color}</span>
                                                             </div>
                                                         )}
                                                     </td>
@@ -773,10 +773,10 @@ export default function AdminPage() {
                                                                             : null,
                                                                     }))
                                                                 }
-                                                                className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40"
+                                                                className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                             />
                                                         ) : (
-                                                            <span className="text-gray-400 text-xs font-mono">
+                                                            <span className="font-mono text-xs text-gray-400">
                                                                 {(() => {
                                                                     try {
                                                                         return d.joined_at
@@ -797,16 +797,16 @@ export default function AdminPage() {
                                                     {/* Admin toggle */}
                                                     <td className="px-6 py-5">
                                                         {isEditing ? (
-                                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                            <label className="relative inline-flex cursor-pointer items-center">
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={Boolean(d.is_admin)}
                                                                     onChange={(e) =>
                                                                         setEditData((p) => ({ ...p, is_admin: e.target.checked }))
                                                                     }
-                                                                    className="sr-only peer"
+                                                                    className="peer sr-only"
                                                                 />
-                                                                <div className="w-11 h-6 bg-white/5 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-500 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-black"></div>
+                                                                <div className="peer h-6 w-11 rounded-full bg-white/5 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-gray-500 after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:after:bg-black peer-focus:outline-none rtl:peer-checked:after:-translate-x-full"></div>
                                                             </label>
                                                         ) : (
                                                             <span className={m.is_admin ? "text-emerald-400" : "text-gray-700"}>
@@ -826,13 +826,13 @@ export default function AdminPage() {
                                                                 <button
                                                                     onClick={saveEdit}
                                                                     disabled={saving}
-                                                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 transition-all disabled:opacity-50"
+                                                                    className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-black transition-all hover:bg-emerald-400 disabled:opacity-50"
                                                                 >
                                                                     <Save size={14} /> {saving ? "..." : "Commit"}
                                                                 </button>
                                                                 <button
                                                                     onClick={cancelEdit}
-                                                                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-xs font-bold hover:text-white hover:bg-white/5 transition-all"
+                                                                    className="flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-gray-400 transition-all hover:bg-white/5 hover:text-white"
                                                                 >
                                                                     <X size={14} /> Abort
                                                                 </button>
@@ -841,21 +841,21 @@ export default function AdminPage() {
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={() => setSelectedMemberForAwards(m)}
-                                                                    className="p-2 rounded-xl border border-yellow-500/10 text-yellow-500 hover:bg-yellow-500/10 transition-all"
+                                                                    className="rounded-xl border border-yellow-500/10 p-2 text-yellow-500 transition-all hover:bg-yellow-500/10"
                                                                     title="Manage Awards"
                                                                 >
                                                                     <Award size={16} />
                                                                 </button>
                                                                 <button
                                                                     onClick={() => startEdit(m)}
-                                                                    className="p-2 rounded-xl border border-emerald-500/10 text-emerald-500 hover:bg-emerald-500/10 transition-all"
+                                                                    className="rounded-xl border border-emerald-500/10 p-2 text-emerald-500 transition-all hover:bg-emerald-500/10"
                                                                     title="Edit Record"
                                                                 >
                                                                     <Edit3 size={16} />
                                                                 </button>
                                                                 <button
                                                                     onClick={() => remove(m.id)}
-                                                                    className="p-2 rounded-xl border border-red-500/10 text-red-400 hover:bg-red-500/10 transition-all"
+                                                                    className="rounded-xl border border-red-500/10 p-2 text-red-400 transition-all hover:bg-red-500/10"
                                                                     title="Delete Record"
                                                                 >
                                                                     <Trash2 size={16} />
@@ -865,14 +865,14 @@ export default function AdminPage() {
                                                     </td>
                                                 </tr>
                                                 {isEditing && (
-                                                    <tr className="bg-emerald-500/[0.03] border-b border-emerald-500/20">
+                                                    <tr className="border-b border-emerald-500/20 bg-emerald-500/[0.03]">
                                                         <td colSpan={7} className="px-6 py-4">
                                                             <div className="flex flex-col gap-2 rounded-2xl border border-emerald-500/20 bg-[#040c08]/90 p-4">
                                                                 <div className="flex items-center justify-between">
-                                                                    <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                                                                    <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-emerald-400">
                                                                         <span>Biography / Bio Box</span>
                                                                     </label>
-                                                                    <span className="text-[10px] text-gray-500 font-mono">
+                                                                    <span className="font-mono text-[10px] text-gray-500">
                                                                         Changes will be committed on Save
                                                                     </span>
                                                                 </div>
@@ -880,7 +880,7 @@ export default function AdminPage() {
                                                                     value={d.bio || ""}
                                                                     onChange={(e) => setEditData((p) => ({ ...p, bio: e.target.value }))}
                                                                     rows={3}
-                                                                    className="w-full rounded-xl border border-emerald-500/20 bg-white/5 px-4 py-3 text-white text-xs outline-none focus:border-emerald-500/40 resize-y transition-colors leading-relaxed font-sans"
+                                                                    className="w-full resize-y rounded-xl border border-emerald-500/20 bg-white/5 px-4 py-3 font-sans text-xs leading-relaxed text-white outline-none transition-colors focus:border-emerald-500/40"
                                                                     placeholder="Write or edit member biography / bio box..."
                                                                 />
                                                             </div>
@@ -960,34 +960,34 @@ function ManageAwardsModal({ member, onClose, onUpdated }: ManageAwardsModalProp
 
     return (
         <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
         >
             <motion.div
-                className="bg-[#0a1a12] border border-emerald-500/20 rounded-2xl max-w-lg w-full p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
+                className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-emerald-500/20 bg-[#0a1a12] p-8 shadow-2xl"
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex items-center justify-between mb-6">
+                <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h3 className="text-xl font-bold text-white tracking-tight">Manage Awards</h3>
-                        <p className="text-xs text-gray-500 mt-1">{member.name}</p>
+                        <h3 className="text-xl font-bold tracking-tight text-white">Manage Awards</h3>
+                        <p className="mt-1 text-xs text-gray-500">{member.name}</p>
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+                    <button onClick={onClose} className="text-gray-500 transition-colors hover:text-white">
                         <X size={20} />
                     </button>
                 </div>
 
                 {/* Current Awards List */}
                 <div className="mb-8">
-                    <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-3 block">Currently Assigned</label>
+                    <label className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Currently Assigned</label>
                     {awards.length === 0 ? (
-                        <p className="text-sm text-gray-600 italic bg-white/2 p-4 rounded-xl border border-white/5 text-center">
+                        <p className="bg-white/2 rounded-xl border border-white/5 p-4 text-center text-sm italic text-gray-600">
                             No awards assigned yet.
                         </p>
                     ) : (
@@ -997,18 +997,18 @@ function ManageAwardsModal({ member, onClose, onUpdated }: ManageAwardsModalProp
                                 return (
                                     <div
                                         key={i}
-                                        className="flex items-center justify-between p-3 bg-white/2 border border-white/5 rounded-xl"
+                                        className="bg-white/2 flex items-center justify-between rounded-xl border border-white/5 p-3"
                                     >
                                         <div className="flex items-center gap-3">
-                                            {img && <img src={img} alt="" className="w-10 h-10 object-contain" />}
+                                            {img && <img src={img} alt="" className="h-10 w-10 object-contain" />}
                                             <div>
-                                                <div className="text-white text-sm font-bold">{a.category}</div>
-                                                <div className="text-emerald-400 text-xs">{a.tier}</div>
+                                                <div className="text-sm font-bold text-white">{a.category}</div>
+                                                <div className="text-xs text-emerald-400">{a.tier}</div>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => removeAward(i)}
-                                            className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all"
+                                            className="rounded-xl p-2 text-red-400 transition-all hover:bg-red-500/10 hover:text-red-300"
                                             title="Remove Award"
                                         >
                                             <Trash2 size={16} />
@@ -1021,15 +1021,15 @@ function ManageAwardsModal({ member, onClose, onUpdated }: ManageAwardsModalProp
                 </div>
 
                 {/* Add Award Section */}
-                <div className="border-t border-white/5 pt-6 mb-8">
-                    <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-3 block">Assign New Award</label>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="mb-8 border-t border-white/5 pt-6">
+                    <label className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Assign New Award</label>
+                    <div className="mb-4 grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[9px] text-gray-600 uppercase tracking-wider">Category</label>
+                            <label className="text-[9px] uppercase tracking-wider text-gray-600">Category</label>
                             <select
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
-                                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40"
+                                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/40"
                             >
                                 {Object.keys(AWARD_CATEGORIES).map((cat) => (
                                     <option key={cat} value={cat} className="bg-[#0a1a12]">
@@ -1039,11 +1039,11 @@ function ManageAwardsModal({ member, onClose, onUpdated }: ManageAwardsModalProp
                             </select>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[9px] text-gray-600 uppercase tracking-wider">Tier</label>
+                            <label className="text-[9px] uppercase tracking-wider text-gray-600">Tier</label>
                             <select
                                 value={tier}
                                 onChange={(e) => setTier(e.target.value)}
-                                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40"
+                                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/40"
                             >
                                 {Object.keys(AWARD_TIERS).map((t) => (
                                     <option key={t} value={t} className="bg-[#0a1a12]">
@@ -1055,26 +1055,26 @@ function ManageAwardsModal({ member, onClose, onUpdated }: ManageAwardsModalProp
                     </div>
                     <button
                         onClick={addAward}
-                        className="w-full py-2.5 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
+                        className="w-full rounded-xl border border-emerald-500/20 bg-emerald-500/10 py-2.5 text-xs font-bold uppercase tracking-wider text-emerald-400 transition-all hover:bg-emerald-500/20"
                     >
                         Assign Badge
                     </button>
                 </div>
 
-                {error && <p className="text-red-400 text-xs mb-6 bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</p>}
+                {error && <p className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-400">{error}</p>}
 
                 {/* Footer Actions */}
                 <div className="flex gap-4">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
+                        className="flex-1 rounded-xl border border-white/10 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-white/5 hover:text-white"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={save}
                         disabled={saving}
-                        className="flex-1 py-3 bg-emerald-500 text-black hover:bg-emerald-400 rounded-xl font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50"
+                        className="flex-1 rounded-xl bg-emerald-500 py-3 text-xs font-bold uppercase tracking-wider text-black transition-all hover:bg-emerald-400 disabled:opacity-50"
                     >
                         {saving ? "Saving..." : "Commit Changes"}
                     </button>

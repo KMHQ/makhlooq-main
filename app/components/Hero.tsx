@@ -142,7 +142,7 @@ export default function Hero({ isMuted, volume, data }: HeroProps) {
                     playsInline
                     preload="none"
                     poster={posterImageUrl}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                 >
                     <source src={backgroundVideoUrl} type="video/mp4" />
                 </motion.video>
@@ -164,7 +164,7 @@ export default function Hero({ isMuted, volume, data }: HeroProps) {
                                 href={ctaLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="ml-3 px-2 py-0.5 border border-lime-300/30 bg-lime-300/10 text-lime-300 text-[9px] font-black uppercase tracking-wider rounded animate-pulse hover:bg-lime-300/20 hover:border-lime-300 transition-all z-30 cursor-pointer"
+                                className="z-30 ml-3 animate-pulse cursor-pointer rounded border border-lime-300/30 bg-lime-300/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-lime-300 transition-all hover:border-lime-300 hover:bg-lime-300/20"
                             >
                                 [ Connect ]
                             </a>
@@ -175,16 +175,16 @@ export default function Hero({ isMuted, volume, data }: HeroProps) {
                                 href="https://discord.gg/kmhq"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group block relative z-20"
+                                className="group relative z-20 block"
                             >
                                 <motion.h1
                                     initial={{ y: "100%" }}
                                     animate={{ y: 0, letterSpacing: heroHovered ? "-0.055em" : "-0.03em" }}
                                     transition={{ delay: 0.5, duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
-                                    className="hero-heading text-glow transition-all duration-300 group-hover:text-lime-300 group-hover:scale-[1.01] flex items-center"
+                                    className="hero-heading text-glow flex items-center transition-all duration-300 group-hover:scale-[1.01] group-hover:text-lime-300"
                                 >
                                     {decodedHeading1}
-                                    <span className="hidden md:inline-block ml-6 text-sm font-mono uppercase tracking-[0.3em] text-lime-400/80 border border-lime-400/30 bg-lime-400/10 px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-[-10px] group-hover:translate-x-0">
+                                    <span className="ml-6 hidden translate-x-[-10px] rounded border border-lime-400/30 bg-lime-400/10 px-3 py-1 font-mono text-sm uppercase tracking-[0.3em] text-lime-400/80 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 md:inline-block">
                                         Click Here
                                     </span>
                                 </motion.h1>
@@ -196,13 +196,13 @@ export default function Hero({ isMuted, volume, data }: HeroProps) {
                                 href="https://discord.gg/kmhq"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group block relative z-20"
+                                className="group relative z-20 block"
                             >
                                 <motion.h1
                                     initial={{ y: "100%" }}
                                     animate={{ y: 0, scale: heroHovered ? 1.025 : 1 }}
                                     transition={{ delay: 0.6, duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
-                                    className="hero-heading accent text-glow transition-all duration-300 group-hover:text-lime-200 group-hover:scale-[1.01] flex items-center"
+                                    className="hero-heading accent text-glow flex items-center transition-all duration-300 group-hover:scale-[1.01] group-hover:text-lime-200"
                                     whileHover={{ scale: 1.05, skewX: -5 }}
                                 >
                                     <img

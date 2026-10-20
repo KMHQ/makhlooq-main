@@ -239,7 +239,7 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
     const getSfTag = (idx: number) => `SF${idx + 1}`;
 
     return (
-        <div className="fleet-page h-[100dvh] w-full overflow-hidden flex flex-col bg-[#020402] relative text-white">
+        <div className="fleet-page relative flex h-[100dvh] w-full flex-col overflow-hidden bg-[#020402] text-white">
             {/* Background */}
             <div className="pointer-events-none absolute inset-0 z-0">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(101,163,13,0.18),transparent)]" />
@@ -251,12 +251,12 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
             <Header siteSettings={data?.siteSettings} />
 
             {/* Main layout — fills entire screen, pt accounts for the fixed header (~64px) */}
-            <div className="relative z-10 w-full h-full px-4 pb-4 pt-[72px] overflow-hidden">
+            <div className="relative z-10 h-full w-full overflow-hidden px-4 pb-4 pt-[72px]">
                 {loadingShips && (
-                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-[2.5rem]">
+                    <div className="absolute inset-0 z-50 flex items-center justify-center rounded-[2.5rem] bg-black/60 backdrop-blur-md">
                         <div className="flex flex-col items-center gap-4">
-                            <div className="w-10 h-10 border-2 border-lime-400/30 border-t-lime-400 rounded-full animate-spin" />
-                            <div className="text-xs font-mono font-black uppercase tracking-[0.3em] text-lime-400/70">
+                            <div className="h-10 w-10 animate-spin rounded-full border-2 border-lime-400/30 border-t-lime-400" />
+                            <div className="font-mono text-xs font-black uppercase tracking-[0.3em] text-lime-400/70">
                                 Accessing Fleet Manifest...
                             </div>
                         </div>
@@ -264,28 +264,28 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                 )}
 
                 {/* Layout with 40% fleets column and 60% 3D column */}
-                <div className="h-full w-full grid grid-cols-1 lg:grid-cols-[4fr_6fr] gap-3">
+                <div className="grid h-full w-full grid-cols-1 gap-3 lg:grid-cols-[4fr_6fr]">
                     {/* ═══════════════════════ LEFT COLUMN ═══════════════════════ */}
-                    <div className="flex flex-col gap-3 h-full overflow-hidden">
+                    <div className="flex h-full flex-col gap-3 overflow-hidden">
                         {/* ── Panel A: Fleet Command ── */}
-                        <div className="relative flex flex-col rounded-[1.75rem] border border-white/[0.07] bg-white/[0.03] backdrop-blur-2xl shadow-[0_0_0_1px_rgba(255,255,255,0.04),inset_0_1px_0_rgba(255,255,255,0.07)] shrink-0 overflow-hidden">
+                        <div className="relative flex shrink-0 flex-col overflow-hidden rounded-[1.75rem] border border-white/[0.07] bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.04),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-2xl">
                             {/* Gradient accent */}
                             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_50%_at_50%_0%,rgba(132,204,22,0.12),transparent)]" />
 
                             <div className="relative p-5">
                                 {/* Title */}
-                                <div className="flex items-center justify-between mb-4">
+                                <div className="mb-4 flex items-center justify-between">
                                     <div>
-                                        <div className="text-[9px] font-mono font-black uppercase tracking-[0.4em] text-lime-400/50 mb-1">
+                                        <div className="mb-1 font-mono text-[9px] font-black uppercase tracking-[0.4em] text-lime-400/50">
                                             {kicker}
                                         </div>
-                                        <h1 className="text-3xl xl:text-4xl font-black uppercase tracking-tight text-white leading-none">
+                                        <h1 className="text-3xl font-black uppercase leading-none tracking-tight text-white xl:text-4xl">
                                             {headingLine1} <span className="text-lime-400">{headingLine2}</span>
                                         </h1>
                                     </div>
                                     <div className="flex items-center gap-2 rounded-full border border-lime-400/20 bg-lime-400/10 px-3 py-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" />
-                                        <span className="text-[9px] font-mono font-black uppercase tracking-widest text-lime-300">
+                                        <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-lime-400" />
+                                        <span className="font-mono text-[9px] font-black uppercase tracking-widest text-lime-300">
                                             {badgeText}
                                         </span>
                                     </div>
@@ -337,7 +337,7 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                 ref={carouselRef}
                                                 onScroll={handleScroll}
                                                 onWheel={handleWheel}
-                                                className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none gap-4 scroll-smooth w-full"
+                                                className="scrollbar-none flex w-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth"
                                                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                                             >
                                                 {Array.from({ length: totalPages }).map((_, pageIdx) => {
@@ -350,7 +350,7 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                     return (
                                                         <div
                                                             key={pageIdx}
-                                                            className="w-full shrink-0 snap-start snap-always grid grid-cols-2 gap-2.5"
+                                                            className="grid w-full shrink-0 snap-start snap-always grid-cols-2 gap-2.5"
                                                         >
                                                             {slideShips.map((ship, i) => {
                                                                 const globalIdx = globalOffset + i;
@@ -360,53 +360,52 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                                             onClick={() => {
                                                                                 setSelectedIndex(ship.originalIndex);
                                                                             }}
-                                                                            className={`group absolute inset-0 w-full h-full rounded-xl transition-all duration-300
-                                      ${
-                                          activeShip?.id === ship.id
-                                              ? "border-2 border-lime-400 shadow-[0_0_20px_rgba(163,230,53,0.3)] z-10"
-                                              : "border border-white/10 hover:border-lime-400/40 z-0"
-                                      }`}
+                                                                            className={`group absolute inset-0 h-full w-full rounded-xl transition-all duration-300 ${
+                                                                                activeShip?.id === ship.id
+                                                                                    ? "z-10 border-2 border-lime-400 shadow-[0_0_20px_rgba(163,230,53,0.3)]"
+                                                                                    : "z-0 border border-white/10 hover:border-lime-400/40"
+                                                                            }`}
                                                                         >
                                                                             {/* Main Card */}
-                                                                            <div className="absolute inset-0 rounded-xl overflow-hidden bg-black transition-all">
+                                                                            <div className="absolute inset-0 overflow-hidden rounded-xl bg-black transition-all">
                                                                                 {ship.thumbnail ? (
                                                                                     <img
                                                                                         src={ship.thumbnail}
                                                                                         alt={ship.name}
-                                                                                        className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-all duration-500 saturate-125 contrast-105 scale-100 group-hover:scale-105"
+                                                                                        className="saturate-125 contrast-105 absolute inset-0 h-full w-full scale-100 object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                                                                                     />
                                                                                 ) : (
                                                                                     <div className="absolute inset-0 flex items-center justify-center border border-dashed border-white/10 text-white/20">
-                                                                                        <div className="w-12 h-12 border border-white/10 rounded-full" />
+                                                                                        <div className="h-12 w-12 rounded-full border border-white/10" />
                                                                                     </div>
                                                                                 )}
 
                                                                                 {/* Top Badge & Count */}
-                                                                                <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-10">
-                                                                                    <div className="bg-lime-400 text-black px-1.5 py-0.5 rounded text-[7px] font-black uppercase tracking-widest">
+                                                                                <div className="absolute left-2 right-2 top-2 z-10 flex items-start justify-between">
+                                                                                    <div className="rounded bg-lime-400 px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest text-black">
                                                                                         {getCapitalTag(globalIdx)}
                                                                                     </div>
                                                                                     {ship.count > 1 && (
-                                                                                        <div className="bg-black/60 backdrop-blur border border-white/10 text-white px-1.5 py-0.5 rounded text-[9px] font-mono font-bold">
+                                                                                        <div className="rounded border border-white/10 bg-black/60 px-1.5 py-0.5 font-mono text-[9px] font-bold text-white backdrop-blur">
                                                                                             ×{ship.count}
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
 
                                                                                 {/* Bottom Info */}
-                                                                                <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black via-black/90 to-transparent z-10 text-left">
-                                                                                    <div className="text-[9px] font-mono font-bold text-lime-400/70 uppercase truncate leading-none mb-0">
+                                                                                <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black via-black/90 to-transparent p-2.5 text-left">
+                                                                                    <div className="mb-0 truncate font-mono text-[9px] font-bold uppercase leading-none text-lime-400/70">
                                                                                         {ship.manufacturer}
                                                                                     </div>
-                                                                                    <div className="text-[13px] font-mono font-black text-white uppercase tracking-tight truncate leading-tight mt-0.5 mb-1.5">
+                                                                                    <div className="mb-1.5 mt-0.5 truncate font-mono text-[13px] font-black uppercase leading-tight tracking-tight text-white">
                                                                                         {ship.name}
                                                                                     </div>
                                                                                     {ship.ceoName && (
                                                                                         <div className="flex items-center gap-1.5">
-                                                                                            <span className="text-[7px] font-mono font-black uppercase tracking-widest text-lime-400/90 bg-lime-400/15 border border-lime-400/30 rounded px-1.5 py-0.5 leading-none">
+                                                                                            <span className="rounded border border-lime-400/30 bg-lime-400/15 px-1.5 py-0.5 font-mono text-[7px] font-black uppercase leading-none tracking-widest text-lime-400/90">
                                                                                                 CO
                                                                                             </span>
-                                                                                            <span className="text-[9px] font-mono text-white/60 uppercase truncate leading-none">
+                                                                                            <span className="truncate font-mono text-[9px] uppercase leading-none text-white/60">
                                                                                                 {ship.ceoName}
                                                                                             </span>
                                                                                         </div>
@@ -423,7 +422,7 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                                 Array.from({ length: 4 - slideShips.length }).map((_, emptyIdx) => (
                                                                     <div
                                                                         key={`empty-${emptyIdx}`}
-                                                                        className="relative aspect-[16/8] border border-dashed border-white/5 rounded-xl opacity-20"
+                                                                        className="relative aspect-[16/8] rounded-xl border border-dashed border-white/5 opacity-20"
                                                                     />
                                                                 ))}
                                                         </div>
@@ -433,11 +432,11 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
 
                                             {/* Carousel Pagination Controls */}
                                             {totalPages > 1 && (
-                                                <div className="flex items-center justify-between mt-2.5">
+                                                <div className="mt-2.5 flex items-center justify-between">
                                                     <button
                                                         onClick={() => scrollToPage(Math.max(0, capitalPage - 1))}
                                                         disabled={capitalPage === 0}
-                                                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-lime-400/40 transition-all disabled:opacity-30 text-[10px] font-mono font-bold uppercase tracking-widest"
+                                                        className="flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white/50 transition-all hover:border-lime-400/40 hover:text-white disabled:opacity-30"
                                                     >
                                                         ‹ Prev
                                                     </button>
@@ -446,8 +445,8 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                             <button
                                                                 key={pi}
                                                                 onClick={() => scrollToPage(pi)}
-                                                                className={`w-1.5 h-1.5 rounded-full transition-all ${
-                                                                    pi === capitalPage ? "bg-lime-400 w-4" : "bg-white/20 hover:bg-white/40"
+                                                                className={`h-1.5 w-1.5 rounded-full transition-all ${
+                                                                    pi === capitalPage ? "w-4 bg-lime-400" : "bg-white/20 hover:bg-white/40"
                                                                 }`}
                                                             />
                                                         ))}
@@ -455,7 +454,7 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                     <button
                                                         onClick={() => scrollToPage(Math.min(totalPages - 1, capitalPage + 1))}
                                                         disabled={capitalPage === totalPages - 1}
-                                                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-lime-400/40 transition-all disabled:opacity-30 text-[10px] font-mono font-bold uppercase tracking-widest"
+                                                        className="flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white/50 transition-all hover:border-lime-400/40 hover:text-white disabled:opacity-30"
                                                     >
                                                         Next ›
                                                     </button>
@@ -475,35 +474,35 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                 ].map((s, i) => (
                                     <div
                                         key={s.tag}
-                                        className={`flex flex-col items-center justify-center py-3 px-2 ${i > 0 ? "border-l border-white/[0.07]" : ""}`}
+                                        className={`flex flex-col items-center justify-center px-2 py-3 ${i > 0 ? "border-l border-white/[0.07]" : ""}`}
                                     >
-                                        <div className="text-[8px] font-mono font-black text-lime-400/60 uppercase tracking-[0.3em] mb-0.5">
+                                        <div className="mb-0.5 font-mono text-[8px] font-black uppercase tracking-[0.3em] text-lime-400/60">
                                             {s.label}
                                         </div>
-                                        <div className="text-lg font-black text-white leading-none">{s.val}</div>
+                                        <div className="text-lg font-black leading-none text-white">{s.val}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/* ── Panel B: Standard Fleets ── */}
-                        <div className="relative flex flex-col rounded-[1.75rem] border border-white/[0.07] bg-white/[0.03] backdrop-blur-2xl shadow-[0_0_0_1px_rgba(255,255,255,0.04),inset_0_1px_0_rgba(255,255,255,0.07)] flex-1 overflow-hidden">
-                            <div className="p-4 shrink-0">
-                                <div className="flex items-center justify-between mb-3">
+                        <div className="relative flex flex-1 flex-col overflow-hidden rounded-[1.75rem] border border-white/[0.07] bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.04),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-2xl">
+                            <div className="shrink-0 p-4">
+                                <div className="mb-3 flex items-center justify-between">
                                     <div>
-                                        <div className="text-[9px] font-mono font-black uppercase tracking-[0.4em] text-lime-400/50 mb-0.5">
+                                        <div className="mb-0.5 font-mono text-[9px] font-black uppercase tracking-[0.4em] text-lime-400/50">
                                             {standardKicker}
                                         </div>
                                         <div className="text-base font-black uppercase text-white">{standardHeading}</div>
                                     </div>
-                                    <div className="text-[9px] font-mono text-white/30 uppercase tracking-widest">
+                                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/30">
                                         {standardFleets.length} vessels
                                     </div>
                                 </div>
                                 {/* Search */}
                                 <div className="relative">
                                     <svg
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-white/30"
+                                        className="absolute left-3 top-1/2 h-3 w-3 -translate-y-1/2 text-white/30"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -520,13 +519,13 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder={searchPlaceholder}
-                                        className="w-full bg-black/30 border border-white/[0.08] rounded-xl pl-8 pr-4 py-2.5 text-[11px] font-mono text-white placeholder-white/25 outline-none focus:border-lime-400/40 transition-colors"
+                                        className="w-full rounded-xl border border-white/[0.08] bg-black/30 py-2.5 pl-8 pr-4 font-mono text-[11px] text-white placeholder-white/25 outline-none transition-colors focus:border-lime-400/40"
                                     />
                                 </div>
                             </div>
 
                             {/* Ships grid — scrollable */}
-                            <div className="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
+                            <div className="custom-scrollbar flex-1 overflow-y-auto px-4 pb-4">
                                 <div className="grid grid-cols-3 gap-2">
                                     {standardFleets.map((ship, i) => {
                                         return (
@@ -535,48 +534,47 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                     onClick={() => {
                                                         setSelectedIndex(ship.originalIndex);
                                                     }}
-                                                    className={`group absolute inset-0 w-full h-full rounded-xl overflow-hidden transition-all duration-300
-                          ${
-                              activeShip?.id === ship.id
-                                  ? "border-2 border-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.25)]"
-                                  : "border border-white/[0.08] hover:border-lime-400/30"
-                          }`}
+                                                    className={`group absolute inset-0 h-full w-full overflow-hidden rounded-xl transition-all duration-300 ${
+                                                        activeShip?.id === ship.id
+                                                            ? "border-2 border-lime-400 shadow-[0_0_15px_rgba(163,230,53,0.25)]"
+                                                            : "border border-white/[0.08] hover:border-lime-400/30"
+                                                    }`}
                                                 >
                                                     <div className="absolute inset-0 transition-all">
                                                         {ship.thumbnail ? (
                                                             <img
                                                                 src={ship.thumbnail}
                                                                 alt={ship.name}
-                                                                className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 saturate-125 contrast-105"
+                                                                className="saturate-125 contrast-105 absolute inset-0 h-full w-full object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                                                             />
                                                         ) : (
                                                             <div className="absolute inset-0 bg-gradient-to-br from-lime-900/10 to-black/50" />
                                                         )}
                                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
-                                                        <div className="absolute top-2 left-2 bg-white/10 text-white/70 font-black text-[9px] uppercase tracking-wide px-2 py-0.5 rounded-md backdrop-blur-sm border border-white/10">
+                                                        <div className="absolute left-2 top-2 rounded-md border border-white/10 bg-white/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-white/70 backdrop-blur-sm">
                                                             {getSfTag(i)}
                                                         </div>
 
                                                         {ship.count > 1 && (
-                                                            <div className="absolute top-2 right-2 bg-black/60 backdrop-blur border border-white/10 text-white px-1.5 py-0.5 rounded text-[9px] font-mono font-bold">
+                                                            <div className="absolute right-2 top-2 rounded border border-white/10 bg-black/60 px-1.5 py-0.5 font-mono text-[9px] font-bold text-white backdrop-blur">
                                                                 ×{ship.count}
                                                             </div>
                                                         )}
 
                                                         <div className="absolute bottom-0 left-0 right-0 p-2.5 text-left">
-                                                            <div className="text-[9px] font-mono text-lime-300/60 uppercase truncate leading-[1.4] py-0.5">
+                                                            <div className="truncate py-0.5 font-mono text-[9px] uppercase leading-[1.4] text-lime-300/60">
                                                                 {ship.manufacturer}
                                                             </div>
-                                                            <div className="text-xs font-mono font-black uppercase text-white leading-[1.4] py-0.5 truncate">
+                                                            <div className="truncate py-0.5 font-mono text-xs font-black uppercase leading-[1.4] text-white">
                                                                 {ship.name}
                                                             </div>
                                                             {ship.ceoName && (
-                                                                <div className="flex items-center gap-1.5 mt-0.5">
-                                                                    <span className="text-[7px] font-mono font-black uppercase tracking-widest text-lime-400/90 bg-lime-400/15 border border-lime-400/30 rounded px-1 py-0.5 leading-none">
+                                                                <div className="mt-0.5 flex items-center gap-1.5">
+                                                                    <span className="rounded border border-lime-400/30 bg-lime-400/15 px-1 py-0.5 font-mono text-[7px] font-black uppercase leading-none tracking-widest text-lime-400/90">
                                                                         CO
                                                                     </span>
-                                                                    <span className="text-[9px] font-mono text-white/60 uppercase truncate leading-none">
+                                                                    <span className="truncate font-mono text-[9px] uppercase leading-none text-white/60">
                                                                         {ship.ceoName}
                                                                     </span>
                                                                 </div>
@@ -588,7 +586,7 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                         );
                                     })}
                                     {standardFleets.length === 0 && !loadingShips && (
-                                        <div className="col-span-2 flex items-center justify-center rounded-xl border border-dashed border-white/10 aspect-[4/1] text-white/25 text-[10px] font-mono uppercase tracking-widest">
+                                        <div className="col-span-2 flex aspect-[4/1] items-center justify-center rounded-xl border border-dashed border-white/10 font-mono text-[10px] uppercase tracking-widest text-white/25">
                                             {searchQuery ? "No matching fleets found" : "Admin has not added standard fleets"}
                                         </div>
                                     )}
@@ -598,30 +596,30 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                     </div>
 
                     {/* ═══════════════════════ RIGHT COLUMN ═══════════════════════ */}
-                    <div className="flex flex-col gap-3 h-full overflow-hidden">
+                    <div className="flex h-full flex-col gap-3 overflow-hidden">
                         {/* ── 3D Stage: Square viewer ── */}
-                        <div className="flex-1 relative rounded-[1.75rem] border border-white/[0.07] bg-[#010201] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.04)] min-h-0">
+                        <div className="relative min-h-0 flex-1 overflow-hidden rounded-[1.75rem] border border-white/[0.07] bg-[#010201] shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
                             {/* Ambient glow */}
                             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_80%,rgba(101,163,13,0.10),transparent)]" />
 
                             {/* Loading badge */}
                             {loadingSelectedShip && (
                                 <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full border border-lime-300/15 bg-black/70 px-3 py-1.5 backdrop-blur">
-                                    <div className="w-2.5 h-2.5 border border-lime-400/60 border-t-lime-400 rounded-full animate-spin" />
-                                    <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-lime-100/55">Loading...</span>
+                                    <div className="h-2.5 w-2.5 animate-spin rounded-full border border-lime-400/60 border-t-lime-400" />
+                                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-lime-100/55">Loading...</span>
                                 </div>
                             )}
 
                             {/* HUD top-left */}
-                            <div className="absolute top-5 left-5 z-20">
-                                <div className="text-[9px] font-mono font-black uppercase tracking-[0.36em] text-lime-400/50">
+                            <div className="absolute left-5 top-5 z-20">
+                                <div className="font-mono text-[9px] font-black uppercase tracking-[0.36em] text-lime-400/50">
                                     Ship Stage
                                 </div>
-                                <div className="mt-0.5 text-2xl font-black uppercase tracking-[-0.05em] text-white/90 leading-none">
+                                <div className="mt-0.5 text-2xl font-black uppercase leading-none tracking-[-0.05em] text-white/90">
                                     {activeShip?.name || <span className="text-white/20">Select a Ship</span>}
                                 </div>
                                 {activeShip && (
-                                    <div className="mt-1 text-[9px] font-mono text-lime-300/50 uppercase tracking-wider">
+                                    <div className="mt-1 font-mono text-[9px] uppercase tracking-wider text-lime-300/50">
                                         {activeShip.manufacturer} · {activeShip.class}
                                     </div>
                                 )}
@@ -633,13 +631,13 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                             </div>
 
                             {/* Nav hint */}
-                            <div className="absolute bottom-4 right-5 z-20 text-[9px] font-mono text-white/20 uppercase tracking-widest hidden lg:block">
+                            <div className="absolute bottom-4 right-5 z-20 hidden font-mono text-[9px] uppercase tracking-widest text-white/20 lg:block">
                                 ← → to cycle ships
                             </div>
                         </div>
 
                         {/* ── Ship Details Panel ── */}
-                        <div className="shrink-0 h-[190px]">
+                        <div className="h-[190px] shrink-0">
                             <FleetShipDetails ship={activeShip} onOpenMemberModal={handleOpenCoModal} />
                         </div>
                     </div>

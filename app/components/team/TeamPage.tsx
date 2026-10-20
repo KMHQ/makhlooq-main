@@ -31,7 +31,7 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             onClick={() => onClick(member)}
-            className="group cursor-pointer relative overflow-hidden rounded-[2rem] border border-lime-300/10 bg-white/[0.03] shadow-[0_24px_90px_rgba(0,0,0,0.35)] backdrop-blur-xl"
+            className="group relative cursor-pointer overflow-hidden rounded-[2rem] border border-lime-300/10 bg-white/[0.03] shadow-[0_24px_90px_rgba(0,0,0,0.35)] backdrop-blur-xl"
             style={{
                 background: "linear-gradient(145deg, rgba(255,255,255,0.055) 0%, rgba(4,12,5,0.86) 52%, rgba(2,5,3,0.94) 100%)",
                 fontFamily: "Inter, system-ui, sans-serif",
@@ -47,13 +47,13 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
         >
             {/* Top accent line */}
             <div
-                className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                className="absolute left-0 right-0 top-0 h-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 style={{ background: `linear-gradient(90deg, transparent, ${frameColor}, transparent)` }}
             />
 
             {/* Scanlines */}
             <div
-                className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{ background: "repeating-linear-gradient(0deg,transparent,transparent 3px,#00000012 3px,#00000012 4px)" }}
             />
 
@@ -66,14 +66,14 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
             ].map((c, i) => (
                 <div
                     key={i}
-                    className={`absolute w-3 h-3 ${c} opacity-0 group-hover:opacity-100 transition-all duration-200`}
+                    className={`absolute h-3 w-3 ${c} opacity-0 transition-all duration-200 group-hover:opacity-100`}
                     style={{ borderColor: frameColor }}
                 />
             ))}
 
             {/* Glitch bar */}
             <div
-                className="absolute right-0 top-0 bottom-0 w-[2px] opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bottom-0 right-0 top-0 w-[2px] opacity-0 transition-opacity group-hover:opacity-100"
                 style={{ background: frameColor, animation: "bar-flicker 0.5s steps(3) infinite" }}
             />
 
@@ -82,11 +82,11 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
                 <div className="mb-5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className={`h-2 w-2 rounded-full ${status.dot}`} />
-                        <span className="font-mono text-[11px] tracking-[0.24em] uppercase" style={{ color: status.color }}>
+                        <span className="font-mono text-[11px] uppercase tracking-[0.24em]" style={{ color: status.color }}>
                             {status.label}
                         </span>
                     </div>
-                    <span className="font-mono text-[9px] tracking-normal text-lime-200/25 uppercase">
+                    <span className="font-mono text-[9px] uppercase tracking-normal text-lime-200/25">
                         {member.discord_uid || "--------"}
                     </span>
                 </div>
@@ -103,7 +103,7 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
                         }}
                     >
                         {member.avatar_url ? (
-                            <img src={member.avatar_url} alt={member.name} className="w-full h-full object-cover" />
+                            <img src={member.avatar_url} alt={member.name} className="h-full w-full object-cover" />
                         ) : (
                             <span className="group-hover:animate-[text-glitch_0.6s_steps(1)_infinite]">{initial}</span>
                         )}
@@ -124,7 +124,7 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
                                     return (
                                         <span
                                             key={flair}
-                                            className="inline-flex items-center gap-1.5 font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full"
+                                            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest"
                                             style={{
                                                 color: currentAccent,
                                                 background: `${currentAccent}12`,
@@ -152,7 +152,7 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
                                     src={imgUrl}
                                     alt={title}
                                     title={title}
-                                    className="w-7 h-7 object-contain opacity-75 group-hover:opacity-100 transition-opacity drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+                                    className="h-7 w-7 object-contain opacity-75 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-opacity group-hover:opacity-100"
                                 />
                             ) : null;
                         })}
@@ -196,7 +196,7 @@ const FilterBar = ({ search, setSearch, statusFilter, setStatusFilter, categoryF
     <div className="grid gap-4 rounded-[2rem] border border-lime-300/10 bg-black/35 p-4 shadow-[0_20px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:grid-cols-[1.7fr_1fr_1fr]">
         <div className="space-y-2">
             <label className="px-1 text-sm font-black uppercase tracking-[0.18em] text-lime-100/45">Crew Search</label>
-            <div className="relative group">
+            <div className="group relative">
                 <Search
                     size={20}
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-lime-100/30 transition-colors group-focus-within:text-lime-200/70"
@@ -213,13 +213,13 @@ const FilterBar = ({ search, setSearch, statusFilter, setStatusFilter, categoryF
 
         <div className="space-y-2">
             <label className="px-1 text-sm font-black uppercase tracking-[0.18em] text-lime-100/45">Status</label>
-            <div className="flex bg-white/[0.035] border border-white/10 rounded-2xl p-1 h-[58px]">
+            <div className="flex h-[58px] rounded-2xl border border-white/10 bg-white/[0.035] p-1">
                 {["all", "active", "inactive"].map((status) => (
                     <button
                         key={status}
                         type="button"
                         onClick={() => setStatusFilter(status)}
-                        className={`flex-1 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.12em] transition-all cursor-pointer ${
+                        className={`flex-1 cursor-pointer rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.12em] transition-all ${
                             statusFilter === status
                                 ? "bg-lime-300 text-[#020402] shadow-[0_0_10px_rgba(163,230,53,0.2)]"
                                 : "text-lime-100/40 hover:text-white"
@@ -241,7 +241,7 @@ const FilterBar = ({ search, setSearch, statusFilter, setStatusFilter, categoryF
                 <option value="" className="bg-[#0a0a0a]">
                     All Ranks
                 </option>
-                <optgroup label="Categories" className="bg-[#0a0a0a] text-lime-400 font-bold">
+                <optgroup label="Categories" className="bg-[#0a0a0a] font-bold text-lime-400">
                     <option value="group:commanders" className="bg-[#0a0a0a] text-white">
                         Commanders (C1-C3)
                     </option>
@@ -252,7 +252,7 @@ const FilterBar = ({ search, setSearch, statusFilter, setStatusFilter, categoryF
                         Enlists (E1-E5)
                     </option>
                 </optgroup>
-                <optgroup label="Individual Ranks" className="bg-[#0a0a0a] text-lime-400 font-bold">
+                <optgroup label="Individual Ranks" className="bg-[#0a0a0a] font-bold text-lime-400">
                     {CATEGORIES.map((cat) => (
                         <option key={cat} value={cat} className="bg-[#0a0a0a] text-white">
                             {cat}
@@ -272,17 +272,17 @@ const FilterBar = ({ search, setSearch, statusFilter, setStatusFilter, categoryF
 
 const JoinCommunityCTA = ({ joinCTA = {} }: { joinCTA?: PageData<"team-page">["joinCTA"] }) => (
     <section className="relative mt-20 overflow-hidden">
-        <div className="relative p-12 text-center overflow-hidden bg-white/[0.02] border border-white/5 rounded-[2.5rem] backdrop-blur-xl">
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-white/5 bg-white/[0.02] p-12 text-center backdrop-blur-xl">
             <div className="relative z-10 flex flex-col items-center gap-6">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
                     {joinCTA.badge || "Recruitment Open"}
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white max-w-2xl">
+                <h2 className="max-w-2xl text-4xl font-bold tracking-tight text-white md:text-5xl">
                     {joinCTA.heading ? (
                         joinCTA.heading.includes("Khalai Makhlooq") ? (
                             <>
                                 {joinCTA.heading.split("Khalai Makhlooq")[0]}
-                                <span className="text-white/40 font-light italic">Khalai Makhlooq</span>
+                                <span className="font-light italic text-white/40">Khalai Makhlooq</span>
                                 {joinCTA.heading.split("Khalai Makhlooq")[1]}
                             </>
                         ) : (
@@ -290,23 +290,23 @@ const JoinCommunityCTA = ({ joinCTA = {} }: { joinCTA?: PageData<"team-page">["j
                         )
                     ) : (
                         <>
-                            Join <span className="text-white/40 font-light italic">Khalai Makhlooq</span>&apos;s space crew
+                            Join <span className="font-light italic text-white/40">Khalai Makhlooq</span>&apos;s space crew
                         </>
                     )}
                 </h2>
-                <p className="text-white/40 text-sm max-w-lg font-medium leading-relaxed">
+                <p className="max-w-lg text-sm font-medium leading-relaxed text-white/40">
                     {joinCTA.description || "Join the crew, see the ships, and grow your rank through organized action."}
                 </p>
-                <div className="flex flex-wrap justify-center gap-4 mt-4">
+                <div className="mt-4 flex flex-wrap justify-center gap-4">
                     <a
                         href={joinCTA.discordLink || "https://discord.gg/K7SfxPSwXk"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-8 py-4 bg-white text-black font-bold text-sm tracking-widest uppercase rounded-2xl hover:bg-white/90 transition-all active:scale-95 shadow-xl shadow-white/5"
+                        className="flex items-center gap-2 rounded-2xl bg-white px-8 py-4 text-sm font-bold uppercase tracking-widest text-black shadow-xl shadow-white/5 transition-all hover:bg-white/90 active:scale-95"
                     >
                         {joinCTA.discordLinkText || "Join on Discord"} <ChevronRight size={16} />
                     </a>
-                    <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold text-sm tracking-widest uppercase rounded-2xl hover:bg-white/10 transition-all active:scale-95">
+                    <button className="rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-sm font-bold uppercase tracking-widest text-white transition-all hover:bg-white/10 active:scale-95">
                         {joinCTA.learnMoreText || "Learn More"}
                     </button>
                 </div>
@@ -398,19 +398,19 @@ const EditProfileModal = ({ member, onClose, onUpdated }: EditProfileModalProps)
             style={{ background: "rgba(2,13,5,0.95)" }}
         >
             <motion.div
-                className="w-full max-w-2xl overflow-y-auto max-h-[90vh] shadow-[0_0_50px_rgba(16,185,129,0.1)]"
+                className="max-h-[90vh] w-full max-w-2xl overflow-y-auto shadow-[0_0_50px_rgba(16,185,129,0.1)]"
                 style={{ background: "#020d05", border: "1px solid #0f5c1e", borderRadius: "24px" }}
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex items-center justify-between px-8 py-6 border-b border-white/5">
+                <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
                     <div className="flex items-center gap-3">
                         <Terminal size={18} className="text-emerald-500" />
-                        <span className="font-mono text-xs tracking-[0.3em] text-emerald-500 uppercase font-bold">Edit Profile</span>
+                        <span className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-emerald-500">Edit Profile</span>
                     </div>
-                    <button onClick={onClose} className="text-white/20 hover:text-white transition-colors p-1">
+                    <button onClick={onClose} className="p-1 text-white/20 transition-colors hover:text-white">
                         <X size={20} />
                     </button>
                 </div>
@@ -419,8 +419,8 @@ const EditProfileModal = ({ member, onClose, onUpdated }: EditProfileModalProps)
                     <ProfileEditor member={member} form={form} setForm={setForm} onUploadAvatar={uploadAvatar} uploading={uploading} />
 
                     {error && (
-                        <div className="mt-6 font-mono text-[10px] text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                        <div className="mt-6 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 font-mono text-[10px] text-red-400">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
                             {error}
                         </div>
                     )}
@@ -428,14 +428,14 @@ const EditProfileModal = ({ member, onClose, onUpdated }: EditProfileModalProps)
                     <div className="mt-8 flex gap-4">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all font-mono tracking-wider"
+                            className="flex-1 rounded-xl border border-white/10 bg-white/5 py-4 font-mono text-xs font-bold uppercase tracking-wider tracking-widest transition-all hover:bg-white/10"
                         >
                             CANCEL
                         </button>
                         <button
                             onClick={save}
                             disabled={saving || uploading}
-                            className="flex-[2] py-4 bg-emerald-500 text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-[0_0_30px_rgba(16,185,129,0.2)] disabled:opacity-50 font-mono tracking-wider"
+                            className="flex-[2] rounded-xl bg-emerald-500 py-4 font-mono text-xs font-bold uppercase tracking-wider tracking-widest text-black shadow-[0_0_30px_rgba(16,185,129,0.2)] transition-all hover:bg-emerald-400 disabled:opacity-50"
                         >
                             {saving ? "UPDATING DOSSIER…" : "SAVE CHANGES"}
                         </button>
@@ -625,7 +625,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                 >
                     <div>
                         <div className="font-mono text-sm font-black uppercase tracking-[0.4em] text-lime-300/55">{kicker}</div>
-                        <div className="mt-2 flex flex-wrap items-baseline gap-x-4 sm:gap-x-5 leading-none tracking-[-0.09em]">
+                        <div className="mt-2 flex flex-wrap items-baseline gap-x-4 leading-none tracking-[-0.09em] sm:gap-x-5">
                             <span className="text-[12vw] font-black uppercase text-transparent [-webkit-text-stroke:1px_rgba(217,249,157,0.28)] md:text-[5rem] lg:text-[6rem]">
                                 {headingLine1}
                             </span>
@@ -708,8 +708,8 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                 </motion.section>
 
                 {/* Filters */}
-                <div className="mt-6 mb-4 flex flex-col xl:flex-row xl:items-end gap-6 justify-between">
-                    <div className="flex-1 min-w-0">
+                <div className="mb-4 mt-6 flex flex-col justify-between gap-6 xl:flex-row xl:items-end">
+                    <div className="min-w-0 flex-1">
                         <FilterBar
                             search={search}
                             setSearch={setSearch}
@@ -719,10 +719,10 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                             setCategoryFilter={setCategoryFilter}
                         />
                     </div>
-                    <div className="flex-shrink-0 flex items-center bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-[1.25rem] p-1 self-start xl:self-auto">
+                    <div className="flex flex-shrink-0 items-center self-start rounded-[1.25rem] border border-white/5 bg-white/[0.02] p-1 backdrop-blur-md xl:self-auto">
                         <button
                             onClick={() => setViewMode("grid")}
-                            className={`px-5 py-2.5 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
+                            className={`rounded-xl px-5 py-2.5 font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
                                 viewMode === "grid"
                                     ? "bg-lime-300 text-[#020402] shadow-[0_0_15px_rgba(163,230,53,0.25)]"
                                     : "text-lime-100/40 hover:text-white"
@@ -732,7 +732,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                         </button>
                         <button
                             onClick={() => setViewMode("network")}
-                            className={`px-5 py-2.5 rounded-xl font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
+                            className={`rounded-xl px-5 py-2.5 font-mono text-[10px] font-black uppercase tracking-[0.15em] transition-all ${
                                 viewMode === "network"
                                     ? "bg-lime-300 text-[#020402] shadow-[0_0_15px_rgba(163,230,53,0.25)]"
                                     : "text-lime-100/40 hover:text-white"
@@ -767,7 +767,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="min-w-0 flex-1">
                             <div className="font-mono text-xs font-black uppercase tracking-[0.28em] text-amber-400">
                                 Pending Crew Approval
                             </div>
@@ -797,7 +797,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 text-red-400">
                                     <WifiOff size={18} />
                                 </div>
-                                <div className="flex-1 min-w-0">
+                                <div className="min-w-0 flex-1">
                                     <div className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-red-400">
                                         Database Error
                                     </div>
@@ -810,7 +810,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 text-red-400">
                                     <Terminal size={18} />
                                 </div>
-                                <div className="flex-1 min-w-0">
+                                <div className="min-w-0 flex-1">
                                     <div className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-red-400">
                                         Auth Error
                                     </div>
@@ -824,33 +824,33 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                 {/* Member Grid */}
                 <div className="mt-2">
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-6">
-                            <div className="relative w-16 h-16">
-                                <div className="absolute inset-0 border-2 border-white/5 rounded-2xl animate-spin" />
+                        <div className="flex flex-col items-center justify-center gap-6 py-32">
+                            <div className="relative h-16 w-16">
+                                <div className="absolute inset-0 animate-spin rounded-2xl border-2 border-white/5" />
                                 <div
-                                    className="absolute inset-2 border-2 border-emerald-500/30 rounded-xl animate-spin"
+                                    className="absolute inset-2 animate-spin rounded-xl border-2 border-emerald-500/30"
                                     style={{ animationDirection: "reverse", animationDuration: "0.8s" }}
                                 />
                                 <Activity size={20} className="absolute inset-0 m-auto text-emerald-500" />
                             </div>
-                            <span className="text-xs font-bold tracking-[0.4em] text-white/20 uppercase animate-pulse">
+                            <span className="animate-pulse text-xs font-bold uppercase tracking-[0.4em] text-white/20">
                                 Loading crew list...
                             </span>
                         </div>
                     ) : filteredMembers.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-4 bg-white/[0.02] border border-white/5 rounded-3xl">
-                            <div className="p-5 rounded-full bg-white/5">
+                        <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-white/5 bg-white/[0.02] py-32">
+                            <div className="rounded-full bg-white/5 p-5">
                                 <WifiOff size={40} className="text-white/20" />
                             </div>
                             <div className="text-center">
-                                <p className="text-sm font-bold text-white/60 uppercase tracking-widest">No Pilots Found</p>
-                                <p className="text-xs text-white/20 uppercase tracking-[0.2em] mt-1">Try a broader search</p>
+                                <p className="text-sm font-bold uppercase tracking-widest text-white/60">No Pilots Found</p>
+                                <p className="mt-1 text-xs uppercase tracking-[0.2em] text-white/20">Try a broader search</p>
                             </div>
                         </div>
                     ) : viewMode === "network" ? (
                         <RanksRolesChart />
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             <AnimatePresence mode="popLayout">
                                 {filteredMembers.map((member) => (
                                     <MemberCard key={member.id} member={member} onClick={setSelectedMember} />
@@ -866,7 +866,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                         <span>{filteredMembers.length} Crew Members</span>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-lime-300 animate-pulse" />
+                                <div className="h-2 w-2 animate-pulse rounded-full bg-lime-300" />
                                 <span>{filteredMembers.filter((m) => m.status === "active").length} Active</span>
                             </div>
                         </div>
@@ -874,7 +874,7 @@ export default function TeamPage({ pageData }: { pageData: PageData<"team-page">
                 )}
 
                 {/* Recruitment CTA */}
-                <div className="mt-12 mb-24">
+                <div className="mb-24 mt-12">
                     <JoinCommunityCTA joinCTA={joinCTA} />
                 </div>
             </div>

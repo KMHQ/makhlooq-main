@@ -120,7 +120,7 @@ export default function Showcase({ data }: { data?: HomePage["showcase"] }) {
         <section id="showcase" ref={sectionRef} className="relative overflow-hidden bg-[#030603] py-28 text-white md:py-40">
             <div className="pointer-events-none absolute inset-0">
                 <div className="absolute right-[-8%] top-[10%] h-[32rem] w-[32rem] rounded-full bg-lime-400/5 blur-[140px]" />
-                <div className="absolute left-[-12%] bottom-[-10%] h-[28rem] w-[28rem] rounded-full bg-lime-500/5 blur-[150px]" />
+                <div className="absolute bottom-[-10%] left-[-12%] h-[28rem] w-[28rem] rounded-full bg-lime-500/5 blur-[150px]" />
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(163,230,53,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(163,230,53,0.03)_1px,transparent_1px)] bg-[size:88px_88px] opacity-40 [mask-image:radial-gradient(circle_at_center,black,transparent_74%)]" />
             </div>
 
@@ -128,7 +128,7 @@ export default function Showcase({ data }: { data?: HomePage["showcase"] }) {
                 <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)] lg:items-end">
                     <div>
                         <div className="mb-5 flex items-center gap-3">
-                            <span className="h-2 w-2 rounded-sm bg-lime-400 shadow-[0_0_18px_rgba(163,230,53,0.6)] animate-pulse" />
+                            <span className="h-2 w-2 animate-pulse rounded-sm bg-lime-400 shadow-[0_0_18px_rgba(163,230,53,0.6)]" />
                             <span className="font-mono text-base font-bold uppercase tracking-[0.35em] text-lime-300/80">
                                 {sectionLabel}
                             </span>
@@ -142,7 +142,7 @@ export default function Showcase({ data }: { data?: HomePage["showcase"] }) {
                                 <div key={word} className="overflow-hidden pb-4">
                                     <div
                                         data-showcase-word
-                                        className="cursor-default text-[23vw] text-transparent [-webkit-text-stroke:1.3px_rgba(190,242,100,0.55)] md:text-[15vw] lg:text-[10.5vw] transition-all duration-500 hover:text-lime-300 hover:[-webkit-text-stroke:2px_transparent] hover:-skew-x-6 hover:scale-[1.02] hover:drop-shadow-[0_0_30px_rgba(163,230,53,0.5)]"
+                                        className="cursor-default text-[23vw] text-transparent transition-all duration-500 [-webkit-text-stroke:1.3px_rgba(190,242,100,0.55)] hover:-skew-x-6 hover:scale-[1.02] hover:text-lime-300 hover:drop-shadow-[0_0_30px_rgba(163,230,53,0.5)] hover:[-webkit-text-stroke:2px_transparent] md:text-[15vw] lg:text-[10.5vw]"
                                     >
                                         {word}
                                     </div>
@@ -157,7 +157,7 @@ export default function Showcase({ data }: { data?: HomePage["showcase"] }) {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-80px" }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="rounded-[2.5rem] border border-lime-300/15 bg-[#08120a] p-8 backdrop-blur-2xl ring-1 ring-white/5"
+                        className="rounded-[2.5rem] border border-lime-300/15 bg-[#08120a] p-8 ring-1 ring-white/5 backdrop-blur-2xl"
                     >
                         <div className="grid gap-4 sm:grid-cols-2">
                             {METRICS.map((metric) => (
@@ -170,24 +170,24 @@ export default function Showcase({ data }: { data?: HomePage["showcase"] }) {
                                         <span className="font-mono text-sm uppercase tracking-[0.3em] text-lime-300/60 transition-transform duration-300 group-hover:translate-x-2 group-hover:text-lime-300">
                                             {metric.label}
                                         </span>
-                                        <span className="font-mono text-lg text-lime-300/0 transition-all duration-300 group-hover:text-lime-300/50 group-hover:-translate-x-2">
+                                        <span className="font-mono text-lg text-lime-300/0 transition-all duration-300 group-hover:-translate-x-2 group-hover:text-lime-300/50">
                                             &rarr;
                                         </span>
                                     </div>
-                                    <div className="relative z-10 mt-4 text-5xl font-semibold tracking-[-0.06em] text-white md:text-6xl transition-transform duration-300 group-hover:translate-x-2">
+                                    <div className="relative z-10 mt-4 text-5xl font-semibold tracking-[-0.06em] text-white transition-transform duration-300 group-hover:translate-x-2 md:text-6xl">
                                         {metric.value}
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <p className="mt-7 max-w-2xl text-2xl leading-10 text-white/48">{metricsPanelBody}</p>
+                        <p className="text-white/48 mt-7 max-w-2xl text-2xl leading-10">{metricsPanelBody}</p>
                     </motion.div>
                 </div>
 
                 <div className="mt-16 border-t border-lime-300/15 pt-12">
                     <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                         <h2 className="text-5xl font-bold tracking-[-0.07em] md:text-7xl">{pillarsHeading}</h2>
-                        <p className="max-w-2xl text-xl leading-9 text-white/48">{pillarsSubtext}</p>
+                        <p className="text-white/48 max-w-2xl text-xl leading-9">{pillarsSubtext}</p>
                     </div>
 
                     <div data-pillar-grid className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

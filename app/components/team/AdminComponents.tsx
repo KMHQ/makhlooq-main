@@ -31,13 +31,13 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (col
         <div className="relative">
             <button
                 onClick={() => setOpen((o) => !o)}
-                className="w-7 h-7 rounded-full border-2 border-white/20 transition-transform hover:scale-110"
+                className="h-7 w-7 rounded-full border-2 border-white/20 transition-transform hover:scale-110"
                 style={{ background: value }}
                 title="Change color"
             />
             {open && (
-                <div className="absolute z-50 top-9 left-0 bg-[#0d1f15] border border-emerald-500/20 rounded-xl p-3 shadow-2xl backdrop-blur-xl">
-                    <div className="grid grid-cols-4 gap-1.5 mb-3">
+                <div className="absolute left-0 top-9 z-50 rounded-xl border border-emerald-500/20 bg-[#0d1f15] p-3 shadow-2xl backdrop-blur-xl">
+                    <div className="mb-3 grid grid-cols-4 gap-1.5">
                         {PRESET_COLORS.map((c) => (
                             <button
                                 key={c}
@@ -45,7 +45,7 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (col
                                     onChange(c);
                                     setOpen(false);
                                 }}
-                                className="w-6 h-6 rounded-full border border-transparent hover:border-white/50 transition-all hover:scale-110"
+                                className="h-6 w-6 rounded-full border border-transparent transition-all hover:scale-110 hover:border-white/50"
                                 style={{ background: c }}
                             />
                         ))}
@@ -54,7 +54,7 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (col
                         type="color"
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
-                        className="w-full h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+                        className="h-8 w-full cursor-pointer rounded border-0 bg-transparent p-0"
                     />
                 </div>
             )}
@@ -90,20 +90,20 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
 
     const field = (key: TextField, label: string, type = "text", opts: string[] | null = null) => (
         <div className="space-y-1">
-            <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{label}</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{label}</label>
             {key === "bio" ? (
                 <textarea
                     value={form[key] || ""}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
                     rows={3}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors resize-y"
+                    className="w-full resize-y rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-emerald-500/40"
                     placeholder="Member bio / story..."
                 />
             ) : opts ? (
                 <select
                     value={form[key]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors"
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-emerald-500/40"
                 >
                     {opts.map((o) => (
                         <option key={o} value={o} className="bg-[#0a1a12]">
@@ -116,7 +116,7 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                     type={type}
                     value={form[key]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/40 transition-colors"
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-emerald-500/40"
                 />
             )}
         </div>
@@ -124,22 +124,22 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
 
     return (
         <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
         >
             <motion.div
-                className="bg-[#0a1a12] border border-emerald-500/20 rounded-2xl max-w-md w-full p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
+                className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-emerald-500/20 bg-[#0a1a12] p-8 shadow-2xl"
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-white tracking-tight">Add Fleet Member</h3>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+                <div className="mb-6 flex items-center justify-between">
+                    <h3 className="text-xl font-bold tracking-tight text-white">Add Fleet Member</h3>
+                    <button onClick={onClose} className="text-gray-500 transition-colors hover:text-white">
                         <X size={20} />
                     </button>
                 </div>
@@ -149,8 +149,8 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                     {field("discord_tag", "Discord Tag")}
                     {/* Multiple Flairs Editor */}
                     <div className="space-y-2">
-                        <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Flairs</label>
-                        <div className="flex flex-wrap gap-1.5 p-2.5 rounded-lg border border-white/10 bg-white/5 min-h-[46px] items-center">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Flairs</label>
+                        <div className="flex min-h-[46px] flex-wrap items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 p-2.5">
                             {(form.role || "")
                                 .split(",")
                                 .map((r) => r.trim())
@@ -161,7 +161,7 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                                     return (
                                         <span
                                             key={flair}
-                                            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono border"
+                                            className="inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-xs"
                                             style={{
                                                 color: currentAccent,
                                                 borderColor: `${currentAccent}30`,
@@ -179,7 +179,7 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                                                         .join(", ");
                                                     setForm((f) => ({ ...f, role: remaining }));
                                                 }}
-                                                className="hover:text-red-400 font-bold ml-1 transition-colors cursor-pointer"
+                                                className="ml-1 cursor-pointer font-bold transition-colors hover:text-red-400"
                                             >
                                                 &times;
                                             </button>
@@ -189,7 +189,7 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                             {(form.role || "")
                                 .split(",")
                                 .map((r) => r.trim())
-                                .filter(Boolean).length === 0 && <span className="text-gray-500 text-xs italic">No flairs configured</span>}
+                                .filter(Boolean).length === 0 && <span className="text-xs italic text-gray-500">No flairs configured</span>}
                         </div>
 
                         <div className="flex gap-2">
@@ -197,7 +197,7 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                                 type="text"
                                 id="new-flair-input"
                                 placeholder="Type new flair..."
-                                className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-white text-xs outline-none focus:border-emerald-500/40 transition-colors"
+                                className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white outline-none transition-colors focus:border-emerald-500/40"
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
                                         e.preventDefault();
@@ -231,7 +231,7 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                                         input.value = "";
                                     }
                                 }}
-                                className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-mono text-xs border border-emerald-500/30 transition-colors cursor-pointer font-bold"
+                                className="cursor-pointer rounded-lg border border-emerald-500/30 bg-emerald-500/20 px-3 py-1.5 font-mono text-xs font-bold text-emerald-300 transition-colors hover:bg-emerald-500/30"
                             >
                                 + Add
                             </button>
@@ -240,10 +240,10 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                     {field("flair_icon", "Flair Icon", "text", ["crown", "shield", "sword", "users", "zap", "terminal", "none"])}
 
                     <div className="py-2">
-                        <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2 block">Flair Color</label>
+                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Flair Color</label>
                         <div className="flex items-center gap-3">
                             <ColorPicker value={form.flair_color} onChange={(c) => setForm((f) => ({ ...f, flair_color: c }))} />
-                            <span className="text-white text-xs font-mono bg-white/5 px-2 py-1 rounded">{form.flair_color}</span>
+                            <span className="rounded bg-white/5 px-2 py-1 font-mono text-xs text-white">{form.flair_color}</span>
                         </div>
                     </div>
 
@@ -255,30 +255,30 @@ export function AddMemberModal({ onClose, onAdded }: { onClose: () => void; onAd
                     {field("bio", "Bio")}
 
                     <div className="py-2">
-                        <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2 block">Frame Color</label>
+                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Frame Color</label>
                         <div className="flex items-center gap-3">
                             <ColorPicker value={form.node_color} onChange={(c) => setForm((f) => ({ ...f, node_color: c }))} />
-                            <span className="text-white text-xs font-mono bg-white/5 px-2 py-1 rounded">{form.node_color}</span>
+                            <span className="rounded bg-white/5 px-2 py-1 font-mono text-xs text-white">{form.node_color}</span>
                         </div>
                     </div>
 
-                    <label className="flex items-center gap-3 cursor-pointer group py-2">
+                    <label className="group flex cursor-pointer items-center gap-3 py-2">
                         <input
                             type="checkbox"
                             checked={form.is_admin}
                             onChange={(e) => setForm((f) => ({ ...f, is_admin: e.target.checked }))}
-                            className="w-4 h-4 rounded border-white/10 bg-white/5 accent-emerald-500"
+                            className="h-4 w-4 rounded border-white/10 bg-white/5 accent-emerald-500"
                         />
-                        <span className="text-sm text-gray-400 group-hover:text-white transition-colors">Grant Administrative Access</span>
+                        <span className="text-sm text-gray-400 transition-colors group-hover:text-white">Grant Administrative Access</span>
                     </label>
                 </div>
 
-                {error && <p className="text-red-400 text-xs mt-4 bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</p>}
+                {error && <p className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-400">{error}</p>}
 
                 <button
                     onClick={save}
                     disabled={saving}
-                    className="mt-8 w-full py-3.5 rounded-xl bg-emerald-500 text-[#040806] font-bold text-sm hover:bg-emerald-400 transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    className="mt-8 w-full rounded-xl bg-emerald-500 py-3.5 text-sm font-bold text-[#040806] shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all hover:bg-emerald-400 disabled:opacity-50"
                 >
                     {saving ? "Processing…" : "Deploy Member"}
                 </button>

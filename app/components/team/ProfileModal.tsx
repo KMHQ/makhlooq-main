@@ -85,18 +85,18 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
             >
                 {/* HUD Header */}
                 <div
-                    className="flex items-center justify-between px-6 h-11 border-b rounded-t-[4px]"
+                    className="flex h-11 items-center justify-between rounded-t-[4px] border-b px-6"
                     style={{ borderColor: `${frameColor}25`, background: `${frameColor}08` }}
                 >
                     <div className="flex items-center gap-2.5">
-                        <div className="w-2 h-2 rounded-sm animate-pulse" style={{ background: frameColor }} />
-                        <span className="font-mono text-[11px] tracking-[0.25em] uppercase" style={{ color: frameColor }}>
+                        <div className="h-2 w-2 animate-pulse rounded-sm" style={{ background: frameColor }} />
+                        <span className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: frameColor }}>
                             CITIZEN_DOSSIER // ACCESS_GRANTED
                         </span>
                     </div>
                     <button
                         onClick={onClose}
-                        className="transition-colors p-1.5 cursor-pointer hover:opacity-80"
+                        className="cursor-pointer p-1.5 transition-colors hover:opacity-80"
                         style={{ color: frameColor }}
                     >
                         <X size={16} />
@@ -105,7 +105,7 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
 
                 {/* Scanlines */}
                 <div
-                    className="absolute inset-0 pointer-events-none opacity-30 rounded-[4px] overflow-hidden"
+                    className="pointer-events-none absolute inset-0 overflow-hidden rounded-[4px] opacity-30"
                     style={{ background: "repeating-linear-gradient(0deg,transparent,transparent 3px,#00000018 3px,#00000018 4px)" }}
                 />
 
@@ -116,16 +116,16 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                     "bottom-3 left-3 border-b border-l",
                     "bottom-3 right-3 border-b border-r",
                 ].map((c, i) => (
-                    <div key={i} className={`absolute w-5 h-5 ${c} pointer-events-none`} style={{ borderColor: `${frameColor}50` }} />
+                    <div key={i} className={`absolute h-5 w-5 ${c} pointer-events-none`} style={{ borderColor: `${frameColor}50` }} />
                 ))}
 
-                <div className="relative px-8 pt-7 pb-8">
+                <div className="relative px-8 pb-8 pt-7">
                     {/* Top section */}
-                    <div className="flex gap-6 mb-8">
+                    <div className="mb-8 flex gap-6">
                         {/* Avatar */}
                         <div className="flex-shrink-0">
                             <div
-                                className="w-32 h-32 flex items-center justify-center text-5xl font-bold overflow-hidden"
+                                className="flex h-32 w-32 items-center justify-center overflow-hidden text-5xl font-bold"
                                 style={{
                                     background: `${frameColor}10`,
                                     border: `2px solid ${frameColor}60`,
@@ -134,29 +134,29 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                 }}
                             >
                                 {member.avatar_url ? (
-                                    <img src={member.avatar_url} alt={member.name} className="w-full h-full object-cover" />
+                                    <img src={member.avatar_url} alt={member.name} className="h-full w-full object-cover" />
                                 ) : (
                                     <span className="animate-[text-glitch_1.5s_steps(1)_infinite]">{initial}</span>
                                 )}
                             </div>
                             {/* Status pill */}
                             <div
-                                className="mt-2.5 flex items-center justify-center gap-1.5 py-1.5 border font-mono text-[10px] tracking-widest uppercase"
+                                className="mt-2.5 flex items-center justify-center gap-1.5 border py-1.5 font-mono text-[10px] uppercase tracking-widest"
                                 style={{ borderColor: `${frameColor}25`, background: `${frameColor}08`, color: frameColor }}
                             >
-                                <div className={`w-2 h-2 rounded-full ${status.dot}`} />
+                                <div className={`h-2 w-2 rounded-full ${status.dot}`} />
                                 {status.label}
                             </div>
                         </div>
 
                         {/* Name block */}
-                        <div className="flex-1 min-w-0 space-y-3">
+                        <div className="min-w-0 flex-1 space-y-3">
                             <div className="flex items-center gap-3">
-                                <h2 className="text-3xl font-bold text-white tracking-tight leading-none truncate">
+                                <h2 className="truncate text-3xl font-bold leading-none tracking-tight text-white">
                                     {member.name || "UNKNOWN_SUBJECT"}
                                 </h2>
                                 {currentIsAdmin && (
-                                    <span className="flex-shrink-0 px-2.5 py-1 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                                    <span className="flex flex-shrink-0 items-center gap-1 rounded border border-purple-500/40 bg-purple-500/20 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
                                         <Shield size={11} className="text-purple-400" /> ADMIN
                                     </span>
                                 )}
@@ -173,7 +173,7 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                         return (
                                             <span
                                                 key={flair}
-                                                className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded border"
+                                                className="inline-flex items-center gap-1.5 rounded border px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest"
                                                 style={{
                                                     color: currentAccent,
                                                     background: `${currentAccent}12`,
@@ -198,10 +198,10 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                     { label: "UID", val: member.discord_uid || "0x??????" },
                                 ].map((f) => (
                                     <div key={f.label} className="border-l-2 pl-3.5" style={{ borderColor: `${frameColor}30` }}>
-                                        <div className="font-mono text-[9px] tracking-[0.2em] text-[#2a5c35] uppercase mb-0.5">
+                                        <div className="mb-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-[#2a5c35]">
                                             {f.label}
                                         </div>
-                                        <div className="font-mono text-[12px] text-white uppercase tracking-wide truncate">{f.val}</div>
+                                        <div className="truncate font-mono text-[12px] uppercase tracking-wide text-white">{f.val}</div>
                                     </div>
                                 ))}
                             </div>
@@ -210,15 +210,15 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
 
                     {/* Admin Controls */}
                     {isAdmin && (
-                        <div className="border-t pt-5 pb-3 mb-5" style={{ borderColor: `${frameColor}20` }}>
-                            <div className="flex items-center justify-between mb-3.5">
+                        <div className="mb-5 border-t pb-3 pt-5" style={{ borderColor: `${frameColor}20` }}>
+                            <div className="mb-3.5 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Shield size={14} className="text-emerald-400" />
-                                    <span className="font-mono text-[10px] tracking-[0.25em] text-emerald-400 uppercase font-black">
+                                    <span className="font-mono text-[10px] font-black uppercase tracking-[0.25em] text-emerald-400">
                                         ADMIN_OVERRIDE_CONTROLS //
                                     </span>
                                 </div>
-                                {updating && <span className="font-mono text-[10px] text-lime-400 animate-pulse uppercase">SAVING…</span>}
+                                {updating && <span className="animate-pulse font-mono text-[10px] uppercase text-lime-400">SAVING…</span>}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -227,19 +227,19 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                     type="button"
                                     onClick={handleToggleStatus}
                                     disabled={updating}
-                                    className={`flex items-center justify-between px-4 py-3 rounded-lg border font-mono text-sm font-bold transition-all cursor-pointer ${
+                                    className={`flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 font-mono text-sm font-bold transition-all ${
                                         currentStatus === "active"
-                                            ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-                                            : "bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60"
+                                            ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] hover:bg-emerald-500/25"
+                                            : "border-gray-600/30 bg-gray-800/40 text-gray-400 hover:bg-gray-800/60"
                                     }`}
                                 >
                                     <span className="flex items-center gap-2 truncate">
                                         <span
-                                            className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${currentStatus === "active" ? "bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse" : "bg-gray-500"}`}
+                                            className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${currentStatus === "active" ? "animate-pulse bg-emerald-400 shadow-[0_0_8px_#10b981]" : "bg-gray-500"}`}
                                         />
                                         {currentStatus === "active" ? "ACTIVE" : "INACTIVE"}
                                     </span>
-                                    <span className="text-[10px] uppercase tracking-widest opacity-60 ml-1">TOGGLE</span>
+                                    <span className="ml-1 text-[10px] uppercase tracking-widest opacity-60">TOGGLE</span>
                                 </button>
 
                                 {/* Admin Power Toggle Button */}
@@ -247,20 +247,20 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                     type="button"
                                     onClick={handleToggleAdmin}
                                     disabled={updating}
-                                    className={`flex items-center justify-between px-4 py-3 rounded-lg border font-mono text-sm font-bold transition-all cursor-pointer ${
+                                    className={`flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 font-mono text-sm font-bold transition-all ${
                                         currentIsAdmin
-                                            ? "bg-purple-500/15 border-purple-500/40 text-purple-300 hover:bg-purple-500/25 shadow-[0_0_12px_rgba(168,85,247,0.15)]"
-                                            : "bg-gray-800/40 border-gray-600/30 text-gray-400 hover:bg-gray-800/60"
+                                            ? "border-purple-500/40 bg-purple-500/15 text-purple-300 shadow-[0_0_12px_rgba(168,85,247,0.15)] hover:bg-purple-500/25"
+                                            : "border-gray-600/30 bg-gray-800/40 text-gray-400 hover:bg-gray-800/60"
                                     }`}
                                 >
                                     <span className="flex items-center gap-2 truncate">
                                         <Shield
                                             size={14}
-                                            className={currentIsAdmin ? "text-purple-400 flex-shrink-0" : "text-gray-500 flex-shrink-0"}
+                                            className={currentIsAdmin ? "flex-shrink-0 text-purple-400" : "flex-shrink-0 text-gray-500"}
                                         />
                                         {currentIsAdmin ? "ADMIN: ON" : "ADMIN: OFF"}
                                     </span>
-                                    <span className="text-[10px] uppercase tracking-widest opacity-60 ml-1">TOGGLE</span>
+                                    <span className="ml-1 text-[10px] uppercase tracking-widest opacity-60">TOGGLE</span>
                                 </button>
                             </div>
                         </div>
@@ -268,8 +268,8 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
 
                     {/* Awards */}
                     {awards.length > 0 && (
-                        <div className="border-t pt-5 pb-3" style={{ borderColor: `${frameColor}15` }}>
-                            <div className="font-mono text-[10px] tracking-[0.2em] text-[#2a5c35] uppercase mb-4">SERVICE_AWARDS //</div>
+                        <div className="border-t pb-3 pt-5" style={{ borderColor: `${frameColor}15` }}>
+                            <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-[#2a5c35]">SERVICE_AWARDS //</div>
                             <div className="flex flex-wrap gap-4">
                                 {awards.map((award, i) => {
                                     const imgUrl = getAwardImage(award.category, award.tier);
@@ -278,30 +278,30 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                     return (
                                         <div
                                             key={i}
-                                            className="group/award relative flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/40 hover:bg-white/[0.06] transition-all flex-shrink-0"
+                                            className="group/award relative flex flex-shrink-0 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 transition-all hover:border-emerald-500/40 hover:bg-white/[0.06]"
                                         >
-                                            {imgUrl && <img src={imgUrl} alt={title} className="w-10 h-10 object-contain flex-shrink-0" />}
-                                            <div className="flex flex-col pr-1.5 min-w-0">
-                                                <span className="font-mono text-sm text-white font-bold leading-tight whitespace-nowrap">
+                                            {imgUrl && <img src={imgUrl} alt={title} className="h-10 w-10 flex-shrink-0 object-contain" />}
+                                            <div className="flex min-w-0 flex-col pr-1.5">
+                                                <span className="whitespace-nowrap font-mono text-sm font-bold leading-tight text-white">
                                                     {award.category}
                                                 </span>
-                                                <span className="font-mono text-xs text-emerald-400 font-medium mt-0.5 tracking-wider uppercase whitespace-nowrap">
+                                                <span className="mt-0.5 whitespace-nowrap font-mono text-xs font-medium uppercase tracking-wider text-emerald-400">
                                                     {award.tier}
                                                 </span>
                                             </div>
 
                                             {/* Tooltip on hover */}
-                                            <div className="absolute bottom-full left-0 mb-2 w-72 md:w-80 hidden group-hover/award:block bg-[#020d05] border border-emerald-500/40 p-4 rounded-xl shadow-2xl text-left z-[100] pointer-events-none">
-                                                <div className="font-bold text-xs text-white uppercase tracking-wider">
+                                            <div className="pointer-events-none absolute bottom-full left-0 z-[100] mb-2 hidden w-72 rounded-xl border border-emerald-500/40 bg-[#020d05] p-4 text-left shadow-2xl group-hover/award:block md:w-80">
+                                                <div className="text-xs font-bold uppercase tracking-wider text-white">
                                                     {award.category} ({award.tier})
                                                 </div>
                                                 {details && (
-                                                    <div className="text-xs text-gray-200 mt-1.5 leading-relaxed font-sans font-normal">
+                                                    <div className="mt-1.5 font-sans text-xs font-normal leading-relaxed text-gray-200">
                                                         {details.desc}
                                                     </div>
                                                 )}
                                                 {details && AWARD_TIERS[award.tier] && (
-                                                    <div className="text-[10px] text-emerald-400 font-mono font-bold mt-2 pt-1.5 border-t border-white/10">
+                                                    <div className="mt-2 border-t border-white/10 pt-1.5 font-mono text-[10px] font-bold text-emerald-400">
                                                         Requirement: {AWARD_TIERS[award.tier].merits}
                                                     </div>
                                                 )}
@@ -315,8 +315,8 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
 
                     {/* Bio */}
                     <div className="border-t pt-5" style={{ borderColor: `${frameColor}15` }}>
-                        <div className="font-mono text-[10px] tracking-[0.2em] text-[#2a5c35] uppercase mb-2.5">SUBJECT_BIO //</div>
-                        <p className="font-mono text-xs md:text-sm leading-relaxed" style={{ color: `${frameColor}90` }}>
+                        <div className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#2a5c35]">SUBJECT_BIO //</div>
+                        <p className="font-mono text-xs leading-relaxed md:text-sm" style={{ color: `${frameColor}90` }}>
                             {member.bio || "NO BIO DATA FOUND"}
                         </p>
                     </div>
