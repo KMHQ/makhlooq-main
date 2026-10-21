@@ -39,8 +39,12 @@ next-env.d.ts
 /dist
 tmp_*
 
-# performance metrics (scripts/profile-pages.mjs output)
+# local performance profiling: the script and its output
+/scripts/profile-pages.mjs
 /perf/
+
+# local agent files
+/.claude/
 
 # reference scaffold (create-next-app + create-payload-app), not part of the app
 /payload-reference/
