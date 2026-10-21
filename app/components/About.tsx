@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { motion } from "motion/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { mediaUrl } from "@/app/lib/media";
+import { isUnoptimized, mediaUrl } from "@/app/lib/media";
 import type { HomePage } from "@/payload-types";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -154,13 +155,13 @@ export default function About({ data }: { data?: HomePage["about"] }) {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         className="relative overflow-hidden rounded-[2rem] border border-lime-300/15 bg-black/35 p-6 shadow-[0_30px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl"
                     >
-                        <img
+                        <Image
                             src={fleetImageUrl}
                             alt="Khalai Makhlooq fleet command"
-                            width={1280}
-                            height={720}
-                            className="absolute inset-0 h-full w-full object-cover opacity-75"
-                            loading="lazy"
+                            fill
+                            sizes="(min-width: 1024px) 40vw, 100vw"
+                            unoptimized={isUnoptimized(fleetImageUrl)}
+                            className="object-cover opacity-75"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#040704] via-[#040704]/65 to-transparent" />
                         <div className="relative z-10 min-h-[480px] content-end">

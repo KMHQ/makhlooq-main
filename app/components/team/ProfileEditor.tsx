@@ -1,6 +1,8 @@
 "use client";
 
 import { createElement, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import Image from "next/image";
+import { isUnoptimized } from "@/app/lib/media";
 import { AnimatePresence } from "motion/react";
 import { Upload, Palette, Shield } from "lucide-react";
 import type { TeamMember } from "@/payload-types";
@@ -64,7 +66,14 @@ export default function ProfileEditor({ member, form, setForm, onUploadAvatar, u
                         style={{ borderColor: color, boxShadow: `0 0 30px ${color}40` }}
                     >
                         {member.avatar_url ? (
-                            <img src={member.avatar_url} alt={member.name} className="h-full w-full object-cover" />
+                            <Image
+                                src={member.avatar_url}
+                                alt={member.name}
+                                width={96}
+                                height={96}
+                                unoptimized={isUnoptimized(member.avatar_url)}
+                                className="h-full w-full object-cover"
+                            />
                         ) : (
                             <div
                                 className="flex h-full w-full items-center justify-center text-3xl font-bold"

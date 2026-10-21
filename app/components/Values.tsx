@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { motion } from "motion/react";
 import type { HomePage } from "@/payload-types";
+import carrackBackground from "@/public/backgrounds/SC-4.0_20250220_164548_Carrack-Through-Clouds-Pyro-IV_f.png";
+import clouds from "@/public/clouds.png";
+import ship from "@/public/ship.png";
+import rocks from "@/public/rocks.png";
+import stones from "@/public/stones.png";
 
 interface Narrative {
     id: string;
@@ -84,7 +90,7 @@ const DEFAULT_NARRATIVES: Narrative[] = [
     },
 ];
 
-const BACKGROUNDS = ["/backgrounds/SC-4.0_20250220_164548_Carrack-Through-Clouds-Pyro-IV_f.png"];
+const BACKGROUNDS = [carrackBackground];
 
 function getBackgroundIndex(progress: number, total: number) {
     const index = Math.min(Math.floor(progress * total), total - 1);
@@ -190,7 +196,7 @@ export default function Values({ data }: { data?: HomePage["values"] }) {
 
                     return (
                         <div
-                            key={bg}
+                            key={bg.src}
                             style={{
                                 position: "absolute",
                                 inset: "-5%",
@@ -202,16 +208,7 @@ export default function Values({ data }: { data?: HomePage["values"] }) {
                                 willChange: "transform, opacity",
                             }}
                         >
-                            <img
-                                src={bg}
-                                alt=""
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    objectPosition: "center center",
-                                }}
-                            />
+                            <Image src={bg} alt="" fill sizes="110vw" style={{ objectFit: "cover" }} />
                         </div>
                     );
                 })}
@@ -231,12 +228,10 @@ export default function Values({ data }: { data?: HomePage["values"] }) {
                         pointerEvents: "none",
                     }}
                 >
-                    <img
-                        src="/clouds.png"
+                    <Image
+                        src={clouds}
                         alt=""
-                        width={1920}
-                        height={600}
-                        loading="lazy"
+                        sizes="120vw"
                         style={{
                             width: "100%",
                             height: "auto",
@@ -262,12 +257,10 @@ export default function Values({ data }: { data?: HomePage["values"] }) {
                         pointerEvents: "none",
                     }}
                 >
-                    <img
-                        src="/ship.png"
+                    <Image
+                        src={ship}
                         alt=""
-                        width={960}
-                        height={600}
-                        loading="lazy"
+                        sizes="50vw"
                         style={{
                             width: "100%",
                             height: "auto",
@@ -294,12 +287,10 @@ export default function Values({ data }: { data?: HomePage["values"] }) {
                     }}
                 >
                     <div style={{ animation: "rock-float 4.8s ease-in-out infinite" }}>
-                        <img
-                            src="/rocks.png"
+                        <Image
+                            src={rocks}
                             alt=""
-                            width={1920}
-                            height={700}
-                            loading="lazy"
+                            sizes="120vw"
                             style={{
                                 width: "100%",
                                 height: "auto",
@@ -327,12 +318,10 @@ export default function Values({ data }: { data?: HomePage["values"] }) {
                     }}
                 >
                     <div style={{ animation: "rock-float-b 6.2s ease-in-out infinite", animationDelay: "1s" }}>
-                        <img
-                            src="/stones.png"
+                        <Image
+                            src={stones}
                             alt=""
-                            width={1920}
-                            height={500}
-                            loading="lazy"
+                            sizes="120vw"
                             style={{
                                 width: "100%",
                                 height: "auto",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { ArrowLeft, Save, CheckCircle, LogOut, Shield } from "lucide-react";
@@ -161,10 +162,13 @@ export default function UserProfilePage() {
                             onClick={loginWithDiscord}
                             className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#5865F2] py-4 font-bold text-white shadow-[0_0_20px_rgba(88,101,242,0.2)] transition-all hover:bg-[#4752C4]"
                         >
-                            <img
+                            <Image
                                 src="https://assets-global.website-files.com/6257adef93467e5028da4f2d/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
                                 alt=""
-                                className="w-6"
+                                width={24}
+                                height={24}
+                                unoptimized
+                                className="h-auto w-6"
                             />
                             Discord Sync
                         </button>

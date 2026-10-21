@@ -2,6 +2,7 @@
 
 import { useState, type Dispatch, type SetStateAction } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "motion/react";
 import type { SiteSetting } from "@/payload-types";
 
@@ -57,10 +58,12 @@ export default function Header({
                     <Link href="/" aria-label="Khalai Makhlooq - Home">
                         <motion.div whileHover={{ scale: 1.05 }} className="header-logo" onClick={() => setMobileOpen(false)}>
                             <div className="header-logo-mark" style={{ background: "none" }}>
-                                <img
+                                <Image
                                     src="/logo.png"
                                     alt={`${siteSettings?.footer?.orgName || "Khalai Makhlooq"} Logo`}
-                                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                                    width={32}
+                                    height={32}
+                                    style={{ objectFit: "contain" }}
                                     loading="eager"
                                 />
                             </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { createElement, useState } from "react";
+import Image from "next/image";
+import { isUnoptimized } from "@/app/lib/media";
 import { motion } from "motion/react";
 import { X, Shield } from "lucide-react";
 import type { TeamMember } from "@/payload-types";
@@ -134,7 +136,14 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                 }}
                             >
                                 {member.avatar_url ? (
-                                    <img src={member.avatar_url} alt={member.name} className="h-full w-full object-cover" />
+                                    <Image
+                                        src={member.avatar_url}
+                                        alt={member.name ?? ""}
+                                        width={128}
+                                        height={128}
+                                        unoptimized={isUnoptimized(member.avatar_url)}
+                                        className="h-full w-full object-cover"
+                                    />
                                 ) : (
                                     <span className="animate-[text-glitch_1.5s_steps(1)_infinite]">{initial}</span>
                                 )}
@@ -280,7 +289,15 @@ export default function ProfileModal({ member, isAdmin = false, onMemberUpdated,
                                             key={i}
                                             className="group/award relative flex flex-shrink-0 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 transition-all hover:border-emerald-500/40 hover:bg-white/[0.06]"
                                         >
-                                            {imgUrl && <img src={imgUrl} alt={title} className="h-10 w-10 flex-shrink-0 object-contain" />}
+                                            {imgUrl && (
+                                                <Image
+                                                    src={imgUrl}
+                                                    alt={title}
+                                                    width={40}
+                                                    height={40}
+                                                    className="h-10 w-10 flex-shrink-0 object-contain"
+                                                />
+                                            )}
                                             <div className="flex min-w-0 flex-col pr-1.5">
                                                 <span className="whitespace-nowrap font-mono text-sm font-bold leading-tight text-white">
                                                     {award.category}

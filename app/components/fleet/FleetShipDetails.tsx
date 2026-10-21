@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import { isUnoptimized } from "@/app/lib/media";
 import { motion, AnimatePresence } from "motion/react";
 import type { FleetShip } from "./ships";
 
@@ -85,9 +87,12 @@ export default function FleetShipDetails({ ship, onOpenMemberModal }: FleetShipD
                             {/* Avatar Box */}
                             <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-lime-400/30 bg-lime-400/10 transition-colors group-hover/co:border-lime-400/80">
                                 {avatarUrl ? (
-                                    <img
+                                    <Image
                                         src={avatarUrl}
                                         alt={owner}
+                                        width={32}
+                                        height={32}
+                                        unoptimized={isUnoptimized(avatarUrl)}
                                         className="h-full w-full object-cover"
                                         onError={() => setFailedAvatarKey(avatarKey)}
                                     />

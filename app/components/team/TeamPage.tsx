@@ -1,6 +1,8 @@
 "use client";
 
 import { createElement, useState, useEffect, useCallback, useMemo, type Dispatch, type SetStateAction } from "react";
+import Image from "next/image";
+import { isUnoptimized } from "@/app/lib/media";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, User, X, ChevronRight, Activity, Plus, LogIn, Terminal, WifiOff, Clock, LogOut, RefreshCw } from "lucide-react";
 import type { TeamMember } from "@/payload-types";
@@ -103,7 +105,14 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
                         }}
                     >
                         {member.avatar_url ? (
-                            <img src={member.avatar_url} alt={member.name} className="h-full w-full object-cover" />
+                            <Image
+                                src={member.avatar_url}
+                                alt={member.name}
+                                width={64}
+                                height={64}
+                                unoptimized={isUnoptimized(member.avatar_url)}
+                                className="h-full w-full object-cover"
+                            />
                         ) : (
                             <span className="group-hover:animate-[text-glitch_0.6s_steps(1)_infinite]">{initial}</span>
                         )}
@@ -147,11 +156,13 @@ const MemberCard = ({ member, onClick }: { member: TeamMember; onClick: (member:
                             const imgUrl = getAwardImage(award.category, award.tier);
                             const title = `${award.category} - ${award.tier}`;
                             return imgUrl ? (
-                                <img
+                                <Image
                                     key={i}
                                     src={imgUrl}
                                     alt={title}
                                     title={title}
+                                    width={28}
+                                    height={28}
                                     className="h-7 w-7 object-contain opacity-75 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-opacity group-hover:opacity-100"
                                 />
                             ) : null;

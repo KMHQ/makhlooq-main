@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
 import { getServerUrl } from "@/app/lib/serverUrl";
-import { mediaUrl } from "@/app/lib/media";
+import { isUnoptimized, mediaUrl } from "@/app/lib/media";
 import type { NewsPage, NewsPost, SiteSetting, TeamMember } from "@/payload-types";
 import { motion, AnimatePresence } from "motion/react";
 import Lenis from "lenis";
@@ -62,6 +63,7 @@ function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentT
                     case "imageBlock": {
                         const imgSrc = mediaUrl(block.image);
                         if (!imgSrc) return null;
+                        const media = typeof block.image === "object" ? block.image : null;
                         return (
                             <figure
                                 key={idx}
@@ -72,11 +74,14 @@ function ContentBlocks({ blocks, accentText }: { blocks: ContentBlock[]; accentT
                                     VISUAL SCAN // COMP_{idx + 1}
                                 </div>
                                 <div className="relative flex items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40">
-                                    <img
+                                    <Image
                                         src={imgSrc}
-                                        alt={(typeof block.image === "object" && block.image?.alt) || block.caption || ""}
-                                        className="h-auto max-h-[70vh] max-w-full object-contain transition-transform duration-700 group-hover:scale-[1.01]"
-                                        loading="lazy"
+                                        alt={media?.alt || block.caption || ""}
+                                        width={media?.width || 1600}
+                                        height={media?.height || 900}
+                                        sizes={block.fullWidth ? "100vw" : "(min-width: 768px) 768px, 100vw"}
+                                        unoptimized={isUnoptimized(imgSrc)}
+                                        className="h-auto max-h-[70vh] w-auto max-w-full object-contain transition-transform duration-700 group-hover:scale-[1.01]"
                                     />
                                 </div>
                                 {block.caption && (
@@ -208,7 +213,14 @@ function AuthorBadge({ post, accentText, className = "" }: { post: NewsPost; acc
     return (
         <div className={`flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-gray-300 ${className}`}>
             {author.avatar ? (
-                <img src={author.avatar} alt={author.name} className="h-5 w-5 rounded-full border border-white/20 object-cover" />
+                <Image
+                    src={author.avatar}
+                    alt={author.name}
+                    width={20}
+                    height={20}
+                    unoptimized={isUnoptimized(author.avatar)}
+                    className="h-5 w-5 rounded-full border border-white/20 object-cover"
+                />
             ) : (
                 <User size={14} className={accentText} />
             )}
@@ -473,6 +485,7 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
 
     // Helper: get cover image src
     const getCoverSrc = (item: NewsPost) => mediaUrl(item.coverImage);
+    const featuredCover = featuredPost ? getCoverSrc(featuredPost) : null;
 
     return (
         <div className="relative flex min-h-[100dvh] w-full flex-col bg-[#010301] font-sans tracking-wide text-white transition-colors duration-700 selection:bg-lime-400/30">
@@ -485,9 +498,18 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                         animate={{ opacity: 0.75, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.98 }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="absolute inset-0 z-0 bg-cover bg-fixed bg-center"
-                        style={{ backgroundImage: `url('${activeTheme.backgroundImage}')` }}
-                    />
+                        className="absolute inset-0 z-0"
+                    >
+                        <Image
+                            src={activeTheme.backgroundImage}
+                            alt=""
+                            fill
+                            sizes="100vw"
+                            preload
+                            unoptimized={isUnoptimized(activeTheme.backgroundImage)}
+                            className="object-cover"
+                        />
+                    </motion.div>
                 </AnimatePresence>
 
                 <div
@@ -641,22 +663,22 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
 
                                         <div className="grid w-full grid-cols-1 items-start gap-8 lg:grid-cols-12">
                                             {/* Cover Image */}
-                                            {getCoverSrc(featuredPost) && (
+                                            {featuredCover && (
                                                 <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 transition-colors group-hover:border-white/30 lg:col-span-5">
-                                                    <img
-                                                        src={getCoverSrc(featuredPost) ?? undefined}
+                                                    <Image
+                                                        src={featuredCover}
                                                         alt={featuredPost.title}
-                                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                        fill
+                                                        sizes="(min-width: 1024px) 40vw, 100vw"
+                                                        loading="eager"
+                                                        unoptimized={isUnoptimized(featuredCover)}
+                                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                                                     />
                                                 </div>
                                             )}
 
                                             {/* Content */}
-                                            <div
-                                                className={
-                                                    getCoverSrc(featuredPost) ? "space-y-5 lg:col-span-7" : "space-y-5 lg:col-span-12"
-                                                }
-                                            >
+                                            <div className={featuredCover ? "space-y-5 lg:col-span-7" : "space-y-5 lg:col-span-12"}>
                                                 <div className="flex flex-wrap items-center gap-3">
                                                     <span
                                                         className={`font-mono text-xs font-black uppercase tracking-[0.4em] ${activeTheme.accentText} flex items-center gap-1.5`}
@@ -736,11 +758,13 @@ export default function NewsPageClient({ newsPosts: initialPosts, siteSettings, 
                                                         {/* Cover image */}
                                                         {imageSrc && (
                                                             <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 transition-colors group-hover:border-white/30">
-                                                                <img
+                                                                <Image
                                                                     src={imageSrc}
                                                                     alt={item.title}
-                                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                                    loading="lazy"
+                                                                    fill
+                                                                    sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                                                                    unoptimized={isUnoptimized(imageSrc)}
+                                                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                                                                 />
                                                             </div>
                                                         )}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
+import { isUnoptimized } from "@/app/lib/media";
 import type { FormattedPost } from "@/app/lib/newsPosts";
 import {
     Plus,
@@ -254,7 +256,14 @@ export default function AboutNewsEditor() {
                                                 {item.media_type === "video" ? (
                                                     <video src={item.media_url} className="h-full w-full object-cover" />
                                                 ) : (
-                                                    <img src={item.media_url} alt="" className="h-full w-full object-cover" />
+                                                    <Image
+                                                        src={item.media_url}
+                                                        alt=""
+                                                        fill
+                                                        sizes="80px"
+                                                        unoptimized={isUnoptimized(item.media_url)}
+                                                        className="object-cover"
+                                                    />
                                                 )}
                                             </div>
                                         ) : (

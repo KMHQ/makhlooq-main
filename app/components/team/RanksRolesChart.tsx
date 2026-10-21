@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, type MouseEvent } from "react";
+import Image from "next/image";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Maximize, Scan, ZoomIn, ZoomOut } from "lucide-react";
+import ranksChart from "@/public/KHALAI CHARTING.png";
 
 type FitMode = "natural" | "width" | "custom";
 type Direction = "up" | "down" | "left" | "right";
@@ -197,9 +199,11 @@ const RanksRolesChart = () => {
                         }`}
                         style={fitMode === "custom" ? { transform: `scale(${scale})` } : undefined}
                     >
-                        <img
-                            src="/KHALAI%20CHARTING.png"
+                        {/* Unoptimized: zooming needs the full-resolution original, beyond what the optimizer serves. */}
+                        <Image
+                            src={ranksChart}
                             alt="Ranks and Roles Chart"
+                            unoptimized
                             className={`pointer-events-none select-none rounded-xl border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.1)] ${
                                 fitMode === "width" ? "h-auto w-full object-contain" : "max-w-none"
                             }`}

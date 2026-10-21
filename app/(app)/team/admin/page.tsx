@@ -1,6 +1,8 @@
 "use client";
 
 import { Fragment, useState, useEffect, type KeyboardEvent } from "react";
+import Image from "next/image";
+import { isUnoptimized } from "@/app/lib/media";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, Edit3, Save, X, Shield, Search, LogOut, RefreshCw, Award } from "lucide-react";
@@ -213,10 +215,13 @@ export default function AdminPage() {
                             onClick={loginWithDiscord}
                             className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#5865F2] py-4 font-bold text-white shadow-[0_0_20px_rgba(88,101,242,0.2)] transition-all hover:bg-[#4752C4]"
                         >
-                            <img
+                            <Image
                                 src="https://assets-global.website-files.com/6257adef93467e5028da4f2d/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
                                 alt=""
-                                className="w-6"
+                                width={24}
+                                height={24}
+                                unoptimized
+                                className="h-auto w-6"
                             />
                             Sign in with Discord
                         </button>
@@ -379,7 +384,14 @@ export default function AdminPage() {
                                 >
                                     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border-2 border-amber-400/30">
                                         {m.avatar_url ? (
-                                            <img src={m.avatar_url} alt={m.name} className="h-full w-full object-cover" />
+                                            <Image
+                                                src={m.avatar_url}
+                                                alt={m.name}
+                                                width={48}
+                                                height={48}
+                                                unoptimized={isUnoptimized(m.avatar_url)}
+                                                className="h-full w-full object-cover"
+                                            />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center bg-amber-500/20 text-lg font-bold text-amber-400">
                                                 {m.name?.[0]}
@@ -462,9 +474,12 @@ export default function AdminPage() {
                                                                 style={{ borderColor: d.node_color || "#10b981" }}
                                                             >
                                                                 {m.avatar_url ? (
-                                                                    <img
+                                                                    <Image
                                                                         src={m.avatar_url}
                                                                         alt={m.name}
+                                                                        width={40}
+                                                                        height={40}
+                                                                        unoptimized={isUnoptimized(m.avatar_url)}
                                                                         className="h-full w-full object-cover"
                                                                     />
                                                                 ) : (
@@ -1014,7 +1029,7 @@ function ManageAwardsModal({ member, onClose, onUpdated }: ManageAwardsModalProp
                                         className="bg-white/2 flex items-center justify-between rounded-xl border border-white/5 p-3"
                                     >
                                         <div className="flex items-center gap-3">
-                                            {img && <img src={img} alt="" className="h-10 w-10 object-contain" />}
+                                            {img && <Image src={img} alt="" width={40} height={40} className="h-10 w-10 object-contain" />}
                                             <div>
                                                 <div className="text-sm font-bold text-white">{a.category}</div>
                                                 <div className="text-xs text-emerald-400">{a.tier}</div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, type FormEvent, type MouseEvent } from "react";
+import Image from "next/image";
+import { isUnoptimized } from "@/app/lib/media";
 import { Search, User, Check, X, ChevronDown, Shield } from "lucide-react";
 import type { TeamMember } from "@/payload-types";
 
@@ -113,9 +115,12 @@ export default function COSelector({
                     {selectedMember ? (
                         <>
                             {selectedMember.avatar_url ? (
-                                <img
+                                <Image
                                     src={selectedMember.avatar_url}
                                     alt={selectedMember.name}
+                                    width={24}
+                                    height={24}
+                                    unoptimized={isUnoptimized(selectedMember.avatar_url)}
                                     className="h-6 w-6 shrink-0 rounded-full border border-emerald-400/40 object-cover"
                                 />
                             ) : (
@@ -211,9 +216,12 @@ export default function COSelector({
                                 >
                                     <div className="flex min-w-0 items-center gap-3">
                                         {m.avatar_url ? (
-                                            <img
+                                            <Image
                                                 src={m.avatar_url}
                                                 alt={m.name}
+                                                width={32}
+                                                height={32}
+                                                unoptimized={isUnoptimized(m.avatar_url)}
                                                 className="h-8 w-8 shrink-0 rounded-full border border-white/10 object-cover"
                                             />
                                         ) : (

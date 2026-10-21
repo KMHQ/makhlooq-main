@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion } from "motion/react";
 import GridOverlay from "./GridOverlay";
-import { mediaUrl } from "@/app/lib/media";
+import { isUnoptimized, mediaUrl } from "@/app/lib/media";
 import type { HomePage } from "@/payload-types";
 
 // Text decode effect
@@ -205,9 +206,13 @@ export default function Hero({ isMuted, volume, data }: HeroProps) {
                                     className="hero-heading accent text-glow flex items-center transition-all duration-300 group-hover:scale-[1.01] group-hover:text-lime-200"
                                     whileHover={{ scale: 1.05, skewX: -5 }}
                                 >
-                                    <img
+                                    <Image
                                         src={logoImageUrl}
                                         alt="Khalai Makhlooq"
+                                        width={168}
+                                        height={168}
+                                        loading="eager"
+                                        unoptimized={isUnoptimized(logoImageUrl)}
                                         style={{
                                             display: "inline-block",
                                             width: "1.5em",

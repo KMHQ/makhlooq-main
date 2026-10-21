@@ -47,6 +47,7 @@ const nextConfig = {
         return config;
     },
     images: {
+        // Keep in sync with OPTIMIZED_HOSTS in app/lib/media.ts.
         remotePatterns: [
             { protocol: "https", hostname: "cdn.discordapp.com" },
             { protocol: "https", hostname: "api.fleetyards.net" },

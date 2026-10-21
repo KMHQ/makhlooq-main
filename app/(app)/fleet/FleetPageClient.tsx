@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, type UIEvent, type WheelEvent } from "react";
+import Image from "next/image";
 import { AnimatePresence } from "motion/react";
 import { useLivePreview } from "@payloadcms/live-preview-react";
 import { getServerUrl } from "@/app/lib/serverUrl";
+import { isUnoptimized } from "@/app/lib/media";
 import type { PageData } from "@/app/lib/payload/queries";
 import type { FleetYardsModel, FleetYardsVehicle } from "@/types/fleetyards";
 import type { TeamMember } from "@/payload-types";
@@ -369,10 +371,13 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                                             {/* Main Card */}
                                                                             <div className="absolute inset-0 overflow-hidden rounded-xl bg-black transition-all">
                                                                                 {ship.thumbnail ? (
-                                                                                    <img
+                                                                                    <Image
                                                                                         src={ship.thumbnail}
                                                                                         alt={ship.name}
-                                                                                        className="saturate-125 contrast-105 absolute inset-0 h-full w-full scale-100 object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+                                                                                        fill
+                                                                                        sizes="(min-width: 1024px) 20vw, 50vw"
+                                                                                        unoptimized={isUnoptimized(ship.thumbnail)}
+                                                                                        className="saturate-125 contrast-105 scale-100 object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                                                                                     />
                                                                                 ) : (
                                                                                     <div className="absolute inset-0 flex items-center justify-center border border-dashed border-white/10 text-white/20">
@@ -542,10 +547,13 @@ export default function FleetPageClient({ data: initialData }: { data: PageData<
                                                 >
                                                     <div className="absolute inset-0 transition-all">
                                                         {ship.thumbnail ? (
-                                                            <img
+                                                            <Image
                                                                 src={ship.thumbnail}
                                                                 alt={ship.name}
-                                                                className="saturate-125 contrast-105 absolute inset-0 h-full w-full object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+                                                                fill
+                                                                sizes="(min-width: 1024px) 14vw, 33vw"
+                                                                unoptimized={isUnoptimized(ship.thumbnail)}
+                                                                className="saturate-125 contrast-105 object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                                                             />
                                                         ) : (
                                                             <div className="absolute inset-0 bg-gradient-to-br from-lime-900/10 to-black/50" />
