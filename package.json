@@ -14,8 +14,7 @@
         "generate:types": "payload generate:types",
         "generate:importmap": "payload generate:importmap",
         "payload": "payload",
-        "typecheck": "tsc --noEmit",
-        "generate:db-types": "supabase gen types typescript --db-url \"$DATABASE_URL\" > types/supabase.ts"
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "@payloadcms/db-postgres": "^3.91.0",
@@ -24,7 +23,6 @@
         "@payloadcms/richtext-lexical": "^3.91.0",
         "@react-three/drei": "^10.7.9",
         "@react-three/fiber": "^9.6.1",
-        "@supabase/supabase-js": "^2.105.4",
         "graphql": "^16.14.2",
         "gsap": "^3.12.5",
         "lenis": "^1.3.27",
