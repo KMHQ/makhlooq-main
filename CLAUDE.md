@@ -46,3 +46,4 @@ There is no test suite. Before reporting work as done, run `pnpm build`. It catc
 
 - Run `pnpm format` before committing so committed files are formatted.
 - Before every push, bump the `version` in `package.json` and commit it on its own as `chore: version`. Bump the minor version if the commits being pushed include a `feat`; otherwise bump the patch version.
+- Tag minor version bumps only, on the `chore: version` commit, with the version prefixed by `v` (e.g. `v1.1.0`). Don't tag patch bumps.
