@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { fetchDiscordMembers, fetchDiscordRoles, parseMemberRoles, KMHQ_ROLE_ID } from "@/app/lib/discord";
 import { requireFleetAdmin } from "@/app/lib/adminAuth";
-import { supabase } from "@/app/lib/supabase";
+import { getPayloadInstance } from "@/app/lib/payload";
 import { errorMessage } from "@/app/lib/errors";
-import type { Insert, TeamMember, Update } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
+
+// Hooks would revalidate once per member; the sync revalidates once at the end instead.
+const context = { skipRevalidate: true };
 
 export async function POST() {
     try {
@@ -22,16 +25,15 @@ export async function POST() {
 
         const rolesMap = new Map(rawRoles.map((r) => [r.id, r]));
 
-        // 2. Fetch existing roster from Supabase
-        const { data: existingMembers, error: fetchError } = await supabase.from("team_members").select("*");
+        // 2. Fetch the existing roster
+        const payload = await getPayloadInstance();
+        const { docs: existingMembers } = await payload.find({ collection: "team_members", limit: 0, depth: 0 });
 
-        if (fetchError) throw fetchError;
-
-        const existingMap = new Map<string, TeamMember>((existingMembers ?? []).map((m) => [m.discord_uid, m]));
+        const existingMap = new Map<string, TeamMember>(existingMembers.map((m) => [m.discord_uid, m]));
 
         let createdCount = 0;
         let updatedCount = 0;
-        const operations: PromiseLike<unknown>[] = [];
+        const operations: (() => Promise<unknown>)[] = [];
         const activeKmhqUids = new Set<string>();
 
         // 3. Process each Discord member
@@ -60,37 +62,36 @@ export async function POST() {
 
             if (existing) {
                 // Prepare update
-                const payload: Update<"team_members"> = {
+                const data: Partial<TeamMember> = {
                     discord_tag: tag,
                     avatar_url: avatarUrl,
                     sec_level: parsed.sec_level,
                     category: parsed.category,
                     status: existing.status || "inactive",
                     is_approved: true,
-                    updated_at: new Date().toISOString(),
                 };
 
                 // Always sync display name from Discord
-                payload.name = displayName;
+                data.name = displayName;
 
                 // Update role if current role is default or empty
                 if (!existing.role || existing.role === "KMHQ" || existing.role === "Officer") {
-                    payload.role = parsed.role;
+                    data.role = parsed.role;
                 }
 
                 // Update is_admin status according to R6 / Leadership / Env status
-                payload.is_admin = parsed.is_admin;
+                data.is_admin = parsed.is_admin;
 
                 // Update awards if parsed has awards or existing has none
                 if (parsed.awards && parsed.awards.length > 0) {
-                    payload.awards = parsed.awards;
+                    data.awards = parsed.awards;
                 }
 
-                operations.push(supabase.from("team_members").update(payload).eq("discord_uid", uid));
+                operations.push(() => payload.update({ collection: "team_members", id: existing.id, data, context }));
                 updatedCount++;
             } else {
                 // Prepare insert for new member from Discord server
-                const newPayload: Insert<"team_members"> = {
+                const data = {
                     discord_uid: uid,
                     discord_tag: tag,
                     name: displayName,
@@ -99,15 +100,14 @@ export async function POST() {
                     sec_level: parsed.sec_level,
                     avatar_url: avatarUrl,
                     node_color: "#10b981",
-                    status: "inactive",
+                    status: "inactive" as const,
                     is_approved: true,
                     is_admin: parsed.is_admin,
                     awards: parsed.awards || [],
                     joined_at: dm.joined_at || new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
                 };
 
-                operations.push(supabase.from("team_members").insert(newPayload));
+                operations.push(() => payload.create({ collection: "team_members", data, context }));
                 createdCount++;
             }
         }
@@ -116,18 +116,20 @@ export async function POST() {
         const batchSize = 20;
         for (let i = 0; i < operations.length; i += batchSize) {
             const batch = operations.slice(i, i + batchSize);
-            await Promise.all(batch);
+            await Promise.all(batch.map((run) => run()));
         }
 
         // 4. Remove members from database who lost the KMHQ role or left Discord
         const nonKmhqUids = Array.from(existingMap.keys()).filter((uid) => !activeKmhqUids.has(uid));
         let removedCount = 0;
         if (nonKmhqUids.length > 0) {
-            const { count } = await supabase.from("team_members").delete({ count: "exact" }).in("discord_uid", nonKmhqUids);
-            removedCount = count || nonKmhqUids.length;
+            const { docs } = await payload.delete({ collection: "team_members", where: { discord_uid: { in: nonKmhqUids } }, context });
+            removedCount = docs.length;
         }
 
+        // The tags TeamMembers' hooks would have expired
         revalidateTag("team-members", { expire: 0 });
+        revalidateTag("news-posts", { expire: 0 });
 
         return NextResponse.json({
             success: true,

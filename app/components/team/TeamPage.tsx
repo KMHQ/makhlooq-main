@@ -3,7 +3,7 @@
 import { createElement, useState, useEffect, useCallback, useMemo, type Dispatch, type SetStateAction } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, User, X, ChevronRight, Activity, Plus, LogIn, Terminal, WifiOff, Clock, LogOut, RefreshCw } from "lucide-react";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 import type { SessionResponse, SessionUser } from "@/types/session";
 import type { PageData } from "@/app/lib/payload/queries";
 import ProfileEditor, { type ProfileForm } from "./ProfileEditor";

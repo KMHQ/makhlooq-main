@@ -29,7 +29,7 @@ import { AuthScreen, LoginScreen, DeniedScreen } from "@/app/components/fleet/ad
 import AboutNewsEditor from "@/app/components/admin/AboutNewsEditor";
 import COSelector from "@/app/components/fleet/admin/COSelector";
 import type { FleetConfigEntry } from "@/app/components/fleet/ships";
-import type { FleetMember, TeamMember } from "@/types/db";
+import type { FleetMember, TeamMember } from "@/payload-types";
 import type { SessionResponse, SessionUser } from "@/types/session";
 
 type ConfigId = FleetConfigEntry["id"];
@@ -541,7 +541,7 @@ function ManageMembersModal({ fleet, onClose }: { fleet: FleetConfigEntry; onClo
     const [error, setError] = useState("");
 
     // Inline editing states
-    const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+    const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
     const [editName, setEditName] = useState("");
     const [editRole, setEditRole] = useState("");
     const [updating, setUpdating] = useState(false);
@@ -581,7 +581,7 @@ function ManageMembersModal({ fleet, onClose }: { fleet: FleetConfigEntry; onClo
             const res = await fetch("/api/fleet-members", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fleet_config_id: fleet.id, name: name.trim(), role: role.trim() || "Member" }),
+                body: JSON.stringify({ fleet_config: fleet.id, name: name.trim(), role: role.trim() || "Member" }),
             });
             if (!res.ok) {
                 const d = await res.json();
@@ -598,7 +598,7 @@ function ManageMembersModal({ fleet, onClose }: { fleet: FleetConfigEntry; onClo
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: number) => {
         await fetch(`/api/fleet-members/${id}`, { method: "DELETE" });
         await fetchMembers();
     };
@@ -616,7 +616,7 @@ function ManageMembersModal({ fleet, onClose }: { fleet: FleetConfigEntry; onClo
         setEditRole("");
     };
 
-    const handleUpdate = async (id: string) => {
+    const handleUpdate = async (id: number) => {
         if (!editName.trim()) {
             setError("Name is required.");
             return;
@@ -874,7 +874,9 @@ export default function FleetAdminPage() {
             if (Array.isArray(mData)) {
                 const counts: Record<string, number> = {};
                 (mData as FleetMember[]).forEach((m) => {
-                    counts[m.fleet_config_id] = (counts[m.fleet_config_id] || 0) + 1;
+                    // The API returns depth 0, so fleet_config is the config's id
+                    const fleetId = typeof m.fleet_config === "number" ? m.fleet_config : m.fleet_config.id;
+                    counts[fleetId] = (counts[fleetId] || 0) + 1;
                 });
                 setMemberCounts(counts);
             }

@@ -1,4 +1,4 @@
-import type { TeamMember } from "./db";
+import type { TeamMember } from "@/payload-types";
 
 // Response of GET /api/auth/discord/session
 export interface SessionUser {

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { revalidateTag } from "next/cache";
 import { requireFleetAdmin } from "@/app/lib/adminAuth";
-import { supabase } from "@/app/lib/supabase";
+import { getPayloadInstance } from "@/app/lib/payload";
+import { errorMessage } from "@/app/lib/errors";
 
 async function getAuthorizedId(request: NextRequest) {
     const auth = await requireFleetAdmin();
@@ -18,12 +18,12 @@ export async function PUT(request: NextRequest) {
     const { id, response } = await getAuthorizedId(request);
     if (response) return response;
 
-    const { data, error } = await supabase.from("team_members").update({ is_approved: true }).eq("id", id).select().single();
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    revalidateTag("team-members", { expire: 0 });
-
-    return NextResponse.json(data);
+    try {
+        const payload = await getPayloadInstance();
+        return NextResponse.json(await payload.update({ collection: "team_members", id, data: { is_approved: true } }));
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
+    }
 }
 
 // DELETE /api/team-members/approve?id=<member_id>  — Admin rejects (deletes) a pending applicant
@@ -31,10 +31,11 @@ export async function DELETE(request: NextRequest) {
     const { id, response } = await getAuthorizedId(request);
     if (response) return response;
 
-    const { error } = await supabase.from("team_members").delete().eq("id", id);
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    revalidateTag("team-members", { expire: 0 });
-
-    return NextResponse.json({ success: true });
+    try {
+        const payload = await getPayloadInstance();
+        await payload.delete({ collection: "team_members", id });
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
+    }
 }

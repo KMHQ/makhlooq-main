@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { cacheLife, cacheTag, revalidateTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { requireFleetAdmin } from "@/app/lib/adminAuth";
-import { supabase } from "@/app/lib/supabase";
+import { getPayloadInstance } from "@/app/lib/payload";
 import { errorMessage } from "@/app/lib/errors";
 import { toFleetType } from "@/app/lib/fleetTypes";
-import type { FleetConfig } from "@/types/db";
+import type { FleetConfig } from "@/payload-types";
 
 // Fleets listed in FLEETYARDS_FLEET_SLUGS show up even before they have a DB row.
 function getEnvFleetConfigs() {
@@ -28,26 +28,26 @@ async function getFleetConfigs(): Promise<(FleetConfig & { ceo_avatar_url: strin
     cacheLife("hours");
     cacheTag("fleet-configs", "team-members");
 
-    const { data, error } = await supabase
-        .from("fleet_configs")
-        .select("*")
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: true });
-
-    if (error) throw error;
-    if (!data?.length) return [];
+    const payload = await getPayloadInstance();
+    const { docs } = await payload.find({ collection: "fleet_configs", sort: ["sort_order", "createdAt"], limit: 0, depth: 0 });
+    if (!docs.length) return [];
 
     // Map CEO avatars by discord_uid or lowercased name
-    const { data: members } = await supabase.from("team_members").select("discord_uid, name, avatar_url");
+    const { docs: members } = await payload.find({
+        collection: "team_members",
+        select: { discord_uid: true, name: true, avatar_url: true },
+        limit: 0,
+        depth: 0,
+    });
 
     const avatars = new Map<string, string>();
-    for (const m of members ?? []) {
+    for (const m of members) {
         if (!m.avatar_url) continue;
         if (m.discord_uid) avatars.set(m.discord_uid, m.avatar_url);
         if (m.name) avatars.set(m.name.trim().toLowerCase(), m.avatar_url);
     }
 
-    return data.map((d) => ({
+    return docs.map((d) => ({
         ...d,
         ceo_avatar_url:
             (d.ceo_discord_uid && avatars.get(d.ceo_discord_uid)) || (d.ceo_name && avatars.get(d.ceo_name.trim().toLowerCase())) || null,
@@ -65,10 +65,7 @@ export async function GET() {
         const dbSlugs = new Set(dbConfigs.map((d) => d.slug));
         return NextResponse.json([...envConfigs.filter((env) => !dbSlugs.has(env.slug)), ...dbConfigs]);
     } catch (error) {
-        // PGRST205: table missing (fresh database); fall back to env configs quietly
-        if ((error as { code?: string })?.code !== "PGRST205") {
-            console.error("fleet_configs lookup failed:", error);
-        }
+        console.error("fleet_configs lookup failed:", error);
         return NextResponse.json(envConfigs);
     }
 }
@@ -98,9 +95,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "slug is required" }, { status: 400 });
         }
 
-        const { data, error } = await supabase
-            .from("fleet_configs")
-            .insert({
+        const payload = await getPayloadInstance();
+        const config = await payload.create({
+            collection: "fleet_configs",
+            data: {
                 slug: slug.trim(),
                 display_name: display_name?.trim() || slug.trim(),
                 sort_order: sort_order || 0,
@@ -109,14 +107,10 @@ export async function POST(request: NextRequest) {
                 ceo_name: ceo_name?.trim() || null,
                 ceo_discord_uid: ceo_discord_uid?.trim() || null,
                 quantity: Math.max(1, parseInt(String(quantity)) || 1),
-            })
-            .select()
-            .single();
+            },
+        });
 
-        if (error) throw error;
-        revalidateTag("fleet-configs", { expire: 0 });
-
-        return NextResponse.json(data, { status: 201 });
+        return NextResponse.json(config, { status: 201 });
     } catch (error) {
         console.error("fleet_configs insert failed:", error);
         return NextResponse.json({ error: errorMessage(error) }, { status: 500 });

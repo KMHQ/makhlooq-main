@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Save, CheckCircle, LogOut, Shield } from "lucide-react";
 import Header from "@/app/components/Header";
 import ProfileEditor, { type ProfileForm } from "@/app/components/team/ProfileEditor";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 import type { SessionResponse, SessionUser } from "@/types/session";
 
 export default function UserProfilePage() {

@@ -3,7 +3,7 @@
 import { createElement, useState } from "react";
 import { motion } from "motion/react";
 import { X, Shield } from "lucide-react";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 import {
     AWARD_CATEGORIES,
     AWARD_TIERS,

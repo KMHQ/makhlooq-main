@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, type FormEvent, type MouseEvent } from "react";
 import { Search, User, Check, X, ChevronDown, Shield } from "lucide-react";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 
 interface CoChange {
     ceo_name: string;

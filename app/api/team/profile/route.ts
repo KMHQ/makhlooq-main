@@ -1,20 +1,28 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { revalidateTag } from "next/cache";
 import { getAdminSession } from "@/app/lib/adminAuth";
-import { supabase } from "@/app/lib/supabase";
-import type { Update } from "@/types/db";
+import { getPayloadInstance } from "@/app/lib/payload";
+import { errorMessage } from "@/app/lib/errors";
+import type { TeamMember } from "@/payload-types";
 
 const EDITABLE_FIELDS = ["node_color", "flair_color", "bio", "status", "avatar_url"] as const;
 const MAX_AVATAR_BYTES = 20 * 1024 * 1024;
 const ALLOWED_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_EXTS = ["jpg", "jpeg", "png", "webp", "gif"];
 
-async function updateOwnMember(discordId: string, changes: Update<"team_members">) {
-    const { data, error } = await supabase.from("team_members").update(changes).eq("discord_uid", discordId).select().single();
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    revalidateTag("team-members", { expire: 0 });
-    return NextResponse.json(data);
+async function updateOwnMember(discordId: string, changes: Partial<TeamMember>) {
+    try {
+        const payload = await getPayloadInstance();
+        const { docs, errors } = await payload.update({
+            collection: "team_members",
+            where: { discord_uid: { equals: discordId } },
+            data: changes,
+        });
+        if (errors.length) return NextResponse.json({ error: errors[0].message }, { status: 500 });
+        if (!docs[0]) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+        return NextResponse.json(docs[0]);
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
+    }
 }
 
 export async function PUT(request: NextRequest) {
@@ -23,8 +31,8 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: "Not signed in" }, { status: 401 });
     }
 
-    const body = (await request.json()) as Update<"team_members">;
-    const changes: Update<"team_members"> = {};
+    const body = (await request.json()) as Partial<TeamMember>;
+    const changes: Partial<TeamMember> = {};
     for (const key of EDITABLE_FIELDS) {
         if (body[key] !== undefined) Object.assign(changes, { [key]: body[key] });
     }
@@ -52,13 +60,27 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Only JPG, PNG, WEBP, and GIF images are allowed." }, { status: 400 });
     }
 
-    const path = `avatars/${session.discordId}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, Buffer.from(await file.arrayBuffer()), { contentType: file.type, upsert: true });
+    try {
+        const payload = await getPayloadInstance();
+        const avatar = await payload.create({
+            collection: "avatars",
+            data: { discord_uid: session.discordId },
+            file: {
+                data: Buffer.from(await file.arrayBuffer()),
+                mimetype: file.type,
+                name: `${session.discordId}.${ext}`,
+                size: file.size,
+            },
+        });
 
-    if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
+        // Keep only the latest upload per member.
+        await payload.delete({
+            collection: "avatars",
+            where: { and: [{ discord_uid: { equals: session.discordId } }, { id: { not_equals: avatar.id } }] },
+        });
 
-    const { publicUrl } = supabase.storage.from("avatars").getPublicUrl(path).data;
-    return updateOwnMember(session.discordId, { avatar_url: publicUrl });
+        return updateOwnMember(session.discordId, { avatar_url: avatar.url });
+    } catch (error) {
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
+    }
 }

@@ -18,7 +18,7 @@ import {
     parseAwards,
     type MemberAward,
 } from "@/app/components/team/teamConfig";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 import type { SessionResponse, SessionUser } from "@/types/session";
 
 // Splits a comma-separated flair list
@@ -616,7 +616,10 @@ export default function AdminPage() {
                                                                     <select
                                                                         value={d.flair_icon || "zap"}
                                                                         onChange={(e) =>
-                                                                            setEditData((p) => ({ ...p, flair_icon: e.target.value }))
+                                                                            setEditData((p) => ({
+                                                                                ...p,
+                                                                                flair_icon: e.target.value as TeamMember["flair_icon"],
+                                                                            }))
                                                                         }
                                                                         className="rounded-lg border border-emerald-500/20 bg-white/5 px-2 py-1 text-[10px] text-white outline-none"
                                                                     >
@@ -638,7 +641,10 @@ export default function AdminPage() {
                                                                 <select
                                                                     value={d.category ?? ""}
                                                                     onChange={(e) =>
-                                                                        setEditData((p) => ({ ...p, category: e.target.value }))
+                                                                        setEditData((p) => ({
+                                                                            ...p,
+                                                                            category: e.target.value as TeamMember["category"],
+                                                                        }))
                                                                     }
                                                                     className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                                 >
@@ -653,7 +659,10 @@ export default function AdminPage() {
                                                                         d.sec_level && SEC_LEVELS.includes(d.sec_level) ? d.sec_level : "R0"
                                                                     }
                                                                     onChange={(e) =>
-                                                                        setEditData((p) => ({ ...p, sec_level: e.target.value }))
+                                                                        setEditData((p) => ({
+                                                                            ...p,
+                                                                            sec_level: e.target.value as TeamMember["sec_level"],
+                                                                        }))
                                                                     }
                                                                     className="w-full rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                                 >
@@ -701,7 +710,12 @@ export default function AdminPage() {
                                                         {isEditing ? (
                                                             <select
                                                                 value={d.status ?? ""}
-                                                                onChange={(e) => setEditData((p) => ({ ...p, status: e.target.value }))}
+                                                                onChange={(e) =>
+                                                                    setEditData((p) => ({
+                                                                        ...p,
+                                                                        status: e.target.value as TeamMember["status"],
+                                                                    }))
+                                                                }
                                                                 className="rounded-lg border border-emerald-500/20 bg-white/5 px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500/40"
                                                             >
                                                                 {["active", "inactive"].map((s) => (

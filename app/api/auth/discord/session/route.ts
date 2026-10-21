@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAdminSession, getAdminFromDiscordId } from "@/app/lib/adminAuth";
-import { supabase } from "@/app/lib/supabase";
+import { findMemberByDiscordId } from "@/app/lib/teamMembers";
 
 export async function GET(request: NextRequest) {
     const adminParam = request.nextUrl.searchParams.get("admin");
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const admin = await getAdminFromDiscordId(session.discordId);
     if (requireAdmin && !admin) return NextResponse.json({ authenticated: true, admin: false }, { status: 403 });
 
-    const { data: member } = await supabase.from("team_members").select("*").eq("discord_uid", session.discordId).maybeSingle();
+    const member = await findMemberByDiscordId(session.discordId).catch(() => null);
 
     return NextResponse.json({
         authenticated: true,

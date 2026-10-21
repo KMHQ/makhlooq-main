@@ -1,17 +1,6 @@
 import type { MetadataRoute } from "next";
-import { cacheLife, cacheTag } from "next/cache";
 import { connection } from "next/server";
-import { supabase } from "@/app/lib/supabase";
-
-async function getApprovedMembers() {
-    "use cache";
-    cacheLife("hours");
-    cacheTag("team-members");
-
-    const { data, error } = await supabase.from("team_members").select("discord_uid, updated_at").eq("is_approved", true);
-    if (error) throw error;
-    return data;
-}
+import { getMembers } from "@/app/lib/teamMembers";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     await connection();
@@ -25,13 +14,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         { url: `${baseUrl}/team`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     ];
 
-    const members = await getApprovedMembers().catch((error) => {
+    const members = await getMembers(true).catch((error) => {
         console.error("Failed to fetch team members for sitemap:", error);
         return [];
     });
     const memberRoutes: MetadataRoute.Sitemap = members.map((member) => ({
         url: `${baseUrl}/team/${member.discord_uid}`,
-        lastModified: new Date(member.updated_at),
+        lastModified: new Date(member.updatedAt),
         changeFrequency: "monthly",
         priority: 0.8,
     }));

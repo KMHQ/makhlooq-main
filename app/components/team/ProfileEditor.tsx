@@ -3,7 +3,7 @@
 import { createElement, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 import { AnimatePresence } from "motion/react";
 import { Upload, Palette, Shield } from "lucide-react";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 import { ColorPicker } from "./AdminComponents";
 import AvatarCropperModal from "./AvatarCropperModal";
 import { PRESET_COLORS, getFlairIcon, getRoleConfig } from "./teamConfig";

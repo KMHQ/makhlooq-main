@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import Header from "@/app/components/Header";
 import ProfileModal from "@/app/components/team/ProfileModal";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 
 export default function TeamMemberProfile() {
     const params = useParams<{ username: string }>();

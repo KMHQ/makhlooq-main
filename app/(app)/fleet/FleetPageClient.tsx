@@ -6,7 +6,7 @@ import { useLivePreview } from "@payloadcms/live-preview-react";
 import { getServerUrl } from "@/app/lib/serverUrl";
 import type { PageData } from "@/app/lib/payload/queries";
 import type { FleetYardsModel, FleetYardsVehicle } from "@/types/fleetyards";
-import type { TeamMember } from "@/types/db";
+import type { TeamMember } from "@/payload-types";
 import Header from "@/app/components/Header";
 import FleetScene from "@/app/components/fleet/FleetScene";
 import FleetShipDetails from "@/app/components/fleet/FleetShipDetails";

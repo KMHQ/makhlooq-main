@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { revalidateTag } from "next/cache";
 import { clearAdminSessionCookie, isEnvAdminDiscordId, setAdminSessionCookie } from "@/app/lib/adminAuth";
 import { KMHQ_ROLE_ID, type DiscordUser } from "@/app/lib/discord";
-import { supabase } from "@/app/lib/supabase";
+import { getPayloadInstance } from "@/app/lib/payload";
+import { findMemberByDiscordId } from "@/app/lib/teamMembers";
 
 function sanitizeReturnTo(value: string | undefined) {
     return value && value.startsWith("/") && !value.startsWith("//") ? value : "/team";
@@ -103,9 +103,8 @@ async function isGuildMember(discordId: string) {
 async function isAdmin(discordId: string) {
     if (isEnvAdminDiscordId(discordId)) return true;
 
-    const { data } = await supabase.from("team_members").select("is_admin").eq("discord_uid", discordId).maybeSingle();
-
-    return !!data?.is_admin;
+    const member = await findMemberByDiscordId(discordId);
+    return !!member?.is_admin;
 }
 
 /**
@@ -118,32 +117,31 @@ async function autoRegisterMember(user: DiscordUser, isEnvAdmin = false) {
         const avatarUrl = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null;
         const name = user.global_name || user.username;
 
-        const { data: existing } = await supabase.from("team_members").select("id, avatar_url").eq("discord_uid", user.id).maybeSingle();
+        const payload = await getPayloadInstance();
+        const existing = await findMemberByDiscordId(user.id);
 
         if (!existing) {
-            await supabase.from("team_members").insert({
-                discord_uid: user.id,
-                discord_tag: user.username,
-                name: name,
-                avatar_url: avatarUrl,
-                role: isEnvAdmin ? "Commander" : "Member",
-                is_admin: isEnvAdmin,
-                is_approved: isEnvAdmin, // Env admins are auto-approved; others wait for review
-                joined_at: new Date().toISOString(),
+            await payload.create({
+                collection: "team_members",
+                data: {
+                    discord_uid: user.id,
+                    discord_tag: user.username,
+                    name: name,
+                    avatar_url: avatarUrl,
+                    role: isEnvAdmin ? "Commander" : "Member",
+                    is_admin: isEnvAdmin,
+                    is_approved: isEnvAdmin, // Env admins are auto-approved; others wait for review
+                    joined_at: new Date().toISOString(),
+                },
             });
         } else {
             // Sync name, avatar_url, and tag upon user login if they already exist
-            await supabase
-                .from("team_members")
-                .update({
-                    name: name,
-                    avatar_url: avatarUrl || existing.avatar_url,
-                    discord_tag: user.username,
-                    updated_at: new Date().toISOString(),
-                })
-                .eq("discord_uid", user.id);
+            await payload.update({
+                collection: "team_members",
+                id: existing.id,
+                data: { name: name, avatar_url: avatarUrl || existing.avatar_url, discord_tag: user.username },
+            });
         }
-        revalidateTag("team-members", { expire: 0 });
     } catch (err) {
         // Non-fatal — log but don't block login
         console.warn("autoRegisterMember failed:", err);

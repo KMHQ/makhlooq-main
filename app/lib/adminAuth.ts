@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
-import { supabase } from "./supabase";
 import type { DiscordUser } from "./discord";
-import type { TeamMember } from "@/types/db";
+import { findMemberByDiscordId } from "./teamMembers";
+import type { TeamMember } from "@/payload-types";
 
 const COOKIE_NAME = "kmhq_admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
@@ -32,7 +32,7 @@ export function isEnvAdminDiscordId(discordId: string | null | undefined) {
 }
 
 function signPayload(payload: string) {
-    const secret = process.env.ADMIN_SESSION_SECRET || process.env.DISCORD_CLIENT_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const secret = process.env.ADMIN_SESSION_SECRET || process.env.DISCORD_CLIENT_SECRET;
     if (!secret) throw new Error("ADMIN_SESSION_SECRET or DISCORD_CLIENT_SECRET is required");
     return createHmac("sha256", secret).update(payload).digest("base64url");
 }
@@ -102,13 +102,11 @@ export async function getAdminFromDiscordId(discordId: string | null | undefined
         };
     }
 
-    const { data } = await supabase
-        .from("team_members")
-        .select("discord_uid, discord_tag, name, avatar_url, is_admin")
-        .eq("discord_uid", discordId)
-        .maybeSingle();
+    const member = await findMemberByDiscordId(discordId);
+    if (!member?.is_admin) return null;
 
-    return data?.is_admin ? data : null;
+    const { discord_uid, discord_tag, name, avatar_url, is_admin } = member;
+    return { discord_uid, discord_tag, name, avatar_url, is_admin };
 }
 
 export async function requireFleetAdmin(): Promise<AdminCheck> {
