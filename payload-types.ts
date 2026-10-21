@@ -72,7 +72,9 @@ export interface Config {
     'news-posts': NewsPost;
     announcements: Announcement;
     fleet_configs: FleetConfig;
+    fleet_members: FleetMember;
     team_members: TeamMember;
+    avatars: Avatar;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -85,7 +87,9 @@ export interface Config {
     'news-posts': NewsPostsSelect<false> | NewsPostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     fleet_configs: FleetConfigsSelect<false> | FleetConfigsSelect<true>;
+    fleet_members: FleetMembersSelect<false> | FleetMembersSelect<true>;
     team_members: TeamMembersSelect<false> | TeamMembersSelect<true>;
+    avatars: AvatarsSelect<false> | AvatarsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -381,6 +385,37 @@ export interface FleetConfig {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fleet_members".
+ */
+export interface FleetMember {
+  id: number;
+  fleet_config: number | FleetConfig;
+  name: string;
+  role?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "avatars".
+ */
+export interface Avatar {
+  id: number;
+  discord_uid?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -582,6 +617,17 @@ export interface FleetConfigsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fleet_members_select".
+ */
+export interface FleetMembersSelect<T extends boolean = true> {
+  fleet_config?: T;
+  name?: T;
+  role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team_members_select".
  */
 export interface TeamMembersSelect<T extends boolean = true> {
@@ -603,6 +649,24 @@ export interface TeamMembersSelect<T extends boolean = true> {
   joined_at?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "avatars_select".
+ */
+export interface AvatarsSelect<T extends boolean = true> {
+  discord_uid?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

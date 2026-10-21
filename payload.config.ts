@@ -12,11 +12,15 @@ import { NewsPosts } from "./collections/NewsPosts";
 import { Announcements } from "./collections/Announcements";
 import { FleetConfigs } from "./collections/FleetConfigs";
 import { TeamMembers } from "./collections/TeamMembers";
+import { FleetMembers } from "./collections/FleetMembers";
+import { Avatars } from "./collections/Avatars";
 
 // Globals
 import { HomePage } from "./globals/HomePage";
 import { SiteSettings } from "./globals/SiteSettings";
 import { NewsPage, FleetPage, TeamPage } from "./globals/OtherPages";
+
+import { migrations } from "./migrations";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -52,7 +56,7 @@ export default buildConfig({
             globals: ["home-page", "site-settings", "news-page", "fleet-page", "team-page"],
         },
     },
-    collections: [Users, Media, NewsPosts, Announcements, FleetConfigs, TeamMembers],
+    collections: [Users, Media, NewsPosts, Announcements, FleetConfigs, FleetMembers, TeamMembers, Avatars],
     globals: [HomePage, SiteSettings, NewsPage, FleetPage, TeamPage],
     editor: lexicalEditor(),
     secret: process.env.PAYLOAD_SECRET || "",
@@ -65,6 +69,8 @@ export default buildConfig({
             max: 5,
         },
         push: false,
+        // Pending migrations run when the production server starts; in development, run `pnpm payload migrate`.
+        prodMigrations: migrations,
     }),
     sharp,
     upload: {

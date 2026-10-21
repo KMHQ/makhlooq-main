@@ -1,9 +1,10 @@
 import { CollectionConfig } from "payload";
+import { uploadDir } from "./uploadDir";
 
 export const Media: CollectionConfig = {
     slug: "media",
     upload: {
-        staticDir: "media",
+        staticDir: uploadDir("media"),
         mimeTypes: [
             // Images
             "image/jpeg",

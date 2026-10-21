@@ -14,6 +14,12 @@ export const FleetConfigs: CollectionConfig = {
         group: "Fleet",
     },
     hooks: {
+        // Payload doesn't cascade relationship deletes, so remove the fleet's crew with it.
+        beforeDelete: [
+            async ({ id, req }) => {
+                await req.payload.delete({ collection: "fleet_members", where: { fleet_config: { equals: id } }, req });
+            },
+        ],
         afterChange: [revalidateTagsHook("fleet-configs")],
         afterDelete: [revalidateTagsHook("fleet-configs")],
     },
