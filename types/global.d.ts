@@ -18,17 +18,13 @@ declare global {
             PAYLOAD_SECRET: string;
 
             // ------------------------------------------------------------
-            // Supabase
+            // Database and uploads
             // ------------------------------------------------------------
 
-            /** Supabase project URL. */
-            NEXT_PUBLIC_SUPABASE_URL: string;
-            /** Supabase service role key used by the server client. */
-            SUPABASE_SERVICE_ROLE_KEY: string;
-            /** Supabase anon key, used only when SUPABASE_SERVICE_ROLE_KEY is unset. */
-            NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
             /** Postgres connection string for the Payload adapter. */
             DATABASE_URL: string;
+            /** Folder for uploaded media and avatars. Defaults to the project root. */
+            UPLOADS_DIR?: string;
 
             // ------------------------------------------------------------
             // Discord

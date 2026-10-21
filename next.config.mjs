@@ -8,7 +8,7 @@ const siteCsp = [
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     `img-src 'self' data: blob: https: ${FLEETYARDS}`,
     "font-src 'self' data: fonts.googleapis.com fonts.gstatic.com",
-    `connect-src 'self' data: blob: *.supabase.co wss://*.supabase.co *.discordapp.com ${FLEETYARDS}`,
+    `connect-src 'self' data: blob: *.discordapp.com ${FLEETYARDS}`,
     "frame-src 'self' fleetyards.net",
     `media-src 'self' data: blob: https: ${FLEETYARDS}`,
     "worker-src 'self' blob:",
@@ -22,7 +22,7 @@ const adminCsp = [
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: fonts.googleapis.com fonts.gstatic.com",
-    "connect-src 'self' data: blob: *.supabase.co wss://*.supabase.co",
+    "connect-src 'self' data: blob:",
     "frame-src 'self'",
     "media-src 'self' data: blob: https:",
     "worker-src 'self' blob:",
@@ -48,7 +48,6 @@ const nextConfig = {
     },
     images: {
         remotePatterns: [
-            { protocol: "https", hostname: "**.supabase.co" },
             { protocol: "https", hostname: "cdn.discordapp.com" },
             { protocol: "https", hostname: "api.fleetyards.net" },
             { protocol: "https", hostname: "fleetyards.net" },

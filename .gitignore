@@ -45,5 +45,6 @@ tmp_*
 # reference scaffold (create-next-app + create-payload-app), not part of the app
 /payload-reference/
 
-# supabase cli local state
-/supabase/.temp/
+# Payload uploads when UPLOADS_DIR is unset
+/media/
+/avatars/
