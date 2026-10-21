@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
             title: `${name} | Khalai Makhlooq`,
             description,
             type: "profile",
-            images: [{ url: member?.avatar_url || "/opengraph-image.jpg", alt: `${name} profile` }],
+            images: [{ url: member?.avatar_url || "/logo.png", alt: `${name} profile` }],
         },
         robots: { index: Boolean(member?.is_approved), follow: true },
     };

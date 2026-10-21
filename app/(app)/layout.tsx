@@ -47,20 +47,14 @@ export const metadata: Metadata = {
         type: "website",
         siteName: "Khalai Makhlooq",
         locale: "en_US",
-        images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630, alt: "Khalai Makhlooq - Star Citizen Crew", type: "image/jpeg" }],
+        images: [{ url: "/logo.png", alt: "Khalai Makhlooq - Star Citizen Crew" }],
     },
-    twitter: { card: "summary_large_image", title, description, images: ["/opengraph-image.jpg"], creator: "@makhlooq" },
+    twitter: { card: "summary_large_image", title, description, images: ["/logo.png"], creator: "@makhlooq" },
     robots: {
         index: true,
         follow: true,
         googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
     },
-    icons: {
-        icon: [{ url: "/favicon.ico" }, { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" }],
-        shortcut: "/favicon.ico",
-        apple: "/apple-touch-icon.png",
-    },
-    manifest: "/site.webmanifest",
 };
 
 export const viewport: Viewport = {

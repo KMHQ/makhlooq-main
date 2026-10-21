@@ -30,7 +30,7 @@ export const SiteSettings: GlobalConfig = {
                     defaultValue:
                         "Khalai Makhlooq is a Star Citizen crew with big ships, chill energy, and serious coordination when the scene gets spicy.",
                 },
-                { name: "imageUrl", type: "text", label: "Global SEO Image URL", defaultValue: "/opengraph-image.jpg" },
+                { name: "imageUrl", type: "text", label: "Global SEO Image URL", defaultValue: "/logo.png" },
             ],
         },
         // --- Navigation ---
