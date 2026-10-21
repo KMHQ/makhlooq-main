@@ -31,7 +31,7 @@ Please report vulnerabilities through one of the following channels:
 To help us triage and resolve the issue as quickly as possible, please include:
 
 - A clear description of the vulnerability and its potential impact
-- The affected component (e.g., admin panel, Supabase API route, Discord OAuth flow, environment variable handling)
+- The affected component (e.g., admin panel, custom API route, Discord OAuth flow, environment variable handling)
 - Step-by-step reproduction instructions
 - Any proof-of-concept code or screenshots (if applicable)
 - Your suggested severity level (Critical / High / Medium / Low)
@@ -57,13 +57,13 @@ To help us triage and resolve the issue as quickly as possible, please include:
 
 The following are considered **in scope** for security reports:
 
-- Authentication bypass or privilege escalation in the Supabase Auth / Discord OAuth flow
+- Authentication bypass or privilege escalation in the Discord OAuth flow or Payload admin login
 - Unauthorized access to the admin panel or CMS routes (`/admin/*`)
-- Exposed or leaked secrets (API keys, bot tokens, service role keys) in source code or build artifacts
-- SQL injection or data exposure via Supabase/PostgreSQL queries
+- Exposed or leaked secrets (API keys, bot tokens, database credentials) in source code or build artifacts
+- SQL injection or data exposure via database queries
 - Insecure serverless API routes (`/api/*`) that allow unauthenticated data mutation
 - Cross-site scripting (XSS) or cross-site request forgery (CSRF) vulnerabilities
-- Insecure handling of file uploads to Supabase storage
+- Insecure handling of file uploads (media and avatars)
 - Vulnerabilities in the Discord bot's command handling or permission checks
 
 The following are considered **out of scope**:
@@ -79,8 +79,7 @@ The following are considered **out of scope**:
 
 If you are contributing to this project, please follow these guidelines:
 
-- **Never commit secrets.** All sensitive values (`SUPABASE_SERVICE_ROLE_KEY`, `DISCORD_BOT_TOKEN`, `SC_API_KEY`, etc.) must be stored in `.env.local` only — this file is listed in `.gitignore` and must never be committed.
-- **Use the Supabase anon key on the client.** The service role key must only be used server-side in protected API routes.
+- **Never commit secrets.** All sensitive values (`DATABASE_URL`, `PAYLOAD_SECRET`, `DISCORD_BOT_TOKEN`, `SC_API_KEY`, etc.) must be stored in `.env.local` only — this file is listed in `.gitignore` and must never be committed.
 - **Validate all admin routes server-side.** Always verify Discord OAuth session and `ADMIN_DISCORD_IDS` membership before executing any privileged operation.
 - **Sanitize user input.** Any data from external APIs (StarCitizen-API, FleetYards) or user-submitted content (news posts, fleet slugs) should be validated and sanitized before being written to the database.
 - **Keep dependencies up to date.** Run `npm audit` regularly and address any high or critical advisories before opening a pull request.

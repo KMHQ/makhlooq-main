@@ -35,7 +35,7 @@
 | **UI**             | React 19, Tailwind CSS v3, shadcn/ui            |
 | **3D / Animation** | Three.js, React Three Fiber, Drei, GSAP, PixiJS |
 | **CMS**            | Payload CMS 3 (Postgres adapter)                |
-| **Database**       | Supabase (PostgreSQL)                           |
+| **Database**       | PostgreSQL (hosted on Supabase), via Payload    |
 | **Auth**           | Discord OAuth2 + Bot API guild verification     |
 | **Hosting**        | Hostinger Node.js Web Apps                      |
 
@@ -46,7 +46,7 @@
 ### Prerequisites
 
 - Node.js 20+
-- A [Supabase](https://supabase.com) project with Postgres enabled
+- A Postgres database (the site uses a [Supabase](https://supabase.com) project's Postgres)
 - A [Discord Application](https://discord.com/developers/applications) with OAuth2 configured
 
 ### 1. Clone & Install
@@ -54,7 +54,7 @@
 ```bash
 git clone https://github.com/your-org/makhlooq.git
 cd makhlooq
-npm install
+pnpm install
 ```
 
 ### 2. Environment Variables
@@ -65,27 +65,25 @@ Copy `.env.example` to `.env` and fill in the values:
 cp .env.example .env
 ```
 
-| Variable                        | Description                                                                    |
-| ------------------------------- | ------------------------------------------------------------------------------ |
-| `DATABASE_URL`                  | Supabase Postgres connection URI (URL-encode special chars in password)        |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL                                                      |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase `service_role` secret key                                             |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | _(Optional)_ Supabase `anon` key, used only without the service role key       |
-| `DISCORD_CLIENT_ID`             | Discord App OAuth2 Client ID                                                   |
-| `DISCORD_CLIENT_SECRET`         | Discord App OAuth2 Client Secret                                               |
-| `DISCORD_BOT_TOKEN`             | Discord Bot token (for guild membership checks)                                |
-| `DISCORD_GUILD_ID`              | Your Discord server (guild) ID                                                 |
-| `ADMIN_DISCORD_IDS`             | Comma-separated Discord User IDs with super-admin access                       |
-| `NEXT_PUBLIC_SITE_URL`          | Public site URL, e.g. `https://kmhq.org`                                       |
-| `NEXT_PUBLIC_SERVER_URL`        | _(Optional)_ Base URL for Payload live preview, defaults to `https://kmhq.org` |
-| `ADMIN_SESSION_SECRET`          | _(Optional)_ Admin cookie secret, falls back to `DISCORD_CLIENT_SECRET`        |
-| `PAYLOAD_SECRET`                | Secret for Payload CMS JWT signing                                             |
-| `FLEETYARDS_FLEET_SLUGS`        | _(Optional)_ Comma-separated FleetYards fleet slugs to show without a DB row   |
+| Variable                 | Description                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| `DATABASE_URL`           | Postgres connection URI for Payload (URL-encode special chars in password)       |
+| `UPLOADS_DIR`            | _(Optional)_ Folder for uploaded media and avatars, defaults to the project root |
+| `DISCORD_CLIENT_ID`      | Discord App OAuth2 Client ID                                                     |
+| `DISCORD_CLIENT_SECRET`  | Discord App OAuth2 Client Secret                                                 |
+| `DISCORD_BOT_TOKEN`      | Discord Bot token (for guild membership checks)                                  |
+| `DISCORD_GUILD_ID`       | Your Discord server (guild) ID                                                   |
+| `ADMIN_DISCORD_IDS`      | Comma-separated Discord User IDs with super-admin access                         |
+| `NEXT_PUBLIC_SITE_URL`   | Public site URL, e.g. `https://kmhq.org`                                         |
+| `NEXT_PUBLIC_SERVER_URL` | _(Optional)_ Base URL for Payload live preview, defaults to `https://kmhq.org`   |
+| `ADMIN_SESSION_SECRET`   | _(Optional)_ Admin cookie secret, falls back to `DISCORD_CLIENT_SECRET`          |
+| `PAYLOAD_SECRET`         | Secret for Payload CMS JWT signing                                               |
+| `FLEETYARDS_FLEET_SLUGS` | _(Optional)_ Comma-separated FleetYards fleet slugs to show without a DB row     |
 
 > [!IMPORTANT]
 > `DATABASE_URL` must have special characters in the password **percent-encoded**.
 > Example: `!` → `%21`, `)` → `%29`, `@` → `%40`
-> Get the pre-encoded URI from: **Supabase → Settings → Database → Connection string → URI tab**
+> Get the URI from: **Supabase → Connect → Session pooler**
 
 ### 3. Discord OAuth Redirect URIs
 
@@ -99,7 +97,8 @@ https://kmhq.org/api/auth/discord/callback        # production
 ### 4. Run Locally
 
 ```bash
-npm run dev
+pnpm payload migrate   # apply database migrations
+pnpm dev
 ```
 
 The app runs at [http://localhost:3000](http://localhost:3000).
@@ -122,14 +121,14 @@ makhlooq/
 │   │   ├── fleet/              # 3D fleet viewer (Three.js / R3F)
 │   │   ├── team/               # Member roster & admin panel
 │   │   └── admin/              # News editor
-│   └── lib/                    # Server utilities (auth, Discord, Supabase, Payload queries)
+│   └── lib/                    # Server utilities (auth, Discord, Payload queries)
 ├── collections/                # Payload CMS collections
 ├── globals/                    # Payload CMS globals
 ├── hooks/                      # Payload hooks (cache revalidation)
 ├── types/                      # Shared TypeScript types
 ├── public/                     # Static assets (images, fonts)
 ├── scripts/                    # Dev scripts
-├── supabase/                   # Database schema & migrations
+├── migrations/                 # Payload database migrations
 ├── payload.config.ts           # Payload CMS configuration
 └── next.config.mjs             # Next.js configuration
 ```
@@ -154,12 +153,11 @@ The site runs on Hostinger's Node.js Web Apps hosting, which builds and starts t
 
 ## Database
 
-The `supabase/` directory contains the full schema:
+Payload owns the schema. `collections/` and `globals/` define it, and `migrations/` holds the Payload migrations that create and change it.
 
-- **`schema.sql`** — baseline table definitions (`team_members`, etc.)
-- **`migrations/`** — incremental migration files
-
-To apply the schema to a fresh Supabase project, run `schema.sql` in the **Supabase SQL Editor**.
+- **Change the schema:** edit a collection or global, then run `pnpm payload migrate:create <name>` and `pnpm payload migrate`.
+- **Production:** pending migrations run automatically when the server starts.
+- **Fresh database:** `pnpm payload migrate` builds the whole schema.
 
 ---
 

@@ -15,7 +15,6 @@ Keep `CLAUDE.md`, `ARCHITECTURE.md` and `README.md` up to date: when a change af
 ## Commands
 
 - Use pnpm.
-- `pnpm generate:db-types` regenerates `types/supabase.ts` from the live database. It needs the globally installed `supabase` CLI. Until it's run, the file is hand-written from `supabase/migrations/`.
 
 ## Code conventions
 
@@ -29,8 +28,7 @@ Keep `CLAUDE.md`, `ARCHITECTURE.md` and `README.md` up to date: when a change af
 
 - After changing collections, globals or admin components, run `pnpm generate:types` and `pnpm generate:importmap`.
 - Don't edit `app/(payload)/`. Payload generated it once; only `importMap.js` is regenerated (by `pnpm generate:importmap`).
-- The Postgres adapter runs with `push: false`, so schema changes need a migration: `pnpm payload migrate:create`.
-- The package must stay ESM (`"type": "module"`). The Payload CLI crashes without it.
+- The Postgres adapter runs with `push: false`, so schema changes need a migration: `pnpm payload migrate:create`, then `pnpm payload migrate` locally. Production runs pending migrations on startup.- The package must stay ESM (`"type": "module"`). The Payload CLI crashes without it.
 
 ## Deployment (Hostinger)
 
@@ -39,7 +37,6 @@ Keep `CLAUDE.md`, `ARCHITECTURE.md` and `README.md` up to date: when a change af
     - `--webpack` in `pnpm build` (Turbopack needs native SWC).
     - `next.config.mjs` as the config file (a `.ts` config fails to load under the fallback).
     - The server-side `concatenateModules: false` webpack override (Payload's `next/og` import needs it).
-- `NEXT_TEST_WASM=1 pnpm build` reproduces Hostinger's build locally. Run it after changing build or framework config.
 
 ## Verification
 
